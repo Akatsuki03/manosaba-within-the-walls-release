@@ -1,3 +1,4 @@
+import { supportsOpenPlayerAction } from './open-player-action.mjs';
 import { PLAYER_PERFORMANCE_SHAPE } from './player-performance-shape.mjs';
 import { assertCommunicationSelection, isCommunicationRuntime } from './communication-selection30.mjs';
 import { initialPublicBoundaryConflict } from '../content/initial-run-policy.mjs';
@@ -136,6 +137,9 @@ export function buildNarrativeContext(input) {
     || packet.data.conversationPerformanceSystemVersion !== 1 || packet.data.performanceVersion !== 2
     || packet.executionRevision?.revisionId !== 'agent-prison-runtime@33' || packet.data.materialProseVersion !== 2
     || packet.data.dialogueContextVersion !== 1 || packet.data.intent?.type !== 'conversation')) fail();
+  if (Object.hasOwn(packet.data, 'openActionVersion') && (packet.role !== 'player_performance'
+    || packet.data.openActionVersion !== 1 || packet.data.intent?.type !== 'act'
+    || !supportsOpenPlayerAction(packet.executionRevision?.revisionId))) fail();
   validateSceneExtensions(packet.data);
   if (packet.data.postureActionVersion === 1 && !['intent_parser', 'player_performance', 'scene_composer'].includes(packet.role)) fail();
   if (packet.data.dialogueContextVersion === 1 && packet.role === 'player_performance') {
@@ -369,6 +373,7 @@ export function validateNarrativeOutput(packet, output, scope = packet.scope) {
       || assertsAuthoredMagicResult(output.reflection) || output.action.includes(data.authoredMagic.text)
       || (data.intent.magic.kind === 'visible' && output.action.includes(data.intent.magic.appearance)))) fail('player-performance-authored-magic');
     if (data.statementReaction?.version === 1 && output.utterance) fail('player-performance-silent-statement');
+    if (data.openActionVersion === 1 && output.utterance && !chosenPlayerSpeech(data)) fail('player-performance-player-choice');
     assertStatementReactionDelivery(data, output);
     const selection = chosenPlayerSpeech(data);
     const exactPlayerSpeech = selection !== undefined && output.utterance === selection.text;

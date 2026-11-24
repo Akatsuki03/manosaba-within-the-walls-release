@@ -10,6 +10,7 @@ import {SCREEN_BROADCAST_RUNTIME_REVISION} from '../content/relationship-context
 import { SOFT_EXECUTION_BUDGET, SOFT_SLOT, SOFT_PURPOSE, applyCooperativeRephraseResult, captureCooperativeRephrase } from './cooperative-rephrase.mjs';
 import { projectActionOutcome } from '../world/action-outcome.mjs';
 import { resolvePlayerPlanStep } from '../scenes/causal-scene.mjs';
+import { supportsOpenPlayerAction } from './open-player-action.mjs';
 import { projectIntentAdmissionPlan } from './intent-admission-contract.mjs';
 import { authoredMagicContext } from './authored-magic-intent.mjs';
 import { INTENT_RUNTIME_REVISION, CASE_BOUNDARY_RUNTIME_REVISION, SOFT_RUNTIME_REVISION, EXPLICIT_INTENT_RUNTIME_REVISION, ORDINARY_PLAN_RUNTIME_REVISION, SEMANTIC_ORDINARY_RUNTIME_REVISION, SEMANTIC_ADMISSION_RUNTIME_REVISION, INTENT_OBJECT_RUNTIME_REVISION, EXPLICIT_STANDARD_RUNTIME_REVISION, PLAN_CARDINALITY_RUNTIME_REVISION, UNIQUE_RECIPIENT_RUNTIME_REVISION, ATOMIC_SOURCE_RUNTIME_REVISION, LOSSLESS_PLAN_RUNTIME_REVISION, ATOMIC_PLAN_RUNTIME_REVISION, SOFT_REFERENCE_RUNTIME_REVISION, hasSoftRuntime, hasIntentRuntime, hasIntentAdmissionRuntime } from '../content/relationship-context-policy.mjs';
@@ -1222,6 +1223,8 @@ export class AgentTurnStore {
     if (Object.hasOwn(plan, 'performanceVersion') && (plan.performanceVersion !== 2
       || ![4, 6, 7].includes(plan.version) || runtimeCapabilityId(plan.executionRevision?.revisionId) !== 'agent-prison-runtime@8')) fail();
     if (Object.hasOwn(plan, 'antiClicheVersion') && (plan.antiClicheVersion !== 1 || ![4, 5, 6, 7].includes(plan.version))) fail();
+    if (Object.hasOwn(plan, 'openActionVersion') && (plan.openActionVersion !== 1 || plan.version !== 7
+      || !supportsOpenPlayerAction(plan.executionRevision?.revisionId))) fail();
     if (Object.hasOwn(plan, 'actorAddressVersion') && (![1, 2].includes(plan.actorAddressVersion) || ![4, 5, 6, 7].includes(plan.version))) fail();
     if (Object.hasOwn(plan, 'storyArcVersion') && (plan.storyArcVersion !== 1 || ![4, 6, 7].includes(plan.version))) fail();
     if (Object.hasOwn(plan, 'decisionAuditVersion') && (plan.decisionAuditVersion !== 1

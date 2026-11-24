@@ -24,6 +24,12 @@ const DEFAULTS = Object.freeze({
   character_creator: '协助作者润色角色资料与开场草稿，延续作者已填写的设定、口吻和创作方向。补足具体、可演绎的外在细节和人物特点，以习惯、处境与愿望展现性格；用可见习惯和小动作代替标签堆叠，背景不写成全知设定总结。开场宜简短、有现场感，让一件眼前的事留下接手空间，不用统一的励志或命运总结收尾。',
   setup_assistant: '协助作者整理开局前的人际关系草稿，以具体共同经历、关系距离与可演绎的分歧留下互动空间。忠实承接作者已填资料与创作方向，不补造原作秘密，不把建议写成已经发生的世界结果；保留由作者编辑、采用或丢弃的选择。',
 });
+// The ordinary performance-2 defaults are also the settings preview. Keep
+// legacy defaults for legacy runs and never rewrite an explicit override.
+const CURRENT_PERFORMANCE_DEFAULTS = Object.freeze({
+  player_performance: '忠实演绎玩家已经选择的动作与原话。action 仅有可观察动作；授权的心理与思绪仅写入私有 reflection。没有段落数量要求，遵守本任务预算，不增加选择、台词或世界结果。',
+  character_dialogue: '保持本人独有口吻、性格与实际关系距离，按当下实际收到的交流自主回应、拒绝或沉默。act 只在任务字数预算内提供有内容的台词与可观察动作，不设段落配额；review 仅提出有来源的状态更新，不写台词或动作正文。',
+});
 const FUNCTIONS = Object.freeze([
   ['director', '导演'], ['intent_parser', '意图解析'], ['world_adjudicator', '宿主有限意图裁决'], ['player_performance', '玩家演绎'],
   ['narrator', '旁白'], ['character_dialogue', '统一角色对白'],
@@ -82,13 +88,15 @@ function prompt(value) {
 }
 
 function context(options) {
-  const fields = record(options, ['customCharacter']);
-  if (fields.customCharacter === undefined || fields.customCharacter === null) return null;
+  const fields = record(options, ['customCharacter', 'currentPerformance']);
+  if (fields.currentPerformance !== undefined && typeof fields.currentPerformance !== 'boolean') fail();
+  const currentPerformance = fields.currentPerformance === true;
+  if (fields.customCharacter === undefined || fields.customCharacter === null) return { customCharacter: null, currentPerformance };
   const character = record(fields.customCharacter, ['id', 'name']);
   if (typeof character.id !== 'string' || !PROFILE_HASH.test(character.id)
     || typeof character.name !== 'string' || !character.name.trim() || character.name.length > 120
     || UNSAFE_TEXT.test(character.name)) fail();
-  return { id: character.id, name: character.name.trim() };
+  return { customCharacter: { id: character.id, name: character.name.trim() }, currentPerformance };
 }
 
 function target(id, customCharacter) {
@@ -98,10 +106,10 @@ function target(id, customCharacter) {
 }
 
 /** Built-in editable behavior only; character defaults use the shared RP style. */
-export function defaultAgentPrompt(id) {
-  if (FUNCTION_IDS.has(id)) return DEFAULTS[id];
+export function defaultAgentPrompt(id, currentPerformance = false) {
+  if (FUNCTION_IDS.has(id)) return (currentPerformance && Object.hasOwn(CURRENT_PERFORMANCE_DEFAULTS, id)) ? CURRENT_PERFORMANCE_DEFAULTS[id] : DEFAULTS[id];
   if (CHARACTER_IDS.has(id) || (typeof id === 'string' && id.startsWith('custom:')
-    && PROFILE_HASH.test(id.slice('custom:'.length)))) return DEFAULTS.character_dialogue;
+    && PROFILE_HASH.test(id.slice('custom:'.length)))) return defaultAgentPrompt('character_dialogue', currentPerformance);
   fail();
 }
 
@@ -131,27 +139,30 @@ export class AgentPrompts {
     return { version: row.version, prompt: row.prompt };
   }
 
-  #effective(id, customCharacter) {
+  #effective(id, preferences) {
+    const { customCharacter, currentPerformance } = preferences;
     target(id, customCharacter);
     const saved = this.#read(id);
     if (saved.prompt !== null) return saved.prompt;
-    if (!FUNCTION_IDS.has(id)) return this.#effective('character_dialogue', customCharacter);
-    return defaultAgentPrompt(id);
+    if (!FUNCTION_IDS.has(id)) return this.#effective('character_dialogue', preferences);
+    return defaultAgentPrompt(id, currentPerformance);
   }
 
-  #catalog(customCharacter) {
+  #catalog(preferences) {
+    const { customCharacter, currentPerformance } = preferences;
     const definitions = [
       ...FUNCTIONS.map(([id, label]) => ({ id, label, scope: 'function' })),
       ...CHARACTERS.map(([id, label]) => ({ id, label, scope: 'character' })),
       ...(customCharacter ? [{ id: `custom:${customCharacter.id}`, label: customCharacter.name, scope: 'custom_character' }] : []),
     ];
-    const shared = this.#effective('character_dialogue', customCharacter);
+    const shared = this.#effective('character_dialogue', preferences);
     const entries = definitions.map(({ id, label, scope }) => {
       const saved = this.#read(id);
       const inheritsFrom = FUNCTION_IDS.has(id) ? null : 'character_dialogue';
+      const defaultPrompt = defaultAgentPrompt(id, currentPerformance);
       return {
-        id, label, scope, defaultPrompt: defaultAgentPrompt(id), overridePrompt: saved.prompt,
-        effectivePrompt: saved.prompt ?? (inheritsFrom ? shared : defaultAgentPrompt(id)),
+        id, label, scope, defaultPrompt, overridePrompt: saved.prompt,
+        effectivePrompt: saved.prompt ?? (inheritsFrom ? shared : defaultPrompt),
         version: saved.version, source: saved.prompt !== null ? 'override' : inheritsFrom ? 'inherited' : 'default',
         inheritsFrom,
       };
@@ -169,9 +180,9 @@ export class AgentPrompts {
 
   update(input, options = {}) {
     return safely(() => {
-      const customCharacter = context(options);
+      const preferences = context(options);
       const fields = record(input, ['id', 'expectedVersion', 'prompt']);
-      const id = target(fields.id, customCharacter);
+      const id = target(fields.id, preferences.customCharacter);
       if (!integer(fields.expectedVersion)) fail();
       const nextPrompt = prompt(fields.prompt);
       const previous = this.#read(id);
@@ -184,7 +195,7 @@ export class AgentPrompts {
         : this.#db.prepare('UPDATE prologue_agent_prompts SET version = ?, prompt = ? WHERE id = ? AND version = ?')
           .run(version, nextPrompt, id, fields.expectedVersion);
       if (result.changes !== 1) fail('STALE_PROMPT');
-      return this.#catalog(customCharacter);
+      return this.#catalog(preferences);
     });
   }
 }

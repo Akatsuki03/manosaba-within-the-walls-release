@@ -1028,7 +1028,7 @@
     section.open = promptOpen;
     section.append(element('summary', '', '高级设置 · 独立提示词与角色演绎'));
     const body = element('div', 'ms-advanced-body');
-    body.append(element('p', 'ms-hint', '提示词独立保存；切换模型预设、读档与回退时会保留当前设置。这里可以调整行为与写作风格，输出格式、安全边界、知识隔离及能力校验始终采用固定规则。'));
+    body.append(element('p', 'ms-hint', '这里编辑的是写作偏好，不是角色卡或发送给模型的完整提示词。即使几位角色继承同一份风格，游戏也会分别交付各自的口吻、性格、已知见闻与当前关系。自定义覆盖会独立保存；规则和角色知识不会随这里的编辑改变。'));
     const refresh = button('刷新提示词版本', () => loadPrompts(true), 'ms-secondary ms-small');
     body.append(refresh);
     const fields = element('div', 'ms-prompt-fields');
@@ -1041,7 +1041,7 @@
     editor.maxLength = 12000;
     editor.spellcheck = false;
     const counter = element('p', 'ms-hint');
-    const editorField = field('行为与风格提示词', editor, '可从当前继承／默认风格开始编辑；保存会创建此条目的单独覆盖。允许多行，最多 12000 字符。空白不代表重置。');
+    const editorField = field('行为与风格提示词', editor, '保存会替换此条目继承的写作偏好，不会替换角色自带的人设。允许多行，最多 12000 字符；要恢复继承请使用重置。');
     counter.id = `${editor.id}-counter`;
     editor.setAttribute('aria-describedby', `${editor.id}-hint ${counter.id}`);
     const save = button('保存当前提示词', () => savePrompt(false), 'ms-primary');
@@ -1057,8 +1057,8 @@
       previews.append(details);
       return content;
     };
-    const effective = preview('已保存的当前生效内容', true);
-    const defaultPreview = preview('内置默认风格（可作为编辑起点）');
+    const effective = preview('当前生效的写作偏好（非完整提示词）', true);
+    const defaultPreview = preview('当前玩法的内置风格（可作为编辑起点）');
     const draftPreview = preview('当前编辑草稿（保存后生效）');
     const notice = element('p', 'ms-hint', '重置仅清除此条目的覆盖：角色恢复继承统一对白，功能恢复内置默认。重置不会清空其他条目，也不会改动模型分配。刷新版本会保留当前草稿，方便解决其他页面修改造成的版本冲突。');
     fields.append(field('提示词条目', selector), scope, source, editorField, counter, actions, notice, previews);

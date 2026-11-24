@@ -98,6 +98,7 @@ export function playerPerformanceTaskData(state, plan, rawInput, intent, scene, 
   const visual = ['look', 'inspect', 'examine'].includes(intent.type);
   const authoredMagic = authoredMagicContext(state, plan);
   return { rawInput, intent, scene, ...(authoredMagic ? { authoredMagic } : {}),
+    ...(plan.openActionVersion === 1 && intent.type === 'act' ? { openActionVersion: 1 } : {}),
     ...([2, 3].includes(plan.visualPerformanceGuidanceVersion) && visual ? { visualPerformanceSystemVersion: 2 } : {}),
     ...(plan.visualPerformanceGuidanceVersion === 3 && intent.type === 'conversation' ? { conversationPerformanceSystemVersion: 1 } : {}),
     ...(isCommunicationRuntime(plan) ? { communicationSelection: communicationSelection({ rawInput, intent, scene,

@@ -10,6 +10,7 @@ import { hasSoftRuntime, hasSemanticOrdinaryRuntime } from '../content/relations
 import { adjudicationPolicy } from '../content/effective-run-boundary.mjs';
 import { requiresInitialBoundaryReview, validateInitialBoundaryAssessments, initialMechanismDecision } from '../content/initial-run-policy.mjs';
 import { isProxy } from 'node:util/types';
+import { nonPresentOpenAction } from './open-player-action.mjs';
 import { isAuthoredMagicContext, validAuthoredMagicIntent } from './authored-magic-intent.mjs';
 
 // Selected only by the source-authenticated @11 service. A plan is not a result.
@@ -37,7 +38,7 @@ function record(value, fields, required = fields) {
     || required.some(key => !Object.hasOwn(value, key))) fail('intent-plan-schema');
 }
 const text = (value, max = 2000) => typeof value === 'string' && value.trim() && value.length <= max && !/[<>\u0000-\u001f\u007f]/u.test(value);
-export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolicy, intentContractVersion, ordinarySources, runBoundary, authoredMagic }) {
+export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolicy, intentContractVersion, ordinarySources, runBoundary, authoredMagic, openActionVersion }) {
   const canCastAuthoredMagic = intentContractVersion === 2 && isAuthoredMagicContext(authoredMagic);
   const boundary = adjudicationPolicy({ initialRunPolicy, runBoundary });
   const soft = hasSoftRuntime(initialRunPolicy?.source?.executionRevision?.revisionId) && intentContractVersion === 2;
@@ -133,7 +134,13 @@ export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolic
         return { type: 'plan', route: 'unsupported', summary: '本次没有执行魔法。同行须有明确的在场对象、目的地和当下手部接触。', steps: [] };
       continue;
     }
-    if (Object.hasOwn(intent, 'magic') || !text(intent.summary, 400) || !['item', 'runtime', 'move', 'conversation', 'look', 'wait', ...(soft ? ['case'] : []), ...(screen26 ? ['broadcast'] : [])].includes(intent.type)) fail('intent-plan-kind');
+    if (Object.hasOwn(intent, 'magic') || !text(intent.summary, 400) || !['item', 'runtime', 'move', 'conversation', 'look', 'wait', ...(soft ? ['case'] : []), ...(screen26 ? ['broadcast'] : []), ...(openActionVersion === 1 ? ['act'] : [])].includes(intent.type)) fail('intent-plan-kind');
+    if (intent.type === 'act') {
+      record(intent, ['type', 'summary', 'targetId'], ['type', 'summary']);
+      if (Object.hasOwn(intent, 'targetId') && !scene.nearby?.some(row => row.id === intent.targetId)) fail('intent-plan-target');
+      if (nonPresentOpenAction(step.text)) return { type: 'plan', route: 'clarification',
+        summary: '这句话没有选择现在要做的外在行动，未作为动作或发言交给在场角色。', steps: [] };
+    }
     if (screen26 && intent.type === 'broadcast') {
       record(intent, ['type', 'summary']);
       if (scene.screenAvailable !== true) fail('intent-plan-kind');

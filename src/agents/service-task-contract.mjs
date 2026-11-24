@@ -4,6 +4,7 @@ import { adjudicationPolicy, validateRunBoundary } from '../content/effective-ru
 import { PUBLICATION_RUNTIME_REVISION } from '../scenes/ordinary-publication31.mjs';
 import { CAPACITY_RUNTIME_REVISION } from '../content/ordinary-capacity30.mjs';
 import { KNOWN_TARGET_RUNTIME_REVISION } from '../content/relationship-context-policy.mjs';
+import { supportsOpenPlayerAction } from './open-player-action.mjs';
 import { validateCommunicationPlan } from './communication-selection30.mjs';
 import { TRUSTED_COMMUNICATION_RUNTIME_REVISION } from '../content/relationship-context-policy.mjs';
 import {SOURCE_ACQUISITION_RUNTIME_REVISION} from '../content/relationship-context-policy.mjs';
@@ -72,7 +73,7 @@ export function buildServiceTaskContext(input) {
   if (input.version === 5 || input.slot === SOFT_SLOT) return buildCooperativeRephraseContext(input);
   if (input.version === 4 || input.slot === INITIAL_BOUNDARY_REVIEW_SLOT) return buildInitialBoundaryReviewContext(input);
   record(input.data, [...dataFields, ...([6, 7].includes(input.version) ? ['ordinarySources', 'ordinarySourceSelection', 'acquisitionGuidance'] : []),
-    ...(input.version === 7 ? ['authoredMagic'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
+    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
   const relationship = relationshipContextPin(input).relationshipContextVersion === 1
     ? relationshipPacketPolicy(input, input.data.initialRunPolicy) : {};
   const soft = hasSoftRuntime(relationship.executionRevision?.revisionId);
@@ -84,8 +85,10 @@ export function buildServiceTaskContext(input) {
   record(input.scope, ['principalId', 'branchId', 'generation', 'revision']);
   if (input.scope.principalId !== WORLD_SERVICE_PRINCIPAL) fail();
   record(input.data, [...dataFields, ...([6, 7].includes(input.version) ? ['ordinarySources', 'ordinarySourceSelection', 'acquisitionGuidance'] : []),
-    ...(input.version === 7 ? ['authoredMagic'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
+    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
   if (input.data.contractVersion !== (admission ? 9 : soft ? 8 : intentPlan ? 5 : 4) || input.data.dialogueContextVersion !== 1) fail();
+  if (Object.hasOwn(input.data, 'openActionVersion') && (input.data.openActionVersion !== 1
+    || !supportsOpenPlayerAction(relationship.executionRevision?.revisionId))) fail();
   if (Object.hasOwn(input.data, 'authoredMagic') && !isAuthoredMagicContext(input.data.authoredMagic)) fail();
   if (typeof input.data.viewpointActorId !== 'string' || !input.data.viewpointActorId
     || typeof input.scope.branchId !== 'string' || !input.scope.branchId

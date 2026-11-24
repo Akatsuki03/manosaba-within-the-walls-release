@@ -1,3 +1,4 @@
+import { OPEN_ACTION_INTENT, OPEN_ACTION_PERFORMANCE } from './open-player-action.mjs';
 import { PLAYER_PERFORMANCE_SHAPE_ISSUES, ROLEPLAY_SHAPE_ISSUES } from './player-performance-shape.mjs';
 import { ADMISSION_RUNTIME_REVISION } from './ordinary-admission32.mjs';
 import { DIRECTOR_EVENT_ATTEMPT_MS, usesOrdinaryAdmission32 } from '../director/director-event-runtime.mjs';
@@ -552,7 +553,9 @@ function systemInstructions(packet, codec, behaviorPrompt = '', retryFeedback, s
         + ((packet.addressVoice || packet.data?.addressVoice) ? `\n\n最终对白称呼与自称（优先于旧习惯、旧例句和风格偏好）：\n${addressVoiceGuidance(packet.scope.actorId, packet.addressVoice || packet.data.addressVoice, { player: packet.role === 'player_performance' })}` : '')
          + (antiCliche ? `\n\n最终文风（只管新写表达，不改事实或原话）：\n${antiClicheGuidance(packet.role)}` : '')
           + (packet.data?.authoredMagic?.version === 1 && packet.role === 'world_adjudicator' && packet.slot === 'intent' ? AUTHORED_MAGIC_INTENT_INSTRUCTIONS + (packet.data.authoredMagic.imaginedDestinations ? AUTHORED_MAGIC_DESTINATION_INSTRUCTIONS : '')
-            : packet.data?.authoredMagic?.version === 1 && packet.role === 'player_performance' ? AUTHORED_MAGIC_PERFORMANCE_INSTRUCTIONS : '');
+            : packet.data?.authoredMagic?.version === 1 && packet.role === 'player_performance' ? AUTHORED_MAGIC_PERFORMANCE_INSTRUCTIONS : '')
+           + (packet.data?.openActionVersion === 1
+             ? (packet.role === 'world_adjudicator' ? OPEN_ACTION_INTENT : OPEN_ACTION_PERFORMANCE) : '');
 }
 // Output format only: no rejected text or changes to the actor's decision.
 const NPC_MANUAL_MIXED_FEEDBACK = '\n\n格式纠正：本槽前一次提案未通过台词分栏校验，没有产生行动。utterance 只能放实际说出或写下的话；不得混入动作、神态、语气说明或叙述。可见动作仅在当前许可下独立放入 action。不发言时省略可选的 utterance。仍只输出符合当前契约的单个 JSON 对象，不增加能力、来源或世界结果。';

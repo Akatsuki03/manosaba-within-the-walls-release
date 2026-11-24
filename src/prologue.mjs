@@ -98,8 +98,9 @@ import { normalizeCreation, normalizeNewGameCreation, attributeModifier } from '
 import { CREATED_NOTICE, isCreatedCustom, createdPlayerId, actorForState, actorsForState, usesRelationshipSetup, relationshipSetupForState, withExactRelationshipProjection, ownStartingKnowledge, ROOM_CODES } from './creation/player-setup.mjs';
 import { buildRoleplayContext, buildCharacterDataContext, validateRoleplayDecision, validateCharacterDataProposal, validateNpcHostTextEnvelope } from './agents/agent-boundaries.mjs';
 import { buildNarrativeContext, validateNarrativeOutput } from './agents/narrative-boundaries.mjs';
+import { supportsOpenPlayerAction } from './agents/open-player-action.mjs';
 import { buildServiceTaskContext, validateServiceTaskOutput, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT, initialBoundaryReviewProposal } from './agents/service-task-contract.mjs';
-import { AgentPrompts, defaultAgentPrompt } from './agents/agent-prompts.mjs';
+import { AgentPrompts } from './agents/agent-prompts.mjs';
 import { dialogueContextPin } from './cognition/dialogue-context-policy.mjs';
 import { modelSystemPolicySeal } from './agents/model-gateway.mjs';
 import { roleplayGuidance, playerPerformanceGuidance } from './agents/persona-guidance.mjs';
@@ -2169,8 +2170,8 @@ export class PrologueEngine {
   #customPrompt(state) {
     return isCreatedCustom(state) ? { customCharacter: { id: createHash('sha256').update(JSON.stringify(state.creation.character)).digest('hex'), name: state.creation.character.name } } : {};
   }
-  promptCatalog() { return this.#transaction(() => this.#prompts.catalog(this.#customPrompt(this.#state())), { readOnly: true }); }
-  updatePrompt(input) { return this.#transaction(() => { this.#prompts.update(input, this.#customPrompt(this.#state())); return this.#prompts.catalog(this.#customPrompt(this.#state())); }); }
+  promptCatalog() { return this.#transaction(() => this.#prompts.catalog(this.#promptPreferences(this.#state())), { readOnly: true }); }
+  updatePrompt(input) { return this.#transaction(() => this.#prompts.update(input, this.#promptPreferences(this.#state()))); }
   #visualPerformancePin(state) {
     return this.#visualPerformanceGuidance && state.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION
       ? { visualPerformanceGuidanceVersion: this.#visualPerformanceGuidance } : {};
@@ -2181,22 +2182,19 @@ export class PrologueEngine {
       && runtimeCapabilityId(state.agentRuntimeRevision) !== 'agent-prison-runtime@8') delete extensions.playerTextMagicVersion;
     if (hasIntentRuntime(state.agentRuntimeRevision)) extensions.intentContractVersion = runtimeRevisionForState(state).policy.intentContractVersion;
     if (hasSoftRuntime(state)) Object.assign(extensions, { softResultVersion: 1, ordinaryParticipationVersion: 1 });
+    if (supportsOpenPlayerAction(state.agentRuntimeRevision)) extensions.openActionVersion = 1;
     if (state.authoredMagicVersion === 1) Object.assign(extensions, { authoredMagicVersion: 1, authoredMagicDestinationVersion: 1 });
     return { ...extensions, actorAddressVersion: 2, antiClicheVersion: 1 };
   }
+  #promptPreferences(state) {
+    return { ...this.#customPrompt(state), currentPerformance: !hasCaseOne(state)
+      && runtimeRevisionForState(state).policy.playerPerformanceVersion === 2 };
+  }
   #promptSnapshot(state) {
-    const custom = this.#customPrompt(state);
+    const preferences = this.#promptPreferences(state);
     const ids = ['director', 'intent_parser', 'world_adjudicator', 'player_performance', 'narrator', 'character_dialogue', 'character_data', 'character_creator', ...actorsForState(state).filter(actor => actor.id !== 'player').map(actor => actor.id)];
-    const snapshot = Object.fromEntries(ids.map(id => [id, this.#prompts.resolve(id, custom)]));
-    if (custom.customCharacter) snapshot.player = this.#prompts.resolve(`custom:${custom.customCharacter.id}`, custom);
-    if (!hasCaseOne(state) && runtimeRevisionForState(state).policy.playerPerformanceVersion === 2) {
-      for (const id of Object.keys(snapshot)) {
-        const fallback = defaultAgentPrompt(['director', 'intent_parser', 'world_adjudicator', 'player_performance', 'narrator', 'character_dialogue', 'character_data', 'character_creator'].includes(id) ? id : 'character_dialogue');
-        if (snapshot[id] !== fallback) continue; // Never rewrite a user override.
-        if (id === 'player_performance') snapshot[id] = '忠实演绎玩家已经选择的动作与原话。action 仅有可观察动作；授权的心理与思绪仅写入私有 reflection。没有段落数量要求，遵守本任务预算，不增加选择、台词或世界结果。';
-        else if (fallback === defaultAgentPrompt('character_dialogue')) snapshot[id] = '保持本人独有口吻、性格与实际关系距离，按当下实际收到的交流自主回应、拒绝或沉默。act 只在任务字数预算内提供有内容的台词与可观察动作，不设段落配额；review 仅提出有来源的状态更新，不写台词或动作正文。';
-      }
-    }
+    const snapshot = Object.fromEntries(ids.map(id => [id, this.#prompts.resolve(id, preferences)]));
+    if (preferences.customCharacter) snapshot.player = this.#prompts.resolve(`custom:${preferences.customCharacter.id}`, preferences);
     return snapshot;
   }
   authoringPrompt() { return this.#transaction(() => this.#prompts.resolve('character_creator'), { readOnly: true }); }
@@ -2273,7 +2271,8 @@ export class PrologueEngine {
     finalizeActorTaskPacket({ role: 'world_adjudicator', context: { version: admission ? 7 : softIntent ? 6 : intentPlan ? 3 : 2, ...(softIntent ? { purpose: admission ? INTENT_ADMISSION_PURPOSE : 'intent-plan@2' } : {}), role: 'world_adjudicator',
       principal: { kind: 'service', id: 'world_adjudicator' }, slot: 'intent',
       scope: { principalId: WORLD_SERVICE_PRINCIPAL, branchId: scope.branchId, generation: state.generation, revision: state.revision },
-      data: { viewpointActorId: player, rawInput, scene, contractVersion: admission ? 9 : softIntent ? 8 : intentPlan ? 5 : 4, ...(softIntent ? { ordinarySources: [], ...(hasSemanticOrdinaryRuntime(state) ? { ordinarySourceSelection: {
+      data: { viewpointActorId: player, rawInput, scene, ...(pin.openActionVersion === 1 ? { openActionVersion: 1 } : {}),
+         contractVersion: admission ? 9 : softIntent ? 8 : intentPlan ? 5 : 4, ...(softIntent ? { ordinarySources: [], ...(hasSemanticOrdinaryRuntime(state) ? { ordinarySourceSelection: {
           status: 'no_candidate_in_window', capacity: 16, maxSelected: 3, scanned: 0, eligibleInWindow: 0, oversizeInWindow: 0, mayHaveEarlier: false } } : {}) } : {}),
         ...(intentPlan ? { intentContractVersion: softIntent ? 2 : 1 } : {}), ...dialogueContextPin(pin),
         ...(pin.playerTextMagicVersion === 1 ? { playerTextMagicVersion: 1, ...(magic ? { magic } : {}) } : {}),
@@ -2634,7 +2633,8 @@ export class PrologueEngine {
         role = 'world_adjudicator'; actorId = WORLD_SERVICE_PRINCIPAL;
         context = { version: hasIntentAdmissionRuntime(plan) ? 7 : plan.intentContractVersion === 2 ? 6 : [1, 2].includes(plan.intentContractVersion) ? 3 : plan.initialRunPolicy.version, role, principal: { kind: 'service', id: 'world_adjudicator' }, slot: id, ...(plan.intentContractVersion === 2 ? { purpose: hasIntentAdmissionRuntime(plan) ? INTENT_ADMISSION_PURPOSE : 'intent-plan@2' } : {}),
           scope: { principalId: WORLD_SERVICE_PRINCIPAL, ...scope },
-          data: { viewpointActorId, ...context.data, initialRunPolicy: plan.initialRunPolicy, ...effectiveAdjudicationData(plan) } };
+          data: { viewpointActorId, ...context.data, ...(plan.openActionVersion === 1 ? { openActionVersion: 1 } : {}),
+             initialRunPolicy: plan.initialRunPolicy, ...effectiveAdjudicationData(plan) } };
       }
       if (plan.npcMagicCastVersion === 1 && role === 'roleplay' && typeof id === 'string' && id.startsWith('npc:')) context = { ...context, npcMagicCastVersion: 1 };
       if (plan.npcActPreflightVersion && role === 'roleplay' && sceneFrame && id.startsWith('npc:')

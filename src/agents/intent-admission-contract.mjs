@@ -1,6 +1,7 @@
 import { isProxy } from 'node:util/types';
 import { EVENT_DIRECTOR_RUNTIME_REVISION } from '../director/director-event-runtime.mjs';
 import { hasIntentAdmissionRuntime } from '../content/relationship-context-policy.mjs';
+import { recoverNamedGreeting } from './open-player-action.mjs';
 import { validateIntentPlan } from './player-intent-contract.mjs';
 import { adjudicationPolicy } from '../content/effective-run-boundary.mjs';
 import { requiresInitialBoundaryReview } from '../content/initial-run-policy.mjs';
@@ -90,5 +91,10 @@ export function validateIntentAdmission(candidate, data) {
     ? { kind: 'ordinary' } : { kind: 'clarification', reason: 'initial_boundary' } };
   // Preserve the explicit model decision in the durable wire result. The actual
   // consumer projects it independently after the source/job validation fence.
+  const recovered = recoverNamedGreeting(candidate, data, reviewed);
+  if (recovered !== candidate) {
+    const checked = validateIntentPlan(projectIntentAdmissionPlan(recovered), data);
+    if (checked.route === 'steps') return recovered;
+  }
   return structuredClone(candidate);
 }

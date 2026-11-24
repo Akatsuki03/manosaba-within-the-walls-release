@@ -32,8 +32,13 @@
     "development scripts"
   ],
   "rights": "Local packaging only, not a redistribution license. Verify rights for game artwork, character card, music and fonts before sharing. See README.md, data/ost-catalog.json, release-manifest.json vendorSources, the character manifest and public/assets/execution/provenance.json.",
-  "fileCount": 504,
+  "fileCount": 506,
   "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 80,
+      "sha256": "122e4438f9a88606faf49a20a725b970b2c1b721360eae2c5720b56f9d7516f1"
+    },
     {
       "path": "CONTRIBUTING.md",
       "bytes": 20451,
@@ -1597,8 +1602,8 @@
     },
     {
       "path": "public/settings.js",
-      "bytes": 79026,
-      "sha256": "be48544c966fbb6256942895c54cbaef57faf9ff06d112ecaa7f363ea91177d0"
+      "bytes": 79143,
+      "sha256": "587f8cbf48bfa870a5c0e8f80c0afb38e88c924d68317cb144bc97b24c6b0eb1"
     },
     {
       "path": "public/story-typewriter.mjs",
@@ -1652,8 +1657,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 20489,
-      "sha256": "c399736c97cdd37f4277be830f775f6df30adbe39ac69821d727fc3f3a5b078b"
+      "bytes": 20891,
+      "sha256": "4555da0ce8e729348b96bbe9f13545b858a1669024380cc34d13c6de65a6a5e6"
     },
     {
       "path": "scripts/export-feedback.mjs",
@@ -1692,8 +1697,8 @@
     },
     {
       "path": "src/agents/actor-task-packets.mjs",
-      "bytes": 29538,
-      "sha256": "625ea416da533fea3e1809afc886210480c6d7ea28fca8081d47df89d495f55f"
+      "bytes": 29634,
+      "sha256": "3592e09758929d7ad28f9efae8e849c8f15f9ce350b49d05529914a0e4e155cc"
     },
     {
       "path": "src/agents/agent-autonomy.mjs",
@@ -1707,13 +1712,13 @@
     },
     {
       "path": "src/agents/agent-prompts.mjs",
-      "bytes": 14242,
-      "sha256": "69076d63173a1c8f83c470c6623f94c8f1529247d8f741907de5abb4ddc73b76"
+      "bytes": 15640,
+      "sha256": "f3e5806c2a0d40ec7169840af9913783f2ab7069e1f627d5523d20986176efae"
     },
     {
       "path": "src/agents/agent-turn-store.mjs",
-      "bytes": 111283,
-      "sha256": "61ec295e149d42c1475dda06f3c92efaddb033374060bc961e64e7d92140a33a"
+      "bytes": 111537,
+      "sha256": "e96fe03a82c380c9e6f0ed3a3395fc56da38135a2548748a728a516aabcc26e9"
     },
     {
       "path": "src/agents/anti-cliche-policy.mjs",
@@ -1762,8 +1767,8 @@
     },
     {
       "path": "src/agents/intent-admission-contract.mjs",
-      "bytes": 11835,
-      "sha256": "6ddc3cf2add48424d38fbde5502b8e4b0d5f1730fe5c274b96390e03211e3aee"
+      "bytes": 12144,
+      "sha256": "aba26fc3e28a59d749669362412e321b7cc392de10342d3a0b63f99eeea3cb3a"
     },
     {
       "path": "src/agents/intent-object-schema18.mjs",
@@ -1807,13 +1812,13 @@
     },
     {
       "path": "src/agents/model-gateway.mjs",
-      "bytes": 129712,
-      "sha256": "8d6403c10504117c7b575034febbb4e3dd9a16cd0d8c07e004768148cda4b30b"
+      "bytes": 129957,
+      "sha256": "278cab136d3cea3e6300f00efb385dbb955344464e56151b4ef0f9355efe649f"
     },
     {
       "path": "src/agents/narrative-boundaries.mjs",
-      "bytes": 48947,
-      "sha256": "529ac448a6f904399603ed9dee04af991ec2ff00ffd15f61ef9f550835558fa3"
+      "bytes": 49402,
+      "sha256": "3023245a31ed6d5582565269c54a94aa215e05da92ddebff8146c25c73def012"
     },
     {
       "path": "src/agents/narrative-guards.mjs",
@@ -1824,6 +1829,11 @@
       "path": "src/agents/narrative-style.mjs",
       "bytes": 7539,
       "sha256": "a959145dde2236c2ab1dd6415849fa6250dc14d0da6f65a5847c7f902cbd68c0"
+    },
+    {
+      "path": "src/agents/open-player-action.mjs",
+      "bytes": 4451,
+      "sha256": "d6d4b61778fd9971887ea7badc8d65295eea3eebbe910f063223dab60d65e0f9"
     },
     {
       "path": "src/agents/ordinary-admission32.mjs",
@@ -1837,8 +1847,8 @@
     },
     {
       "path": "src/agents/player-intent-contract.mjs",
-      "bytes": 29435,
-      "sha256": "3a7a13160bff03732f52aa0c05c2d1e46ebc9922b41802bb23a49ea2782336b4"
+      "bytes": 30030,
+      "sha256": "735ff81fbf7bd77562c7bf5ab68f416b227a4de794675fcd20dd7b99f719e1d6"
     },
     {
       "path": "src/agents/player-performance-shape.mjs",
@@ -1852,8 +1862,8 @@
     },
     {
       "path": "src/agents/service-task-contract.mjs",
-      "bytes": 21867,
-      "sha256": "f403542e0dd57220daaacf3bc3dd60eeece01338acea03ff3aea558e1b8d33fa"
+      "bytes": 22157,
+      "sha256": "1d15fd452beb65fbd4001a67e69b6ec174c026794fc329eb30b20aa3726e5332"
     },
     {
       "path": "src/agents/source-acquisition27.mjs",
@@ -2337,8 +2347,8 @@
     },
     {
       "path": "src/prologue.mjs",
-      "bytes": 432791,
-      "sha256": "fee71143f3f94b7626fbc294abac45c76e70033efd21771e97e6f88228dd2cff"
+      "bytes": 432116,
+      "sha256": "5d74b752d7c10a145f1cbd66b4a205bca4cbe86deea1ef305a57e66c2506ca98"
     },
     {
       "path": "src/relationship-context-policy.mjs",
@@ -2556,5 +2566,5 @@
       "sha256": "1c93519bd41a9755dc2dd6fde47b7f9f60d48e1bb1965ed6cf4a09364006601a"
     }
   ],
-  "createdAt": "2026-11-24T20:59:20.596Z"
+  "createdAt": "2026-11-24T22:32:10.811Z"
 }
