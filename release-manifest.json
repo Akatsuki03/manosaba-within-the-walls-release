@@ -1652,8 +1652,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19351,
-      "sha256": "1ad8e3b810fc0de801e553eab62f25c195155cb40c9597315dc49dfa3b2108ea"
+      "bytes": 19869,
+      "sha256": "2d23a3d04f5b1f62166a4360155a366126ed7e356e966b263acbc1c7ef91d896"
     },
     {
       "path": "scripts/export-feedback.mjs",

@@ -18,10 +18,10 @@
 
 你可以选择扮演 **13 位原作少女** 中的任意一位开启故事，也可以创建原创角色加入她们（典狱长为固定 NPC，不可作为玩家扮演）：
 
-| ![樱羽艾玛](public/assets/characters/emma-thumb.webp) | ![二阶堂希罗](public/assets/characters/hiro-thumb.webp) | ![夏目安安](public/assets/characters/anan-thumb.webp) | ![城崎诺亚](public/assets/characters/noah-thumb.webp) | ![莲见蕾雅](public/assets/characters/leia-thumb.webp) | ![佐伯米莉亚](public/assets/characters/milia-thumb.webp) | ![宝生玛格](public/assets/characters/margo-thumb.webp) |
+| <img src="public/assets/characters/emma-thumb.webp" alt="樱羽艾玛" width="80" height="60"> | <img src="public/assets/characters/hiro-thumb.webp" alt="二阶堂希罗" width="80" height="60"> | <img src="public/assets/characters/anan-thumb.webp" alt="夏目安安" width="80" height="60"> | <img src="public/assets/characters/noah-thumb.webp" alt="城崎诺亚" width="80" height="60"> | <img src="public/assets/characters/leia-thumb.webp" alt="莲见蕾雅" width="80" height="60"> | <img src="public/assets/characters/milia-thumb.webp" alt="佐伯米莉亚" width="80" height="60"> | <img src="public/assets/characters/margo-thumb.webp" alt="宝生玛格" width="80" height="60"> |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **樱羽艾玛** | **二阶堂希罗** | **夏目安安** | **城崎诺亚** | **莲见蕾雅** | **佐伯米莉亚** | **宝生玛格** |
-| ![黑部奈叶香](public/assets/characters/nanoka-thumb.webp) | ![紫藤亚里沙](public/assets/characters/alisa-thumb.webp) | ![橘雪莉](public/assets/characters/sherry-thumb.webp) | ![远野汉娜](public/assets/characters/hanna-thumb.webp) | ![泽渡可可](public/assets/characters/coco-thumb.webp) | ![冰上梅露露](public/assets/characters/meruru-thumb.webp) | ![典狱长](public/assets/characters/warden-profile.png) |
+| <img src="public/assets/characters/nanoka-thumb.webp" alt="黑部奈叶香" width="80" height="60"> | <img src="public/assets/characters/alisa-thumb.webp" alt="紫藤亚里沙" width="80" height="60"> | <img src="public/assets/characters/sherry-thumb.webp" alt="橘雪莉" width="80" height="60"> | <img src="public/assets/characters/hanna-thumb.webp" alt="远野汉娜" width="80" height="60"> | <img src="public/assets/characters/coco-thumb.webp" alt="泽渡可可" width="80" height="60"> | <img src="public/assets/characters/meruru-thumb.webp" alt="冰上梅露露" width="80" height="60"> | <img src="public/assets/characters/warden-profile.png" alt="典狱长" width="60" height="60"> |
 | **黑部奈叶香** | **紫藤亚里沙** | **橘雪莉** | **远野汉娜** | **泽渡可可** | **冰上梅露露** | **典狱长（NPC）** |
 
 ---
