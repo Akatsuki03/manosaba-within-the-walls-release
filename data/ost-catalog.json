@@ -1,0 +1,3683 @@
+{
+  "schemaVersion": 2,
+  "playbackWired": true,
+  "album": "『魔法少女ノ魔女裁判』 コンプリートオリジナルサウンドトラック",
+  "albumArtist": "Acacia",
+  "year": 2025,
+  "catalogNo": "FFCP-0053",
+  "publisherListing": "https://www.fwinc.co.jp/manosaba_CD/ost",
+  "trackCount": 60,
+  "encode": {
+    "codec": "opus",
+    "container": "ogg",
+    "mime": "audio/ogg",
+    "codecs": "opus",
+    "bitrate": "160k",
+    "vbr": true,
+    "application": "audio",
+    "compressionLevel": 10,
+    "frameDurationMs": 20,
+    "sampleRate": 48000,
+    "sourceSampleRate": 44100,
+    "sourceBits": 16,
+    "channels": 2,
+    "flacBytes": 1401968043,
+    "opusBytes": 303078657
+  },
+  "files": {
+    "audioDir": "public/assets/audio",
+    "namePattern": "d{disc}-{track}.opus",
+    "proposedUrlPattern": "/assets/ost/d{disc}-{track}.opus"
+  },
+  "series": [
+    {
+      "id": "bloom",
+      "tracks": [
+        "d1-22",
+        "d3-17"
+      ],
+      "note": "發行頁寫明後者是前者的鋼琴版。"
+    },
+    {
+      "id": "salvation",
+      "tracks": [
+        "d1-18",
+        "d2-20",
+        "d3-18"
+      ],
+      "note": "曲名分別帶「音」「詩」與鋼琴版。只有詩與鋼琴版的對應有發行頁記載；「音」只是同一組標題，不是已核對的同一場面。"
+    },
+    {
+      "id": "sar-gedy",
+      "tracks": [
+        "d1-03",
+        "d2-14",
+        "d3-08"
+      ],
+      "note": "後綴為流、動、靜。這是標題分組，不是場面或章節結論。"
+    },
+    {
+      "id": "ito",
+      "tracks": [
+        "d1-12",
+        "d1-13"
+      ],
+      "note": "後綴為絡、溺。標題分組，不是場面結論。"
+    },
+    {
+      "id": "ema",
+      "tracks": [
+        "d1-19",
+        "d2-15",
+        "d2-16",
+        "d3-07"
+      ],
+      "note": "後綴為常、虛、危、狂。標題以 EmA 起頭，不要自動綁定角色登場。"
+    },
+    {
+      "id": "hiro",
+      "tracks": [
+        "d1-20",
+        "d3-03"
+      ],
+      "note": "後綴為線、點。標題以 HirO 起頭，不要自動綁定角色登場。"
+    },
+    {
+      "id": "guil-me",
+      "tracks": [
+        "d2-02",
+        "d3-01"
+      ],
+      "note": "後綴為火、水。標題分組，不是場面結論。"
+    },
+    {
+      "id": "accuhearts",
+      "tracks": [
+        "d2-03",
+        "d3-04"
+      ],
+      "note": "後綴為発、告。標題分組，不是場面結論。"
+    },
+    {
+      "id": "sen-choose",
+      "tracks": [
+        "d2-04",
+        "d3-05"
+      ],
+      "note": "後綴為刺，以及蝕／触兩種寫法。標題分組，不是場面結論。"
+    },
+    {
+      "id": "flyer",
+      "tracks": [
+        "d2-05",
+        "d3-15"
+      ],
+      "note": "後綴為序、終。標題分組，不是場面結論。"
+    },
+    {
+      "id": "doll-bag",
+      "tracks": [
+        "d2-07",
+        "d2-08"
+      ],
+      "note": "後綴為正、負。標題分組，不是場面結論。"
+    },
+    {
+      "id": "werer",
+      "tracks": [
+        "d2-17",
+        "d3-06"
+      ],
+      "note": "後綴為刑、処。標題分組，不是場面結論。"
+    },
+    {
+      "id": "bell",
+      "tracks": [
+        "d3-13",
+        "d3-14"
+      ],
+      "note": "後綴為予、兆。標題分組，不是場面結論。"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "d1-01",
+      "index": 1,
+      "disc": 1,
+      "track": 1,
+      "title": "Lavi-Bavellabion",
+      "publishedTitle": "LaVI-Bavellabion",
+      "listingNote": null,
+      "tagArtist": "三木谷奈々",
+      "role": "opening",
+      "roleLabel": "片頭主題曲",
+      "arrangementOf": null,
+      "documentedPerformer": "三木谷奈々",
+      "documentedCredit": "作詞曲：SLAVE.V-V-R",
+      "sources": [
+        "Steam 原聲帶頁稱其為片頭主題曲",
+        "Game8 主題歌頁記載演唱與作詞曲",
+        "本檔 ARTIST 標籤同為三木谷奈々"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/01.Lavi-Bavellabion.flac",
+      "file": "public/assets/audio/d1-01.opus",
+      "proposedUrl": "/assets/ost/d1-01.opus",
+      "sha256": "2fe116e29a32a297f94607978db6ee9f5fa0dfa420bdc30fb7a7a04526e661ae",
+      "flacBytes": 29799839,
+      "opusBytes": 4956159,
+      "durationSec": 247.733,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "LaVI-Bavellabion"
+    },
+    {
+      "id": "d1-02",
+      "index": 2,
+      "disc": 1,
+      "track": 2,
+      "title": "eXi` N`o FooKah",
+      "publishedTitle": "eXi' N'o FooKah",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/02.eXi` N`o FooKah.flac",
+      "file": "public/assets/audio/d1-02.opus",
+      "proposedUrl": "/assets/ost/d1-02.opus",
+      "sha256": "dd046e9369ce2053600aab08f671d5d19cbaf37dff968bb37b0ead6bfc67e975",
+      "flacBytes": 24640924,
+      "opusBytes": 4808545,
+      "durationSec": 234.987,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "eXi' N'o FooKah",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_002_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_002_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.984,
+            "secondTrack": "d2-11",
+            "secondCorrelation": 0.097,
+            "gameDurationSec": 228.29,
+            "tracks": [
+              "d1-02"
+            ],
+            "primary": "d1-02",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-03",
+      "index": 3,
+      "disc": 1,
+      "track": 3,
+      "title": "Sar-gedy-流-",
+      "publishedTitle": "Sar-gedy-流-",
+      "listingNote": null,
+      "tagArtist": "三木谷奈々",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "sar-gedy",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/03.Sar-gedy-流-.flac",
+      "file": "public/assets/audio/d1-03.opus",
+      "proposedUrl": "/assets/ost/d1-03.opus",
+      "sha256": "316471a9699ca7c13f363b052935c8184e11678f1419c54395fbd75228110777",
+      "flacBytes": 37755150,
+      "opusBytes": 7333183,
+      "durationSec": 355.533,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sar-gedy-Flow-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_003_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_003_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.914,
+            "secondTrack": "d3-13",
+            "secondCorrelation": 0.176,
+            "gameDurationSec": 7.57,
+            "tracks": [
+              "d1-03"
+            ],
+            "primary": "d1-03",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-04",
+      "index": 4,
+      "disc": 1,
+      "track": 4,
+      "title": "DArime",
+      "publishedTitle": "DArime",
+      "listingNote": null,
+      "tagArtist": "根本真澄",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/04.DArime.flac",
+      "file": "public/assets/audio/d1-04.opus",
+      "proposedUrl": "/assets/ost/d1-04.opus",
+      "sha256": "e0eda2487d97e320cb50fdb4cc2d03c9e1a0ee74a858b07df9957a841540427b",
+      "flacBytes": 25953809,
+      "opusBytes": 5182712,
+      "durationSec": 248.267,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "DArime",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_029_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_029_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.596,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.048,
+            "gameDurationSec": 245.09,
+            "tracks": [
+              "d1-04"
+            ],
+            "primary": "d1-04",
+            "usedIn": [
+              "第1章第5話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-05",
+      "index": 5,
+      "disc": 1,
+      "track": 5,
+      "title": "燦色の檻",
+      "publishedTitle": "燦色の檻",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/05.燦色の檻.flac",
+      "file": "public/assets/audio/d1-05.opus",
+      "proposedUrl": "/assets/ost/d1-05.opus",
+      "sha256": "b128239213c1a668ee2e8ba532533836503332d6568592751341e3efa35147df",
+      "flacBytes": 18871462,
+      "opusBytes": 4032486,
+      "durationSec": 191.973,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Vividly-Colored Cell",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_001_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_001_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.984,
+            "secondTrack": "d3-14",
+            "secondCorrelation": 0.191,
+            "gameDurationSec": 181.85,
+            "tracks": [
+              "d1-05"
+            ],
+            "primary": "d1-05",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD",
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-06",
+      "index": 6,
+      "disc": 1,
+      "track": 6,
+      "title": "吸われた祈り",
+      "publishedTitle": "吸われた祈り",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/06.吸われた祈り.flac",
+      "file": "public/assets/audio/d1-06.opus",
+      "proposedUrl": "/assets/ost/d1-06.opus",
+      "sha256": "2ada18aa0364668739eb520f3a61cfe72bd357acd672fb26dbb5a497e30363f5",
+      "flacBytes": 18280071,
+      "opusBytes": 4825729,
+      "durationSec": 243.667,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Prayer Swallowed Whole",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_035_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_035_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.856,
+            "secondTrack": "d2-10",
+            "secondCorrelation": 0.25,
+            "gameDurationSec": 232.0,
+            "tracks": [
+              "d1-06"
+            ],
+            "primary": "d1-06",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第4話裁判",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話裁判",
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-07",
+      "index": 7,
+      "disc": 1,
+      "track": 7,
+      "title": "鉛の腱",
+      "publishedTitle": "鉛の腱",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/07.鉛の腱.flac",
+      "file": "public/assets/audio/d1-07.opus",
+      "proposedUrl": "/assets/ost/d1-07.opus",
+      "sha256": "6df2ff180bcd600a152ada571a5e551f0add7498fd04eb6da71c54e1d7ffad33",
+      "flacBytes": 16667674,
+      "opusBytes": 3433788,
+      "durationSec": 161.027,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Tendons as Heavy as Lead",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_021_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_021_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.965,
+            "secondTrack": "d2-04",
+            "secondCorrelation": 0.131,
+            "gameDurationSec": 160.41,
+            "tracks": [
+              "d1-07"
+            ],
+            "primary": "d1-07",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-08",
+      "index": 8,
+      "disc": 1,
+      "track": 8,
+      "title": "迷宮の徒",
+      "publishedTitle": "迷宮の徒",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/08.迷宮の徒.flac",
+      "file": "public/assets/audio/d1-08.opus",
+      "proposedUrl": "/assets/ost/d1-08.opus",
+      "sha256": "10bb40796e30ae60ebab318368d2c87963c72514e16747577bc44357c7e73452",
+      "flacBytes": 14963905,
+      "opusBytes": 4072000,
+      "durationSec": 178.56,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Laws of the Labyrinth",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_011_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_011_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.988,
+            "secondTrack": "d2-06",
+            "secondCorrelation": 0.094,
+            "gameDurationSec": 178.12,
+            "tracks": [
+              "d1-08"
+            ],
+            "primary": "d1-08",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-09",
+      "index": 9,
+      "disc": 1,
+      "track": 9,
+      "title": "小鳥達の閑話休題",
+      "publishedTitle": "小鳥達の閑話休題",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/09.小鳥達の閑話休題.flac",
+      "file": "public/assets/audio/d1-09.opus",
+      "proposedUrl": "/assets/ost/d1-09.opus",
+      "sha256": "d92b2e0b06fc5e142ea53e3df207cbf9bb1a23b4bb2f761f208c9c09f6b0f516",
+      "flacBytes": 16159841,
+      "opusBytes": 3976908,
+      "durationSec": 177.44,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Moment of Respite for the Little Birds",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_018_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_018_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.971,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.114,
+            "gameDurationSec": 152.0,
+            "tracks": [
+              "d1-09"
+            ],
+            "primary": "d1-09",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-10",
+      "index": 10,
+      "disc": 1,
+      "track": 10,
+      "title": "ボクとワタシの",
+      "publishedTitle": "ボクとワタシの",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/10.ボクとワタシの.flac",
+      "file": "public/assets/audio/d1-10.opus",
+      "proposedUrl": "/assets/ost/d1-10.opus",
+      "sha256": "735b68921dd3dfeffb39f452a55f7b367f65cf2b2bd05a5ac4721a1613652e52",
+      "flacBytes": 17818046,
+      "opusBytes": 5665314,
+      "durationSec": 244.853,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "It's Yours, And Mine",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_019_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_019_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.596,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.26,
+            "gameDurationSec": 239.9,
+            "tracks": [
+              "d1-10"
+            ],
+            "primary": "d1-10",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第1話裁判",
+              "第1章第2話日常／BAD",
+              "第1章第2話裁判",
+              "第1章第3話日常／BAD",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話日常／BAD",
+              "第1章第5話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-11",
+      "index": 11,
+      "disc": 1,
+      "track": 11,
+      "title": "野花",
+      "publishedTitle": "野花",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/11.野花.flac",
+      "file": "public/assets/audio/d1-11.opus",
+      "proposedUrl": "/assets/ost/d1-11.opus",
+      "sha256": "6fe28b9ff8d063e873139eb8b9635653a86d73c69b1619bf3952286106cafe4c",
+      "flacBytes": 11898035,
+      "opusBytes": 5626757,
+      "durationSec": 235.613,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Wildflower",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_042_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_042_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.566,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.307,
+            "gameDurationSec": 231.55,
+            "tracks": [
+              "d1-11"
+            ],
+            "primary": "d1-11",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD"
+            ],
+            "note": "多個位置裡最高對上野花，但不是樣本級重合。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-12",
+      "index": 12,
+      "disc": 1,
+      "track": 12,
+      "title": "交々のいと-絡-",
+      "publishedTitle": "交々のいと-絡-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ito",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/12.交々のいと-絡-.flac",
+      "file": "public/assets/audio/d1-12.opus",
+      "proposedUrl": "/assets/ost/d1-12.opus",
+      "sha256": "0fc246f87a176b56f106a64f0174b9eb6ae1a8cea38ad7cc592a89e745ea02d1",
+      "flacBytes": 16769107,
+      "opusBytes": 3552133,
+      "durationSec": 168.72,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Braided Threads -Tangle-"
+    },
+    {
+      "id": "d1-13",
+      "index": 13,
+      "disc": 1,
+      "track": 13,
+      "title": "交々のいと-溺-",
+      "publishedTitle": "交々のいと-溺-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ito",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/13.交々のいと-溺-.flac",
+      "file": "public/assets/audio/d1-13.opus",
+      "proposedUrl": "/assets/ost/d1-13.opus",
+      "sha256": "9d0c2f96f98f859315005d4f3f4565e767219d227777f685065271471ca71c12",
+      "flacBytes": 16955570,
+      "opusBytes": 3402142,
+      "durationSec": 168.627,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Braided Threads -Struggle-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_026_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_026_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.986,
+            "secondTrack": "d1-12",
+            "secondCorrelation": 0.669,
+            "gameDurationSec": 168.57,
+            "tracks": [
+              "d1-13"
+            ],
+            "primary": "d1-13",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第1話裁判",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第5話日常／BAD",
+              "第2章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-14",
+      "index": 14,
+      "disc": 1,
+      "track": 14,
+      "title": "慄き鳴き",
+      "publishedTitle": "慄き鳴き",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/14.慄き鳴き.flac",
+      "file": "public/assets/audio/d1-14.opus",
+      "proposedUrl": "/assets/ost/d1-14.opus",
+      "sha256": "61a72abc716a5ad4cf0f71d980eda3dc0e1f275c445b6b6d7b9dfe585642f4d1",
+      "flacBytes": 10660299,
+      "opusBytes": 2053405,
+      "durationSec": 91.747,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Bone-Chilling Cry",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_027_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_027_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.655,
+            "secondTrack": "d1-11",
+            "secondCorrelation": 0.099,
+            "gameDurationSec": 25.71,
+            "tracks": [
+              "d1-14"
+            ],
+            "primary": "d1-14",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-15",
+      "index": 15,
+      "disc": 1,
+      "track": 15,
+      "title": "蠢きの寝屋",
+      "publishedTitle": "蠢きの寝屋",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/15.蠢きの寝屋.flac",
+      "file": "public/assets/audio/d1-15.opus",
+      "proposedUrl": "/assets/ost/d1-15.opus",
+      "sha256": "d14c92af1ff7247681b1af0dac795dc5ef715e3e14ac980c9b3cbe695b70bc4d",
+      "flacBytes": 10877598,
+      "opusBytes": 2636337,
+      "durationSec": 110.707,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sleeping Quarters of Writhing",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_020_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_020_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.995,
+            "secondTrack": "d3-15",
+            "secondCorrelation": 0.091,
+            "gameDurationSec": 110.52,
+            "tracks": [
+              "d1-15"
+            ],
+            "primary": "d1-15",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-16",
+      "index": 16,
+      "disc": 1,
+      "track": 16,
+      "title": "看るモノ達",
+      "publishedTitle": "看るモノ達",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/16.看るモノ達.flac",
+      "file": "public/assets/audio/d1-16.opus",
+      "proposedUrl": "/assets/ost/d1-16.opus",
+      "sha256": "178c45e438423caf44e1f9e5d80279310d07cd5f6e49d079604b77d4bd3925e7",
+      "flacBytes": 18475176,
+      "opusBytes": 5437574,
+      "durationSec": 260.2,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Those Who Are Watched",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_010_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_010_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.755,
+            "secondTrack": "d2-10",
+            "secondCorrelation": 0.139,
+            "gameDurationSec": 241.78,
+            "tracks": [
+              "d1-16"
+            ],
+            "primary": "d1-16",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第1話裁判",
+              "第1章第2話日常／BAD",
+              "第1章第2話裁判",
+              "第1章第4話裁判",
+              "第2章第1話日常／BAD",
+              "第2章第1話裁判",
+              "第2章第2話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-17",
+      "index": 17,
+      "disc": 1,
+      "track": 17,
+      "title": "深層の畝",
+      "publishedTitle": "深層の畝",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/17.深層の畝.flac",
+      "file": "public/assets/audio/d1-17.opus",
+      "proposedUrl": "/assets/ost/d1-17.opus",
+      "sha256": "6ddd6c8c2051d341eeda897af70724dbc68067cb61054b47cb020c7142950aeb",
+      "flacBytes": 10569598,
+      "opusBytes": 4491064,
+      "durationSec": 206.853,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Deep Ridge",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_009_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_009_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.945,
+            "secondTrack": "d1-16",
+            "secondCorrelation": 0.338,
+            "gameDurationSec": 206.92,
+            "tracks": [
+              "d1-17"
+            ],
+            "primary": "d1-17",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-18",
+      "index": 18,
+      "disc": 1,
+      "track": 18,
+      "title": "救いを求めるヒトの音",
+      "publishedTitle": "救いを求めるヒトの音",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "salvation",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/18.救いを求めるヒトの音.flac",
+      "file": "public/assets/audio/d1-18.opus",
+      "proposedUrl": "/assets/ost/d1-18.opus",
+      "sha256": "685282936393f7f67e3e4061acf5d5aec84da4cc3e1460e6419b380d42db7908",
+      "flacBytes": 7856809,
+      "opusBytes": 2310212,
+      "durationSec": 95.2,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sound of the One Seeking Salvation",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_040_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_040_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.998,
+            "secondTrack": "d1-10",
+            "secondCorrelation": 0.169,
+            "gameDurationSec": 84.65,
+            "tracks": [
+              "d1-18"
+            ],
+            "primary": "d1-18",
+            "usedIn": [
+              "第1章第4話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-19",
+      "index": 19,
+      "disc": 1,
+      "track": 19,
+      "title": "EmA-常-",
+      "publishedTitle": "EmA-常-",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ema",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/19.EmA-常-.flac",
+      "file": "public/assets/audio/d1-19.opus",
+      "proposedUrl": "/assets/ost/d1-19.opus",
+      "sha256": "18d85ad8ef77d1fb633361e107a47810fde77a0714766c1bedd2aff4fe223193",
+      "flacBytes": 27867291,
+      "opusBytes": 5371814,
+      "durationSec": 266.267,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "EmA -Normal-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_013_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_013_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.995,
+            "gameDurationSec": 9.59,
+            "tracks": [
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第4話日常／BAD",
+              "第1章第4話裁判",
+              "第2章第1話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "9.6 秒開頭同時貼近 EmA-狂與 EmA-常。"
+          },
+          {
+            "cue": "Bgm_014_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_014_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.99,
+            "gameDurationSec": 256.78,
+            "tracks": [
+              "d3-07",
+              "d1-19",
+              "d2-16",
+              "d2-15"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第5話日常／BAD",
+              "第2章第1話裁判"
+            ],
+            "note": "長曲與四首 EmA 都高相關，不單鎖一首。"
+          },
+          {
+            "cue": "Bgm_016_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_016_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-15",
+            "secondCorrelation": 0.975,
+            "gameDurationSec": 256.74,
+            "tracks": [
+              "d2-16",
+              "d2-15",
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d2-16",
+            "usedIn": [
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "與 EmA 四首都近，最高是 EmA-危。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-20",
+      "index": 20,
+      "disc": 1,
+      "track": 20,
+      "title": "HirO-線-",
+      "publishedTitle": "HirO-線-",
+      "listingNote": null,
+      "tagArtist": "天音",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "hiro",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/20.HirO-線-.flac",
+      "file": "public/assets/audio/d1-20.opus",
+      "proposedUrl": "/assets/ost/d1-20.opus",
+      "sha256": "46cca176c5b33d27b6f5b2b89dae7c9930ae7b78ab99b15f61e87a1363bd21d4",
+      "flacBytes": 38460642,
+      "opusBytes": 6319620,
+      "durationSec": 312.027,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "HirO -Line-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_037_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_037_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.966,
+            "secondTrack": "d3-03",
+            "secondCorrelation": 0.953,
+            "gameDurationSec": 20.36,
+            "tracks": [
+              "d3-03",
+              "d1-20"
+            ],
+            "primary": "d3-03",
+            "usedIn": [
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "20 秒開頭同時貼近 HirO-點與 HirO-線。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-21",
+      "index": 21,
+      "disc": 1,
+      "track": 21,
+      "title": "gDieDvilJIO",
+      "publishedTitle": "gDie Divil JIO",
+      "listingNote": "抓軌標籤是連寫的 gDieDvilJIO，Frontier Works 曲目表是 gDie Divil JIO。兩種寫法都保留，沒有改判曲名。",
+      "tagArtist": "根本真澄",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/21.gDieDvilJIO.flac",
+      "file": "public/assets/audio/d1-21.opus",
+      "proposedUrl": "/assets/ost/d1-21.opus",
+      "sha256": "a07b24a5aa33801fd40495e5ff65c779c05f913deec962da52b579fbdd173399",
+      "flacBytes": 22501163,
+      "opusBytes": 4826511,
+      "durationSec": 227.613,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "gDie Divil JIO",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_036_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_036_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.996,
+            "secondTrack": "d3-13",
+            "secondCorrelation": 0.065,
+            "gameDurationSec": 229.71,
+            "tracks": [
+              "d1-21"
+            ],
+            "primary": "d1-21",
+            "usedIn": [
+              "第1章第2話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD",
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1-22",
+      "index": 22,
+      "disc": 1,
+      "track": 22,
+      "title": "bloom",
+      "publishedTitle": "bloom",
+      "listingNote": null,
+      "tagArtist": "三木谷奈々",
+      "role": "ending",
+      "roleLabel": "片尾主題曲",
+      "arrangementOf": null,
+      "documentedPerformer": "三木谷奈々",
+      "documentedCredit": "作詞、作曲、編曲：daiki",
+      "sources": [
+        "Steam 原聲帶頁稱 bloom 為片尾主題曲",
+        "Game8 記載演唱與作編曲",
+        "本檔 ARTIST 標籤同為三木谷奈々"
+      ],
+      "series": "bloom",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 1/22.bloom.flac",
+      "file": "public/assets/audio/d1-22.opus",
+      "proposedUrl": "/assets/ost/d1-22.opus",
+      "sha256": "f7d8958134eec0e6dc1a937e55fcc141b1da395e04416224702a41f22c47fa0c",
+      "flacBytes": 32143093,
+      "opusBytes": 6245179,
+      "durationSec": 299.733,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "bloom",
+      "game": {
+        "cues": [
+          {
+            "cue": "Song_004_001",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Songs/Song_004_001.wav",
+            "confidence": "confirmed",
+            "correlation": 0.924,
+            "secondTrack": "d1-03",
+            "secondCorrelation": 0.115,
+            "gameDurationSec": 300.17,
+            "tracks": [
+              "d1-22"
+            ],
+            "primary": "d1-22",
+            "usedIn": [
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-01",
+      "index": 23,
+      "disc": 2,
+      "track": 1,
+      "title": "MAdEaRMAdEaR",
+      "publishedTitle": "MAdEaR MAdEaR",
+      "listingNote": null,
+      "tagArtist": "東雲はる",
+      "role": "insert",
+      "roleLabel": "插入歌",
+      "arrangementOf": null,
+      "documentedPerformer": "東雲はる",
+      "documentedCredit": "作詞曲：SLAVE.V-V-R",
+      "sources": [
+        "Game8 將 MAdEaR MAdEaR 列為插入歌，表格演唱者為東雲はる",
+        "本檔 ARTIST 標籤同為東雲はる",
+        "Game8 同頁正文曾寫演唱者尚未確定，因此不把演唱者當成唱片內頁已核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/01.MAdEaRMAdEaR.flac",
+      "file": "public/assets/audio/d2-01.opus",
+      "proposedUrl": "/assets/ost/d2-01.opus",
+      "sha256": "e68648d17d515fe04f57df1d2866f44d89f6b95a212cc05ff1592029dcd90beb",
+      "flacBytes": 27252654,
+      "opusBytes": 4485428,
+      "durationSec": 224.507,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "MAdEaR MAdEaR"
+    },
+    {
+      "id": "d2-02",
+      "index": 24,
+      "disc": 2,
+      "track": 2,
+      "title": "Guil-me N`o sinruits-火-",
+      "publishedTitle": "Guil-me N'o sinruits-火-",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "guil-me",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/02.Guil-me N`o sinruits-火-.flac",
+      "file": "public/assets/audio/d2-02.opus",
+      "proposedUrl": "/assets/ost/d2-02.opus",
+      "sha256": "c74cc86b49c33e94be3f204b89e41dc99298b4c87be57c68c21fcb81298fbe8a",
+      "flacBytes": 48004404,
+      "opusBytes": 7911548,
+      "durationSec": 408.067,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Guil-me N'o sinruits -Inferno-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_008_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_008_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.978,
+            "secondTrack": "d3-01",
+            "secondCorrelation": 0.949,
+            "gameDurationSec": 404.49,
+            "tracks": [
+              "d2-02",
+              "d3-01"
+            ],
+            "primary": "d2-02",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "開頭較接近火；後段與水也很近。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-03",
+      "index": 25,
+      "disc": 2,
+      "track": 3,
+      "title": "AccUhEarts-発-",
+      "publishedTitle": "AccUhEarts-発-",
+      "listingNote": null,
+      "tagArtist": "天音",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "accuhearts",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/03.AccUhEarts-発-.flac",
+      "file": "public/assets/audio/d2-03.opus",
+      "proposedUrl": "/assets/ost/d2-03.opus",
+      "sha256": "027cf0b97f4e84a2cef631e011c44e05bc5e35fccaceb2f97b599d5658ed745e",
+      "flacBytes": 29498636,
+      "opusBytes": 5722929,
+      "durationSec": 260.333,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "AccUhEarts -Devate-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_015_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_015_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.992,
+            "secondTrack": "d3-04",
+            "secondCorrelation": 0.971,
+            "gameDurationSec": 260.0,
+            "tracks": [
+              "d2-03",
+              "d3-04"
+            ],
+            "primary": "d2-03",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "開頭略近発，後段略近告。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-04",
+      "index": 26,
+      "disc": 2,
+      "track": 4,
+      "title": "Sen-ChooseN`oSurC-刺-",
+      "publishedTitle": "Sen-Choose N'o SurC-刺-",
+      "listingNote": null,
+      "tagArtist": "天音",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "sen-choose",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/04.Sen-ChooseN`oSurC-刺-.flac",
+      "file": "public/assets/audio/d2-04.opus",
+      "proposedUrl": "/assets/ost/d2-04.opus",
+      "sha256": "6b947844700c2a33fb24c7e1061aaedd58781f862a7f6de7bd0dc5d626148e50",
+      "flacBytes": 35658015,
+      "opusBytes": 7015276,
+      "durationSec": 317.947,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sen-Choose N'o SurC -Thorn-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_038_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_038_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.994,
+            "secondTrack": "d3-05",
+            "secondCorrelation": 0.985,
+            "gameDurationSec": 178.98,
+            "tracks": [
+              "d2-04",
+              "d3-05"
+            ],
+            "primary": "d2-04",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "刺與触的相關都超過 0.98。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-05",
+      "index": 27,
+      "disc": 2,
+      "track": 5,
+      "title": "飛者の迎え-序-",
+      "publishedTitle": "飛者の迎え-序-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "flyer",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/05.飛者の迎え-序-.flac",
+      "file": "public/assets/audio/d2-05.opus",
+      "proposedUrl": "/assets/ost/d2-05.opus",
+      "sha256": "0950637cc80bd7e95373eb73f650b6a0300d62b61f12cc42deaec6d304a5fc46",
+      "flacBytes": 19975048,
+      "opusBytes": 5642988,
+      "durationSec": 229.027,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Winged One Arrives -Beginning-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_031_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_031_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.759,
+            "secondTrack": "d3-15",
+            "secondCorrelation": 0.212,
+            "gameDurationSec": 231.23,
+            "tracks": [
+              "d2-05"
+            ],
+            "primary": "d2-05",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-06",
+      "index": 28,
+      "disc": 2,
+      "track": 6,
+      "title": "靴の裏",
+      "publishedTitle": "靴の裏",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/06.靴の裏.flac",
+      "file": "public/assets/audio/d2-06.opus",
+      "proposedUrl": "/assets/ost/d2-06.opus",
+      "sha256": "81a9be07e47d57cd41db30d750d66fe60ba4e7d6b3e2226a95d600b04a6ecb66",
+      "flacBytes": 18518159,
+      "opusBytes": 8539795,
+      "durationSec": 226.667,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Bottom of One's Shoes",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_022_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_022_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.997,
+            "secondTrack": "d2-10",
+            "secondCorrelation": 0.087,
+            "gameDurationSec": 226.07,
+            "tracks": [
+              "d2-06"
+            ],
+            "primary": "d2-06",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-07",
+      "index": 29,
+      "disc": 2,
+      "track": 7,
+      "title": "人形さんの詰込袋-正-",
+      "publishedTitle": "人形さんの詰込袋-正-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "doll-bag",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/07.人形さんの詰込袋-正-.flac",
+      "file": "public/assets/audio/d2-07.opus",
+      "proposedUrl": "/assets/ost/d2-07.opus",
+      "sha256": "74ca71425f3cfc3867b6138c47a57afca0007f5ab32d383caa7941e7aa78f815",
+      "flacBytes": 12210673,
+      "opusBytes": 2931624,
+      "durationSec": 118.013,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Doll's Bag of Presents -Positivum-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_034_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_034_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.972,
+            "secondTrack": "d2-08",
+            "secondCorrelation": 0.607,
+            "gameDurationSec": 117.55,
+            "tracks": [
+              "d2-07"
+            ],
+            "primary": "d2-07",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第3話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-08",
+      "index": 30,
+      "disc": 2,
+      "track": 8,
+      "title": "人形さんの詰込袋-負-",
+      "publishedTitle": "人形さんの詰込袋-負-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "doll-bag",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/08.人形さんの詰込袋-負-.flac",
+      "file": "public/assets/audio/d2-08.opus",
+      "proposedUrl": "/assets/ost/d2-08.opus",
+      "sha256": "f15690f495d64ea80b7962f495b8983914f43fbf9e78f38fd2ae33b5f76c3efc",
+      "flacBytes": 11951643,
+      "opusBytes": 2925666,
+      "durationSec": 117.573,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Doll's Bag of Presents -Negativus-"
+    },
+    {
+      "id": "d2-09",
+      "index": 31,
+      "disc": 2,
+      "track": 9,
+      "title": "迫るその足音",
+      "publishedTitle": "迫るその足音",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/09.迫るその足音.flac",
+      "file": "public/assets/audio/d2-09.opus",
+      "proposedUrl": "/assets/ost/d2-09.opus",
+      "sha256": "e3fb3c60a5d3c64c41e76d44f4c657e627911f08cd0759cd13776e24fed3fd7d",
+      "flacBytes": 11508377,
+      "opusBytes": 3014374,
+      "durationSec": 146.093,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Approaching Footsteps",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_023_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_023_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.994,
+            "secondTrack": "d2-04",
+            "secondCorrelation": 0.064,
+            "gameDurationSec": 145.71,
+            "tracks": [
+              "d2-09"
+            ],
+            "primary": "d2-09",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第3話裁判",
+              "第1章第5話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第5話日常／BAD",
+              "第2章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-10",
+      "index": 32,
+      "disc": 2,
+      "track": 10,
+      "title": "pAciKa`ConWa",
+      "publishedTitle": "pAciKa' ConWa",
+      "listingNote": null,
+      "tagArtist": "ゆめこ",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/10.pAciKa`ConWa.flac",
+      "file": "public/assets/audio/d2-10.opus",
+      "proposedUrl": "/assets/ost/d2-10.opus",
+      "sha256": "830910a9992d06254094320aa1d72613b49bf3d3f47f267b717312badeea17b0",
+      "flacBytes": 25489480,
+      "opusBytes": 5841959,
+      "durationSec": 288.507,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "pAciKa' ConWa",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_017_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_017_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.982,
+            "secondTrack": "d1-11",
+            "secondCorrelation": 0.159,
+            "gameDurationSec": 285.32,
+            "tracks": [
+              "d2-10"
+            ],
+            "primary": "d2-10",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-11",
+      "index": 33,
+      "disc": 2,
+      "track": 11,
+      "title": "望むのわ日常",
+      "publishedTitle": "望むのは日常",
+      "listingNote": "抓軌標籤是「望むのわ日常」，曲目表是「望むのは日常」。兩種寫法都保留，沒有改判曲名。",
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/11.望むのわ日常.flac",
+      "file": "public/assets/audio/d2-11.opus",
+      "proposedUrl": "/assets/ost/d2-11.opus",
+      "sha256": "ff97351293e543b93a51b3ec0de37b7e0572242d111de7467cb1dd356becb1db",
+      "flacBytes": 15952604,
+      "opusBytes": 4604480,
+      "durationSec": 199.48,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "We Wish For Peace",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_028_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_028_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.786,
+            "secondTrack": "d2-05",
+            "secondCorrelation": 0.182,
+            "gameDurationSec": 198.95,
+            "tracks": [
+              "d2-11"
+            ],
+            "primary": "d2-11",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-12",
+      "index": 34,
+      "disc": 2,
+      "track": 12,
+      "title": "気任せの蝶",
+      "publishedTitle": "気任せの蝶",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/12.気任せの蝶.flac",
+      "file": "public/assets/audio/d2-12.opus",
+      "proposedUrl": "/assets/ost/d2-12.opus",
+      "sha256": "e6244d399ae40a565f1270e787d676d66ed7d86dd76b0f9b1c5dafc4ea932a99",
+      "flacBytes": 9848554,
+      "opusBytes": 2182717,
+      "durationSec": 99.227,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Fickle Butterfly",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_045_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_045_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.908,
+            "secondTrack": "d1-11",
+            "secondCorrelation": 0.105,
+            "gameDurationSec": 98.82,
+            "tracks": [
+              "d2-12"
+            ],
+            "primary": "d2-12",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-13",
+      "index": 35,
+      "disc": 2,
+      "track": 13,
+      "title": "海の森",
+      "publishedTitle": "海の森",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/13.海の森.flac",
+      "file": "public/assets/audio/d2-13.opus",
+      "proposedUrl": "/assets/ost/d2-13.opus",
+      "sha256": "d919fe262a3fe44ce1f0e2e9014d15501dbaa6bac77a448b499bfefd15c90f5f",
+      "flacBytes": 24534270,
+      "opusBytes": 5573939,
+      "durationSec": 267.32,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Ocean Forest",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_024_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_024_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.972,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.186,
+            "gameDurationSec": 266.67,
+            "tracks": [
+              "d2-13"
+            ],
+            "primary": "d2-13",
+            "usedIn": [
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第1章第5話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD",
+              "第2章第5話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-14",
+      "index": 36,
+      "disc": 2,
+      "track": 14,
+      "title": "Sar-gedy-動-",
+      "publishedTitle": "Sar-gedy-動-",
+      "listingNote": null,
+      "tagArtist": "三木谷奈々",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "sar-gedy",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/14.Sar-gedy-動-.flac",
+      "file": "public/assets/audio/d2-14.opus",
+      "proposedUrl": "/assets/ost/d2-14.opus",
+      "sha256": "02d57973f41556b01c830db64cba267cd83c82c496893cc70dcd70de5eaa4554",
+      "flacBytes": 25773565,
+      "opusBytes": 4648248,
+      "durationSec": 231.36,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sar-gedy -Movement-"
+    },
+    {
+      "id": "d2-15",
+      "index": 37,
+      "disc": 2,
+      "track": 15,
+      "title": "EmA-虚-",
+      "publishedTitle": "EmA-虚-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ema",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/15.EmA-虚-.flac",
+      "file": "public/assets/audio/d2-15.opus",
+      "proposedUrl": "/assets/ost/d2-15.opus",
+      "sha256": "b46c6400b84f94da3e0910d7fc37905099a059482c5135d06c98b388384acb10",
+      "flacBytes": 26372766,
+      "opusBytes": 5310101,
+      "durationSec": 259.413,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "EmA -Falsehood-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_012_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_012_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-16",
+            "secondCorrelation": 0.964,
+            "gameDurationSec": 2.47,
+            "tracks": [
+              "d2-15",
+              "d2-16"
+            ],
+            "primary": "d2-15",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "只有 2.5 秒，開頭貼近 EmA-虛與 EmA-危。"
+          },
+          {
+            "cue": "Bgm_014_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_014_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.99,
+            "gameDurationSec": 256.78,
+            "tracks": [
+              "d3-07",
+              "d1-19",
+              "d2-16",
+              "d2-15"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第5話日常／BAD",
+              "第2章第1話裁判"
+            ],
+            "note": "長曲與四首 EmA 都高相關，不單鎖一首。"
+          },
+          {
+            "cue": "Bgm_016_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_016_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-15",
+            "secondCorrelation": 0.975,
+            "gameDurationSec": 256.74,
+            "tracks": [
+              "d2-16",
+              "d2-15",
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d2-16",
+            "usedIn": [
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "與 EmA 四首都近，最高是 EmA-危。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-16",
+      "index": 38,
+      "disc": 2,
+      "track": 16,
+      "title": "EmA-危-",
+      "publishedTitle": "EmA-危-",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ema",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/16.EmA-危-.flac",
+      "file": "public/assets/audio/d2-16.opus",
+      "proposedUrl": "/assets/ost/d2-16.opus",
+      "sha256": "48fc57917dc8afa08d744e9a9bdaaa9149079d20a4d33f06639e61201dbad696",
+      "flacBytes": 27059128,
+      "opusBytes": 5272858,
+      "durationSec": 259.52,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "EmA -Danger-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_012_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_012_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-16",
+            "secondCorrelation": 0.964,
+            "gameDurationSec": 2.47,
+            "tracks": [
+              "d2-15",
+              "d2-16"
+            ],
+            "primary": "d2-15",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "只有 2.5 秒，開頭貼近 EmA-虛與 EmA-危。"
+          },
+          {
+            "cue": "Bgm_014_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_014_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.99,
+            "gameDurationSec": 256.78,
+            "tracks": [
+              "d3-07",
+              "d1-19",
+              "d2-16",
+              "d2-15"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第5話日常／BAD",
+              "第2章第1話裁判"
+            ],
+            "note": "長曲與四首 EmA 都高相關，不單鎖一首。"
+          },
+          {
+            "cue": "Bgm_016_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_016_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-15",
+            "secondCorrelation": 0.975,
+            "gameDurationSec": 256.74,
+            "tracks": [
+              "d2-16",
+              "d2-15",
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d2-16",
+            "usedIn": [
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "與 EmA 四首都近，最高是 EmA-危。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-17",
+      "index": 39,
+      "disc": 2,
+      "track": 17,
+      "title": "weRerN`oHir-刑-",
+      "publishedTitle": "weRer N'o Hir-刑-",
+      "listingNote": null,
+      "tagArtist": "根本真澄",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "werer",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/17.weRerN`oHir-刑-.flac",
+      "file": "public/assets/audio/d2-17.opus",
+      "proposedUrl": "/assets/ost/d2-17.opus",
+      "sha256": "f17f64bd07c206d1037cd2a7db5cec74bafe4e898c914756da43d2e019faf783",
+      "flacBytes": 24478676,
+      "opusBytes": 4593922,
+      "durationSec": 226.187,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "weRer N'o Hir -Punishment-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_043_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_043_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d2-17",
+            "secondCorrelation": 0.974,
+            "gameDurationSec": 226.01,
+            "tracks": [
+              "d3-06",
+              "d2-17"
+            ],
+            "primary": "d3-06",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "処與刑都超過 0.97。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-18",
+      "index": 40,
+      "disc": 2,
+      "track": 18,
+      "title": "yUki",
+      "publishedTitle": "yUki",
+      "listingNote": null,
+      "tagArtist": "三木谷奈々",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/18.yUki.flac",
+      "file": "public/assets/audio/d2-18.opus",
+      "proposedUrl": "/assets/ost/d2-18.opus",
+      "sha256": "672dd34e3e482efb753fe952f0f4aef514f426ec9dbbc47782aac6323e9e85cb",
+      "flacBytes": 35228129,
+      "opusBytes": 6556711,
+      "durationSec": 319.907,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "yUki",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_046_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_046_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.981,
+            "secondTrack": "d2-05",
+            "secondCorrelation": 0.086,
+            "gameDurationSec": 18.29,
+            "tracks": [
+              "d2-18"
+            ],
+            "primary": "d2-18",
+            "usedIn": [
+              "第2章第6話裁判"
+            ]
+          },
+          {
+            "cue": "Bgm_047_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_047_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.999,
+            "secondTrack": "d1-17",
+            "secondCorrelation": 0.189,
+            "gameDurationSec": 1.3,
+            "tracks": [
+              "d2-18"
+            ],
+            "primary": "d2-18",
+            "usedIn": [
+              "第2章第6話裁判"
+            ]
+          },
+          {
+            "cue": "Bgm_048_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_048_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.99,
+            "secondTrack": "d1-05",
+            "secondCorrelation": 0.081,
+            "gameDurationSec": 300.13,
+            "tracks": [
+              "d2-18"
+            ],
+            "primary": "d2-18",
+            "usedIn": [
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-19",
+      "index": 41,
+      "disc": 2,
+      "track": 19,
+      "title": "愛の残滓",
+      "publishedTitle": "愛の残滓",
+      "listingNote": null,
+      "tagArtist": "藍月なくる",
+      "role": "bad-end-insert",
+      "roleLabel": "BAD END 插入歌",
+      "arrangementOf": null,
+      "documentedPerformer": "藍月なくる",
+      "documentedCredit": "作詞曲：佐高陵平",
+      "sources": [
+        "Game8 將「愛の残滓」列為 BAD END 插入歌",
+        "本檔 ARTIST 標籤同為藍月なくる"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/19.愛の残滓.flac",
+      "file": "public/assets/audio/d2-19.opus",
+      "proposedUrl": "/assets/ost/d2-19.opus",
+      "sha256": "a7a03659ee110f4d5bf74fb3b1854641b457e0b1f204298d1c5e85ca599174ec",
+      "flacBytes": 27045809,
+      "opusBytes": 4224118,
+      "durationSec": 216.213,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Remnants of Love",
+      "game": {
+        "cues": [
+          {
+            "cue": "Song_001_001",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Songs/Song_001_001.wav",
+            "confidence": "confirmed",
+            "correlation": 0.975,
+            "secondTrack": "d2-10",
+            "secondCorrelation": 0.057,
+            "gameDurationSec": 217.07,
+            "tracks": [
+              "d2-19"
+            ],
+            "primary": "d2-19",
+            "usedIn": [
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2-20",
+      "index": 42,
+      "disc": 2,
+      "track": 20,
+      "title": "救いを求めるヒトの詩",
+      "publishedTitle": "救いを求めるヒトの詩",
+      "listingNote": null,
+      "tagArtist": "岩口和暖",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "salvation",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 2/20.救いを求めるヒトの詩.flac",
+      "file": "public/assets/audio/d2-20.opus",
+      "proposedUrl": "/assets/ost/d2-20.opus",
+      "sha256": "e4bca38bfb452773ea4ad449965c034d3ab16c7622e4df427ed57ce9d011f23e",
+      "flacBytes": 32698742,
+      "opusBytes": 6356684,
+      "durationSec": 304.093,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Song of the One Seeking Salvation",
+      "game": {
+        "cues": [
+          {
+            "cue": "Song_002_001",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Songs/Song_002_001.wav",
+            "confidence": "likely",
+            "correlation": 0.838,
+            "secondTrack": "d3-15",
+            "secondCorrelation": 0.245,
+            "gameDurationSec": 307.06,
+            "tracks": [
+              "d2-20"
+            ],
+            "primary": "d2-20",
+            "usedIn": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-01",
+      "index": 43,
+      "disc": 3,
+      "track": 1,
+      "title": "Guil-me N'o sinruits-水-",
+      "publishedTitle": "Guil-me N'o sinruits-水-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "guil-me",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/01.Guil-me N'o sinruits-水-.flac",
+      "file": "public/assets/audio/d3-01.opus",
+      "proposedUrl": "/assets/ost/d3-01.opus",
+      "sha256": "b2a4f45dc683f32f280bd06111e748228752f21b225d113e22f95243094533bc",
+      "flacBytes": 46610297,
+      "opusBytes": 7957941,
+      "durationSec": 406.547,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Guil-me N'o sinruits-Water-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_008_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_008_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.978,
+            "secondTrack": "d3-01",
+            "secondCorrelation": 0.949,
+            "gameDurationSec": 404.49,
+            "tracks": [
+              "d2-02",
+              "d3-01"
+            ],
+            "primary": "d2-02",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "開頭較接近火；後段與水也很近。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-02",
+      "index": 44,
+      "disc": 3,
+      "track": 2,
+      "title": "Rcka N'o Ro-Coh",
+      "publishedTitle": "Reka N'o Ro-Coh",
+      "listingNote": "抓軌標籤是 Rcka N'o Ro-Coh，曲目表是 Reka N'o Ro-Coh。兩種寫法都保留，沒有改判曲名。",
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/02.Rcka N'o Ro-Coh.flac",
+      "file": "public/assets/audio/d3-02.opus",
+      "proposedUrl": "/assets/ost/d3-02.opus",
+      "sha256": "cc55df80f6dd0dfa87b66c69e35d0fbfd07a4c757c93fdaa910279e1c774c367",
+      "flacBytes": 22257207,
+      "opusBytes": 3806686,
+      "durationSec": 192.653,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Reka N'o Ro-Coh",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_033_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_033_001_Intro.wav",
+            "confidence": "confirmed",
+            "correlation": 0.981,
+            "secondTrack": "d1-16",
+            "secondCorrelation": 0.124,
+            "gameDurationSec": 30.87,
+            "tracks": [
+              "d3-02"
+            ],
+            "primary": "d3-02",
+            "usedIn": [
+              "第2章第1話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-03",
+      "index": 45,
+      "disc": 3,
+      "track": 3,
+      "title": "HirO-点-",
+      "publishedTitle": "HirO-点-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "hiro",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/03.HirO-点-.flac",
+      "file": "public/assets/audio/d3-03.opus",
+      "proposedUrl": "/assets/ost/d3-03.opus",
+      "sha256": "4a73ac910fe6a8a76211890f7de9d962b2d2996785753b2b63e2b9b9880522f7",
+      "flacBytes": 37807112,
+      "opusBytes": 6400876,
+      "durationSec": 312.347,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "HirO -Dot-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_037_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_037_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.966,
+            "secondTrack": "d3-03",
+            "secondCorrelation": 0.953,
+            "gameDurationSec": 20.36,
+            "tracks": [
+              "d3-03",
+              "d1-20"
+            ],
+            "primary": "d3-03",
+            "usedIn": [
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "20 秒開頭同時貼近 HirO-點與 HirO-線。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-04",
+      "index": 46,
+      "disc": 3,
+      "track": 4,
+      "title": "AccUhEarts-告-",
+      "publishedTitle": "AccUhEarts-告-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "accuhearts",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/04.AccUhEarts-告-.flac",
+      "file": "public/assets/audio/d3-04.opus",
+      "proposedUrl": "/assets/ost/d3-04.opus",
+      "sha256": "9d445dfc8c135c0047d00d8e55640e9f5f27201bfae87810f0707fee7df0a90c",
+      "flacBytes": 28903153,
+      "opusBytes": 5825180,
+      "durationSec": 260.32,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "AccUhEarts -Decleration-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_015_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_015_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.992,
+            "secondTrack": "d3-04",
+            "secondCorrelation": 0.971,
+            "gameDurationSec": 260.0,
+            "tracks": [
+              "d2-03",
+              "d3-04"
+            ],
+            "primary": "d2-03",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "開頭略近発，後段略近告。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-05",
+      "index": 47,
+      "disc": 3,
+      "track": 5,
+      "title": "Sen-Choose N'o SurC-蝕-",
+      "publishedTitle": "Sen-Choose N'o SurC-触-",
+      "listingNote": "抓軌標籤後綴是「蝕」，曲目表後綴是「触」。兩種寫法都保留，沒有改判曲名。",
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "sen-choose",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/05.Sen-Choose N'o SurC-蝕-.flac",
+      "file": "public/assets/audio/d3-05.opus",
+      "proposedUrl": "/assets/ost/d3-05.opus",
+      "sha256": "678363c7afb10e06cf20f5e4d379099987bd90cbb86ea5aec17562eee850320d",
+      "flacBytes": 33803997,
+      "opusBytes": 7264438,
+      "durationSec": 318.693,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sen-Choose N'o SurC -Touch-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_038_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_038_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.994,
+            "secondTrack": "d3-05",
+            "secondCorrelation": 0.985,
+            "gameDurationSec": 178.98,
+            "tracks": [
+              "d2-04",
+              "d3-05"
+            ],
+            "primary": "d2-04",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "刺與触的相關都超過 0.98。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-06",
+      "index": 48,
+      "disc": 3,
+      "track": 6,
+      "title": "weRer N'o Hir-処-",
+      "publishedTitle": "weRer N'o Hir-処-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "werer",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/06.weRer N'o Hir-処-.flac",
+      "file": "public/assets/audio/d3-06.opus",
+      "proposedUrl": "/assets/ost/d3-06.opus",
+      "sha256": "6f76bd3c4c7676cd287a9e98635c69f938b09634252449cb40e6f44d755f854e",
+      "flacBytes": 24175451,
+      "opusBytes": 4580792,
+      "durationSec": 225.627,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "weRer N'o Hir -Execution-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_043_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_043_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d2-17",
+            "secondCorrelation": 0.974,
+            "gameDurationSec": 226.01,
+            "tracks": [
+              "d3-06",
+              "d2-17"
+            ],
+            "primary": "d3-06",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第1章第4話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "処與刑都超過 0.97。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-07",
+      "index": 49,
+      "disc": 3,
+      "track": 7,
+      "title": "EmA-狂-",
+      "publishedTitle": "EmA-狂-",
+      "listingNote": null,
+      "tagArtist": "日彩",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "ema",
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/07.EmA-狂-.flac",
+      "file": "public/assets/audio/d3-07.opus",
+      "proposedUrl": "/assets/ost/d3-07.opus",
+      "sha256": "f4597bc954d0d98b8fe4102c4818ed19a3b833f5588f819cf833ad215e58a9d9",
+      "flacBytes": 27094490,
+      "opusBytes": 5377273,
+      "durationSec": 266.36,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "EmA -Madness-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_013_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_013_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.995,
+            "gameDurationSec": 9.59,
+            "tracks": [
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第4話日常／BAD",
+              "第1章第4話裁判",
+              "第2章第1話裁判",
+              "第2章第5話裁判"
+            ],
+            "note": "9.6 秒開頭同時貼近 EmA-狂與 EmA-常。"
+          },
+          {
+            "cue": "Bgm_014_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_014_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.996,
+            "secondTrack": "d1-19",
+            "secondCorrelation": 0.99,
+            "gameDurationSec": 256.78,
+            "tracks": [
+              "d3-07",
+              "d1-19",
+              "d2-16",
+              "d2-15"
+            ],
+            "primary": "d3-07",
+            "usedIn": [
+              "第1章第5話日常／BAD",
+              "第2章第1話裁判"
+            ],
+            "note": "長曲與四首 EmA 都高相關，不單鎖一首。"
+          },
+          {
+            "cue": "Bgm_016_001_Intro",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_016_001_Intro.wav",
+            "confidence": "series",
+            "correlation": 0.99,
+            "secondTrack": "d2-15",
+            "secondCorrelation": 0.975,
+            "gameDurationSec": 256.74,
+            "tracks": [
+              "d2-16",
+              "d2-15",
+              "d3-07",
+              "d1-19"
+            ],
+            "primary": "d2-16",
+            "usedIn": [
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第4話裁判",
+              "第2章第6話裁判"
+            ],
+            "note": "與 EmA 四首都近，最高是 EmA-危。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-08",
+      "index": 50,
+      "disc": 3,
+      "track": 8,
+      "title": "Sar-gedy-静-",
+      "publishedTitle": "Sar-gedy-静-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "sar-gedy",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/08.Sar-gedy-静-.flac",
+      "file": "public/assets/audio/d3-08.opus",
+      "proposedUrl": "/assets/ost/d3-08.opus",
+      "sha256": "12517fb0c6dde76f107b8bb495e9d62a4d4909ea68ec96697784b65c23bddb8a",
+      "flacBytes": 27295883,
+      "opusBytes": 6225955,
+      "durationSec": 290.333,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Sar-gedy -Silence-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_005_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_005_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.997,
+            "secondTrack": "d1-03",
+            "secondCorrelation": 0.1,
+            "gameDurationSec": 290.1,
+            "tracks": [
+              "d3-08"
+            ],
+            "primary": "d3-08",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第1話裁判",
+              "第1章第2話日常／BAD",
+              "第1章第2話裁判",
+              "第1章第3話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第1話裁判",
+              "第2章第2話日常／BAD",
+              "第2章第2話裁判",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-09",
+      "index": 51,
+      "disc": 3,
+      "track": 9,
+      "title": "その牢",
+      "publishedTitle": "その牢",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/09.その牢.flac",
+      "file": "public/assets/audio/d3-09.opus",
+      "proposedUrl": "/assets/ost/d3-09.opus",
+      "sha256": "a698c4bc7ad1a3066c17ce58931f52e29d7b92baf0bf56d001fd115284ccabb1",
+      "flacBytes": 6605665,
+      "opusBytes": 2547183,
+      "durationSec": 130.747,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Jail Cell",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_006_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_006_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.983,
+            "secondTrack": "d3-14",
+            "secondCorrelation": 0.089,
+            "gameDurationSec": 130.29,
+            "tracks": [
+              "d3-09"
+            ],
+            "primary": "d3-09",
+            "usedIn": [
+              "第1章第2話日常／BAD",
+              "第1章第2話裁判",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-10",
+      "index": 52,
+      "disc": 3,
+      "track": 10,
+      "title": "rAwTell Owk...",
+      "publishedTitle": "rAwTell Owk...",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/10.rAwTell Owk....flac",
+      "file": "public/assets/audio/d3-10.opus",
+      "proposedUrl": "/assets/ost/d3-10.opus",
+      "sha256": "477f2e5867c79367498b4a8d2b0711175c03a8ab35600f4817b02415378879a5",
+      "flacBytes": 30392880,
+      "opusBytes": 6826348,
+      "durationSec": 316,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "rAwTell Owk...",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_007_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_007_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.994,
+            "secondTrack": "d1-06",
+            "secondCorrelation": 0.083,
+            "gameDurationSec": 315.29,
+            "tracks": [
+              "d3-10"
+            ],
+            "primary": "d3-10",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話裁判",
+              "第2章第6話裁判"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-11",
+      "index": 53,
+      "disc": 3,
+      "track": 11,
+      "title": "Kei-Plne Co-Jundic",
+      "publishedTitle": "Kei-Plne Co-Jundic",
+      "listingNote": null,
+      "tagArtist": "天音",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/11.Kei-Plne Co-Jundic.flac",
+      "file": "public/assets/audio/d3-11.opus",
+      "proposedUrl": "/assets/ost/d3-11.opus",
+      "sha256": "a6cb6dac6d5870136343b0a38bed77c709777f2e1cb45366815290c6075b81f7",
+      "flacBytes": 27767093,
+      "opusBytes": 5775227,
+      "durationSec": 297.467,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Kei-Plne Co-Jundic",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_025_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_025_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.948,
+            "secondTrack": "d3-15",
+            "secondCorrelation": 0.08,
+            "gameDurationSec": 280.97,
+            "tracks": [
+              "d3-11"
+            ],
+            "primary": "d3-11",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第1話裁判",
+              "第1章第2話裁判",
+              "第1章第3話裁判",
+              "第1章第4話日常／BAD",
+              "第1章第4話裁判",
+              "第1章第5話裁判",
+              "第2章第1話日常／BAD",
+              "第2章第1話裁判",
+              "第2章第2話裁判",
+              "第2章第3話日常／BAD",
+              "第2章第3話裁判",
+              "第2章第4話裁判",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-12",
+      "index": 54,
+      "disc": 3,
+      "track": 12,
+      "title": "身罷りの香り",
+      "publishedTitle": "身罷りの香り",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": true,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/12.身罷りの香り.flac",
+      "file": "public/assets/audio/d3-12.opus",
+      "proposedUrl": "/assets/ost/d3-12.opus",
+      "sha256": "176a26e7d3d51af93d5034404882e2ab46f04d2d46aa2e0c619693f218ee801c",
+      "flacBytes": 17282838,
+      "opusBytes": 3566560,
+      "durationSec": 173.413,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Scent of Life So Fleeting",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_041_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_041_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.985,
+            "secondTrack": "d2-10",
+            "secondCorrelation": 0.134,
+            "gameDurationSec": 173.15,
+            "tracks": [
+              "d3-12"
+            ],
+            "primary": "d3-12",
+            "usedIn": [
+              "第1章第2話日常／BAD",
+              "第1章第4話日常／BAD",
+              "第2章第2話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-13",
+      "index": 55,
+      "disc": 3,
+      "track": 13,
+      "title": "鐘楼の鐘-予-",
+      "publishedTitle": "鐘楼の鐘-予-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "bell",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/13.鐘楼の鐘-予-.flac",
+      "file": "public/assets/audio/d3-13.opus",
+      "proposedUrl": "/assets/ost/d3-13.opus",
+      "sha256": "89e90ab8bcdb3abea98a03ce95df75415b645328f894592700da6f074b094985",
+      "flacBytes": 22655639,
+      "opusBytes": 4805791,
+      "durationSec": 233.173,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Belltower Rings -Premonition-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_039_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_039_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.969,
+            "secondTrack": "d3-14",
+            "secondCorrelation": 0.788,
+            "gameDurationSec": 232.73,
+            "tracks": [
+              "d3-13",
+              "d3-14"
+            ],
+            "primary": "d3-13",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判"
+            ],
+            "note": "波形最高是予，時長更貼近兆。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-14",
+      "index": 56,
+      "disc": 3,
+      "track": 14,
+      "title": "鐘楼の鐘-兆-",
+      "publishedTitle": "鐘楼の鐘-兆-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "bell",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/14.鐘楼の鐘-兆-.flac",
+      "file": "public/assets/audio/d3-14.opus",
+      "proposedUrl": "/assets/ost/d3-14.opus",
+      "sha256": "a76554fba81e7888d9f3abc82c52f2f5c2dab3b9c43988ea7fe6f8bee0f82a49",
+      "flacBytes": 23415166,
+      "opusBytes": 5027499,
+      "durationSec": 232.773,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "The Belltower Rings -Omen-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_039_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_039_001_Loop.wav",
+            "confidence": "series",
+            "correlation": 0.969,
+            "secondTrack": "d3-14",
+            "secondCorrelation": 0.788,
+            "gameDurationSec": 232.73,
+            "tracks": [
+              "d3-13",
+              "d3-14"
+            ],
+            "primary": "d3-13",
+            "usedIn": [
+              "第1章第1話裁判",
+              "第2章第1話裁判",
+              "第2章第2話裁判"
+            ],
+            "note": "波形最高是予，時長更貼近兆。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-15",
+      "index": 57,
+      "disc": 3,
+      "track": 15,
+      "title": "飛者の迎え-終-",
+      "publishedTitle": "飛者の迎え-終-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": "flyer",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/15.飛者の迎え-終-.flac",
+      "file": "public/assets/audio/d3-15.opus",
+      "proposedUrl": "/assets/ost/d3-15.opus",
+      "sha256": "7c959dd667925d9782f39bd39b75999e1224474b6802714d449e581e52c27ad3",
+      "flacBytes": 20189315,
+      "opusBytes": 5325690,
+      "durationSec": 233.187,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Welcoming the Levitated -End-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_044_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_044_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.655,
+            "secondTrack": "d1-16",
+            "secondCorrelation": 0.305,
+            "gameDurationSec": 233.15,
+            "tracks": [
+              "d3-15"
+            ],
+            "primary": "d3-15",
+            "usedIn": [
+              "第1章第1話日常／BAD",
+              "第1章第2話日常／BAD",
+              "第1章第3話日常／BAD",
+              "第2章第1話日常／BAD",
+              "第2章第2話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD"
+            ],
+            "note": "遊戲時長 233.2 秒，與飛者の迎え-終一致。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-16",
+      "index": 58,
+      "disc": 3,
+      "track": 16,
+      "title": "あなたたちの聲で",
+      "publishedTitle": "あなたたちの聲で",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": null,
+      "roleLabel": null,
+      "arrangementOf": null,
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁稱 60 首皆為遊戲內使用樂曲；此首的場面未核對"
+      ],
+      "series": null,
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/16.あなたたちの聲で.flac",
+      "file": "public/assets/audio/d3-16.opus",
+      "proposedUrl": "/assets/ost/d3-16.opus",
+      "sha256": "e0996e723074f7923cb4773b3b7372e950ce1e284e3adb0503506ec5995dcf5f",
+      "flacBytes": 37338486,
+      "opusBytes": 8058183,
+      "durationSec": 360.813,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Your Voices Shall be the Key",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_032_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_032_001_Loop.wav",
+            "confidence": "likely",
+            "correlation": 0.864,
+            "secondTrack": "d3-08",
+            "secondCorrelation": 0.048,
+            "gameDurationSec": 365.98,
+            "tracks": [
+              "d3-16"
+            ],
+            "primary": "d3-16",
+            "usedIn": [
+              "第2章第1話日常／BAD",
+              "第2章第3話日常／BAD",
+              "第2章第4話日常／BAD",
+              "第2章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-17",
+      "index": 59,
+      "disc": 3,
+      "track": 17,
+      "title": "bloom-Piano version-",
+      "publishedTitle": "bloom-Piano version-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": "piano-arrangement",
+      "roleLabel": "bloom 的鋼琴版",
+      "arrangementOf": "d1-22",
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁寫明收錄 bloom 的鋼琴版",
+        "曲名自帶 Piano version"
+      ],
+      "series": "bloom",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/17.bloom-Piano version-.flac",
+      "file": "public/assets/audio/d3-17.opus",
+      "proposedUrl": "/assets/ost/d3-17.opus",
+      "sha256": "9436139edd360f05fc981dbc6bdf36de006fe1a427eb5a5cd67e2fb84f160f20",
+      "flacBytes": 12356621,
+      "opusBytes": 3413470,
+      "durationSec": 153.213,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "bloom-Piano version-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Bgm_030_001_Loop",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_030_001_Loop.wav",
+            "confidence": "confirmed",
+            "correlation": 0.989,
+            "secondTrack": "d3-15",
+            "secondCorrelation": 0.158,
+            "gameDurationSec": 154.09,
+            "tracks": [
+              "d3-17"
+            ],
+            "primary": "d3-17",
+            "usedIn": [
+              "第1章第5話日常／BAD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3-18",
+      "index": 60,
+      "disc": 3,
+      "track": 18,
+      "title": "救いを求めるヒトの詩-Piano version-",
+      "publishedTitle": "救いを求めるヒトの詩-Piano version-",
+      "listingNote": null,
+      "tagArtist": "Acacia",
+      "role": "piano-arrangement",
+      "roleLabel": "「救いを求めるヒトの詩」的鋼琴版",
+      "arrangementOf": "d2-20",
+      "documentedPerformer": null,
+      "documentedCredit": null,
+      "sources": [
+        "Steam 原聲帶頁寫明收錄該曲的鋼琴版",
+        "曲名自帶 Piano version"
+      ],
+      "series": "salvation",
+      "titleMaySpoil": false,
+      "source": "『魔法少女ノ魔女裁判』OST分轨flac/DISC 3/18.救いを求めるヒトの詩-Piano version-.flac",
+      "file": "public/assets/audio/d3-18.opus",
+      "proposedUrl": "/assets/ost/d3-18.opus",
+      "sha256": "ed0c62c9739d2c6ec0404b9ebe0077a25afb0afa9b548c481fb33dacc2ddaf25",
+      "flacBytes": 21012316,
+      "opusBytes": 6378628,
+      "durationSec": 294.76,
+      "channels": 2,
+      "sampleRate": 48000,
+      "englishTitle": "Song of the One Seeking Salvation -Piano version-",
+      "game": {
+        "cues": [
+          {
+            "cue": "Song_003_001",
+            "asset": "Assets/#WitchTrials/Audio/BGM/Songs/Song_003_001.wav",
+            "confidence": "confirmed",
+            "correlation": 0.998,
+            "secondTrack": "d2-20",
+            "secondCorrelation": 0.239,
+            "gameDurationSec": 298.44,
+            "tracks": [
+              "d3-18"
+            ],
+            "primary": "d3-18",
+            "usedIn": []
+          }
+        ]
+      }
+    }
+  ],
+  "englishTitles": "Frontier Works 配信頁英文曲名：https://www.fwinc.co.jp/manosaba_CD/haishin",
+  "gameAudio": {
+    "build": "SteamLibrary/steamapps/common/manosaba_game",
+    "method": "遊戲 FSB5 Vorbis 與這份 Opus 都轉成 8 kHz 單聲道後做歸一化波形相關。同系列差距小於約 0.12 時不單鎖一首。",
+    "webSceneList": "Frontier Works、Steam、wikiwiki 與日文維基都沒有逐曲場面表。",
+    "ambience": [
+      {
+        "cue": "Ambient_001_001 Natural bird",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_001_001 Natural bird.wav",
+        "durationSec": 59.97
+      },
+      {
+        "cue": "Ambient_002_001 Shower",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_002_001 Shower.wav",
+        "durationSec": 28.0
+      },
+      {
+        "cue": "Ambient_003_001 Chakumero",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_003_001 Chakumero.wav",
+        "durationSec": 25.23
+      },
+      {
+        "cue": "Ambient_004_001 Fire house",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_004_001 Fire house.wav",
+        "durationSec": 84.83
+      },
+      {
+        "cue": "Ambient_005_001 Operating elevator",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_005_001 Operating elevator.wav",
+        "durationSec": 6.02
+      },
+      {
+        "cue": "Ambient_006_001 Flare up",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_006_001 Flare up.wav",
+        "durationSec": 90.1
+      },
+      {
+        "cue": "Ambient_007_001 Earthquake",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_007_001 Earthquake.wav",
+        "durationSec": 4.92
+      },
+      {
+        "cue": "Ambient_008_001 Hard rain",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_008_001 Hard rain.wav",
+        "durationSec": 83.83
+      },
+      {
+        "cue": "Ambient_010_001 Chain fall out",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_010_001 Chain fall out.wav",
+        "durationSec": 3.0
+      },
+      {
+        "cue": "Ambient_011_001 Laughing girls",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_011_001 Laughing girls.wav",
+        "durationSec": 52.21
+      },
+      {
+        "cue": "Ambient_101_001 white-noise-48000sr",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_101_001 white-noise-48000sr.wav",
+        "durationSec": 10.0
+      },
+      {
+        "cue": "Ambient_102_001 SFX_FireBig_L",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Ambient/Ambient_102_001 SFX_FireBig_L.wav",
+        "durationSec": 9.98
+      }
+    ],
+    "unmatchedCues": [
+      {
+        "cue": "Bgm_004_001_Loop",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_004_001_Loop.wav",
+        "durationSec": 227.18,
+        "bestTrack": "d1-03",
+        "correlation": 0.3095
+      },
+      {
+        "cue": "Bgm_049_001_Loop",
+        "asset": "Assets/#WitchTrials/Audio/BGM/Common/Bgm_049_001_Loop.wav",
+        "durationSec": 88.28,
+        "bestTrack": "d2-05",
+        "correlation": 0.108
+      }
+    ]
+  }
+}

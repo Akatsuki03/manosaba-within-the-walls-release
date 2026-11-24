@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "reviewedOn": "2026-10-20",
+  "sourceCard": "docs/魔法少女的魔女审判.json",
+  "sources": [
+    { "id": "card", "kind": "user-supplied-card", "path": "docs/魔法少女的魔女审判.json", "sha256": "c0362726876ab500b6bb474b356003081a0406d82fd3b26fc1cacbc23de0d4c6" },
+    { "id": "wiki-rules", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/规定", "pageUpdatedOn": "2026-03-12", "sections": ["规定Ⅰ", "规定Ⅱ", "规定Ⅲ", "规定Ⅳ", "规定Ⅴ"] },
+    { "id": "wiki-map", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/地图", "pageUpdatedOn": "2026-04-11", "sections": ["1层", "2层", "地下1层", "地下深层"] },
+    { "id": "wiki-records", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/记录", "pageUpdatedOn": "2026-03-15", "sections": ["魔女", "魔女因子", "监牢", "大魔女", "残骸", "魔女化", "处刑", "艾玛的笔记", "研究人员的调查书", "大魔女的手记", "写给梅露露的信"] },
+    { "id": "wiki-guards", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/看守", "pageUpdatedOn": "2026-04-29" },
+    { "id": "wiki-warden", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/典狱长", "pageUpdatedOn": "2026-04-29" },
+    { "id": "wiki-mechanics", "kind": "public-wiki", "url": "https://wiki.biligame.com/manosaba/机制", "pageUpdatedOn": "2026-03-16" }
+  ],
+  "rules": [
+    { "id": "life", "name": "规定Ⅰ·生活", "classification": "wiki-corroborated", "sources": ["wiki-rules", "card"], "cardEntryIndices": [0, 1], "implementation": "movement-and-clock-guards; other procedures reference-only", "paragraphs": [
+      "【牢房滞留】放风时间以外须留在囚犯编号对应的牢房。违规被看守发现，将移送惩罚室禁闭两天。牢房分配不是临时位置，走动不会改变所属牢房。",
+      "【监视体制】看守常时巡逻，巡逻排班不向囚犯公开。文字描述、请求或声称获准，不会改变门锁与通行权限。",
+      "【衣物处理】每日在淋浴房的垃圾滑槽丢弃旧衣；焚烧炉每周一15时启动。",
+      "【身体不适及受伤】经许可可在拘禁时间留医务室休息，最多一名看护人员陪同。尚未获准不能自行把叙述当成许可。",
+      "【用餐与就寝】各放风时段在食堂用餐，错过即丧失该餐用餐权。22时至次日6时在牢房就寝，熄灯后交谈亦属违规。"
+    ] },
+    { "id": "patrol", "name": "规定Ⅱ·警卫", "classification": "wiki-corroborated", "sources": ["wiki-rules", "wiki-guards", "card"], "cardEntryIndices": [1, 25], "implementation": "no-prose-combat-or-punishment", "paragraphs": [
+      "【巡逻与罚则】警卫在全区域常时巡逻，排班不公开。非放风时间外出，罚惩罚室禁闭两天；以暴力反抗看守，会遭当场处刑。",
+      "集合广播会提供本次开锁与带路指示，不代表可以袭击看守，也不代表已经替任何囚犯决定行动。当前没有战斗、伤害、押送与处刑执行器，不能由模型自行写成成功、受伤或死亡。"
+    ] },
+    { "id": "free-time", "name": "规定Ⅲ·放风", "classification": "wiki-corroborated", "sources": ["wiki-rules", "card"], "cardEntryIndices": [0, 1], "implementation": "allowed-topology-only", "paragraphs": [
+      "放风时间可在允许出入的区域自由行动；越出允许区域视为违规。可以在图书室阅读、娱乐室游玩、野外运动或散步；不允许集体抗议与策划逃走。",
+      "资料中存在的地点不等于当前已经接通的路线。未实现的房间、暗门、钥匙、逃跑和魔法效果，不会因叙述而开放。"
+    ] },
+    { "id": "trial", "name": "规定Ⅳ·审判", "classification": "wiki-corroborated", "sources": ["wiki-rules", "wiki-mechanics", "card"], "cardEntryIndices": [1, 28, 56], "implementation": "reference-only", "paragraphs": [
+      "监狱岛发生杀人事件后才进入搜查与魔女审判。发现尸体至开庭前允许自由搜查，即使原属拘禁时间也解除拘留、拘禁；有紧急情况或销毁证据疑虑时，管理者可拘禁最重要嫌疑人。",
+      "审判在指定时限内讨论；只要仍在时限内且有人希望讨论，就继续。最高得票者被认定为魔女并被处刑，投票结果不等于事实真相。无法选定魔女时全体参加者受刑；全员同意不存在凶手且管理者认可合理证据，可中止审判。",
+      "本次尚未实现杀人、搜查证物、手机投票、审判和处刑程序。开场、因子数值、等待或一句话不能直接触发案件、指定凶手或决定结局。"
+    ] },
+    { "id": "timetable", "name": "规定Ⅴ·时间表", "classification": "wiki-with-card-supplement", "sources": ["wiki-rules", "card"], "cardEntryIndices": [0, 1], "implementation": "shared-clock-and-locks", "paragraphs": [
+      "06:00—10:00：门锁开放，放风与早餐。10:00—12:00：牢房滞留、巡逻及管理检查。12:00—15:00：门锁开放，放风与午餐。",
+      "15:00—17:00：牢房滞留（原卡条目0明确补充；Wiki时间表未列出这一行，不冒充Wiki逐字原文）。17:00—22:00：放风、晚餐及淋浴，其他时段不供应热水。22:00—次日06:00：禁止外出、牢房就寝。",
+      "本实现采用06:30作为开场时钟基准和整数模拟秒作为活动节拍，这是宿主安排，不声称原作精确计时。初次通知前保留收监门锁，广播解锁后依公共时钟检查通行；各角色共用同一个时钟。"
+    ] },
+    { "id": "witchbook", "name": "手机与魔女图鉴", "classification": "card-setting", "sources": ["card"], "cardEntryIndices": [0, 56], "implementation": "book-reading-and-broadcast; calls-and-streaming-unimplemented", "paragraphs": [
+      "每名囚犯获配手机，内置魔女图鉴，可自行查阅规定、基础人物与证物记录。能查阅不等于已经阅读，不把整部世界资料或别人的秘密灌进任何人的记忆。",
+      "原卡规定监牢内可通信、直播，添加好友须双方同意，不能连接外部互联网；广播也可经手机直播送达。当前落实公共通知与本地图鉴，尚未实现好友、通话、聊天、摄录、格式化和自由直播。",
+      "目前人物姓名仍按实际相识记录揭示；图鉴可有基础名单，不足以自动把远处声音、外貌与真实姓名相互对应。安安日常使用书写，不把笔谈当成语音或施法。"
+    ] },
+    { "id": "assembly", "name": "广播与集合", "classification": "card-with-host-pacing", "sources": ["card", "wiki-map"], "cardEntryIndices": [0], "implementation": "persistent-public-delivery-and-autonomous-routes", "paragraphs": [
+      "典狱长通知后，开锁与集合请求送达各牢房及配发手机的囚犯。已听见的NPC按各自反应节拍离房，经地下过道前往接客室，不瞬移；玩家可留下、早走或迟走，也不会自动跟随。",
+      "接客室是Wiki的集合房间，对应本工程稳定RECEPTION/reception。原卡广播把它称作“会客厅”，对白原文保留。Wiki另有独立的一楼大厅“会客厅”（hall），不是同一个地点；资料或别名不会凭空接通大厅。",
+      "场外行动持久记录，但只向当时的合法目击者传递可见动作，不传播私密思考、未知身份、别处对话或后续案件。"
+    ] }
+  ],
+  "facts": [
+    { "id": "cell-surface", "access": "surface", "rooms": ["cell", "cell01", "cell02", "cell04", "cell05", "cell06", "cell07", "playercell"], "classification": "card-and-wiki", "sources": ["card", "wiki-map"], "cardEntryIndices": [0, 2], "statements": ["地下牢房沿过道直线排列，石墙、双层床、铁栅栏及墙上显示屏是当前可见设施。电子门锁只能由已裁决的开锁事件改变。", "所属牢房不因走动而改变。未见到其他牢房内部时，不知道其中的人在做什么。"] },
+    { "id": "corridor-surface", "access": "surface", "rooms": ["corridor"], "classification": "card-and-wiki", "sources": ["card", "wiki-map"], "cardEntryIndices": [2, 25], "statements": ["地下石砌过道连接各牢房，通往一楼的楼梯位于过道一端。看守是披黑衣、戴面具、身形高大的非人外形，脚步沉重；外形不能证明其身世。", "场景只报告当前可见的少女与实际传来的声音；房内、楼上和远处的具体活动不属于此处全知信息。"] },
+    { "id": "reception-surface", "access": "surface", "rooms": ["reception"], "classification": "card-and-wiki", "sources": ["card", "wiki-map"], "cardEntryIndices": [2], "statements": ["这是典狱长召集开会的接客室，有桌椅与壁炉；原卡称此处为会客厅。不是Wiki另列的1F大厅。", "到达仅改变当前位置。人物介绍、关系、伤亡和案件须由后续实际事件裁决，不因进入房间就自动发生。"] },
+    { "id": "public-island", "access": "host", "classification": "card-setting", "sources": ["card", "wiki-map"], "cardEntryIndices": [2, 79], "statements": ["监狱位于海岛，核心是古老哥特式两层宅邸，另有地下层。卡设岛屿约50公顷、气候温暖有四季、地形复杂，留有前人的逃脱遗迹。", "一楼有玄关、接客室、独立大厅、医务室、淋浴房、食堂与审判庭；二楼有娱乐室、图书室。院落有中庭、湖、花田、高墙、仓库及火精、地精、水精三座招待所。", "魔法形成的常青樱花、常存彩虹与不可破坏高墙是地点资料，不是当前角色已亲眼见过的事实。"] },
+    { "id": "life-details", "access": "host", "classification": "card-setting", "sources": ["card"], "cardEntryIndices": [0], "statements": ["两人一间、可有单人间；按原卡从楼梯近至远为雪莉/亚里沙、玛格/奈叶香、艾玛/希罗、诺亚/安安、蕾雅/米莉亚、可可/汉娜、梅露露。自定义新增名额使用八号牢房，稳定标识PLAYER_CELL。", "每人定制服装与手机壳；原私人物品通常收缴，重要小物可能保留。不能由模型据此生成物品所有权。"] },
+    { "id": "hidden-infrastructure", "access": "host", "classification": "wiki-with-card-details", "sources": ["wiki-map", "card"], "cardEntryIndices": [2], "statements": ["画室原无门，垃圾滑槽与淋浴房滑槽相通，通向焚烧炉。图鉴地图不因存有这项资料而解锁画室。", "水精之室下方有控制室与冷冻室，电梯限重约两人。卡设密码门、狭窄通风管、保险箱、处刑台预备室及冰封尸体残骸。密码与具体进入方式不交给普通囚犯。"] },
+    { "id": "witch-history", "access": "host", "classification": "wiki-with-card-expansion", "sources": ["wiki-records", "card"], "cardEntryIndices": [12, 17, 20, 33, 34, 45, 55, 67], "statements": ["古代魔女与现代持有因子的人类预备魔女不是同一类别。人类迫害、岛屿被夺与大魔女散播诅咒属于后期调查内容，不是普通囚犯的开局常识。", "魔女因子与精神压力有关，可能增强魔法、杀意与外貌异变，最终失去人形成残骸。原卡把过程细化为浓度0至100及阶段行为，这些数值和必杀指令不是已核实的原作数值机制。", "政府秘密检测与强制收容在卡内有详细设定；‘全部人类持因子’与检测年龄、运输手段需作为卡设补充，不能假称Wiki逐句证明。"] },
+    { "id": "meruru-knowledge", "access": "owner", "owners": ["meruru"], "classification": "card-owner-belief", "sources": ["card", "wiki-records", "wiki-warden"], "cardEntryIndices": [50, 77], "statements": ["我在这座岛上生活了很久，知道医务室与管理设施；我隐藏身份寻找我信奉的大魔女，典狱长听从我的管理指示。这些是我自己的秘密，不代表其他囚犯知道。", "我相信自己曾被大魔女收留并拥有救治与魔女杀手之力；自己的信仰不等于已验证事实。我的亲身经历不能代替尚未获得的见闻，也不能据此推定其他人的身份、当前位置或秘密。"] },
+    { "id": "warden-knowledge", "access": "owner", "owners": ["warden"], "classification": "card-owner", "sources": ["card", "wiki-warden"], "cardEntryIndices": [57, 77], "statements": ["我负责公告、门锁、看守和制度管理，听从梅露露的指示；监牢里存在多个猫头鹰个体。管理权限不等于知道每个囚犯的私密经历、当前想法或未来案件。"] },
+    { "id": "guards-truth", "access": "host", "classification": "wiki-with-card-secret", "sources": ["wiki-guards", "wiki-records", "card"], "cardEntryIndices": [25, 77], "statements": ["看守由易控制的残骸转化而来，具有异常力量与再生性。卡称彻底失去记忆，Wiki称有一定残存自我意识；不裁定为绝对无自我，也不让其像普通人说话。", "常见看守与奈叶香姐姐的关系是后期秘密，不能因奈叶香本人出现就自动揭露。"] },
+    { "id": "medicine-and-ritual", "access": "host", "classification": "wiki-with-card-expansion", "sources": ["wiki-records", "card"], "cardEntryIndices": [21, 22, 73], "statements": ["特雷德基姆（13）是人类研究的杀死魔女之药；药物、中和因子与组织损伤涉及后期调查。卡细化角膜晶状体宝石化与对纯种魔女无效，暂列卡设补充，不做无出处原作定论。", "魔女安息仪式在卡中实为召唤大魔女的仪式，需十三名有足够魔力者及仪式剑、古书解读；尚未实现，也不预订牺牲或通关条件。"] },
+    { "id": "yuki-truth", "access": "host", "classification": "wiki-and-card-late-spoiler", "sources": ["wiki-records", "card"], "cardEntryIndices": [20, 55, 74], "statements": ["月代雪与大魔女、艾玛记忆、梅露露来历有关的真相只留在宿主资料中。希罗知道曾经的朋友不等于知道其大魔女身份；艾玛开局存在记忆缺失，不能给她旁观者真相。"] },
+    { "id": "cases-not-fate", "access": "host", "classification": "source-plot-reference-not-executable", "sources": ["card", "wiki-mechanics"], "cardEntryIndices": [26, 28, 29, 32, 38, 40, 59, 60, 61, 62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78], "statements": ["案件总览、各角色out、处刑方式、遗书、一二三周目注定事件、旧固定事项均作为原卡剧情参考隔离。它们不是本轮已发生事件、当前人物记忆或强制时间表。", "审问红字、回忆杀、投票按钮等是酒馆叙事要求或原作交互机制，不执行卡内HTML、变量操作、出图、COT与宏。"] }
+  ],
+  "conflicts": [
+    { "id": "reception-vs-hall", "sources": ["card", "wiki-map"], "resolution": "保留原卡台词会客厅，RECEPTION映射Wiki接客室，hall独立不合并。" },
+    { "id": "food-quality", "sources": ["card", "wiki-map"], "resolution": "卡称饭菜不好不坏，Wiki称极差。客观资料保留差异，角色只依据吃过的感受，不硬编码统一口味。" },
+    { "id": "afternoon", "sources": ["card", "wiki-rules"], "resolution": "15至17时以卡内明确滞留段补全，标示为卡设补充；Wiki正文未列该段。" },
+    { "id": "memory-and-gun", "sources": ["card"], "resolution": "旧人物条目、出局条目与不同周目的能力/携枪/记忆不拼成开局全知。沿用已审定人物种子，只增加合法的私有世界知识。" },
+    { "id": "numeric-factor", "sources": ["card", "wiki-records"], "resolution": "0至100、数值阶段强制杀人、性行为降低因子的酒馆扩展不执行。压力与魔女化仅作背景，不自动生成数值、伤害或案件。" }
+  ],
+  "implemented": ["原卡对白分段及有权限的开场投影", "主动图鉴规定分类", "共享模拟时钟", "广播听众及各自观测", "牢门和可达拓扑校验", "逐人反应及分段集合路线", "场外行动持久记录与可见性隔离", "历史动作按版本精确重放"],
+  "unimplemented": ["战斗与伤病裁决", "惩罚室押送及两天拘禁模拟", "完整巡逻排班和所有楼层移动", "医务室许可流程", "进食洗浴及衣物物品系统", "手机好友通话与自由直播", "魔法与魔女因子数值", "案件搜查审判及处刑", "死亡回溯与三周目结局", "隐藏设施发现及仪式执行"]
+}

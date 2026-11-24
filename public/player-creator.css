@@ -1,0 +1,207 @@
+/* Player creation shares the existing serif typography and muted ink/pink
+   palette. Keep every selector scoped so game, settings and book UI are inert. */
+#new-game-dialog {
+  --pc-ink: #f1e7ef;
+  --pc-muted: #beb0c5;
+  --pc-border: #d9b4c42d;
+  --pc-accent: #e9adc4;
+  max-width: 1000px;
+  width: min(1000px, calc(100% - 36px));
+  max-height: 90vh;
+  max-height: 90dvh;
+  padding: 30px 36px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #b4829b #211b29;
+  border: 1px solid #b08a9e88;
+  border-radius: 8px;
+  color: var(--pc-ink);
+  background: radial-gradient(ellipse at 95% 0, #5c3c5140, transparent 48%), #211c29;
+  box-shadow: 0 28px 120px #000b;
+  overscroll-behavior: contain;
+  scroll-padding-block: 20px 95px;
+}
+#new-game-dialog .pc-dialog-heading { padding-bottom: 12px; border-bottom: 1px solid var(--pc-border); }
+#new-game-dialog .pc-dialog-heading .pc-eyebrow { margin: 0 0 8px; color: var(--pc-accent); font-size: 11px; letter-spacing: .24em; }
+#new-game-dialog .pc-dialog-heading h2 { margin: 0 0 8px; font-size: clamp(22px, 3.5vw, 31px); letter-spacing: .08em; }
+#new-game-dialog .pc-dialog-heading > p:last-child { margin: 0; color: var(--pc-muted); font-size: 13px; }
+#new-game-dialog #new-game-examples { margin: 18px 0; padding: 6px 14px 12px; border-color: var(--pc-border); }
+#new-game-dialog #new-game-examples legend { padding: 0 8px; color: var(--pc-muted); font-size: 12px; }
+#new-game-dialog #new-game-examples p { padding: 7px 10px; font-size: 12px; }
+#new-game-dialog #new-game-examples label { font-size: 14px; }
+#new-game-dialog #new-game-examples details { padding: 2px 10px; }
+#new-game-dialog summary { cursor: pointer; }
+#new-game-dialog summary:focus-visible { outline: 2px solid var(--pc-accent); outline-offset: 5px; }
+#new-game-dialog input, #new-game-dialog textarea, #new-game-dialog select { font: inherit; }
+#new-game-dialog input[type="radio"], #new-game-dialog input[type="checkbox"] { accent-color: var(--pc-accent); }
+#new-game-dialog button { min-height: 36px; padding: 8px 14px; font-size: 12px; }
+#new-game-dialog .pc-status-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
+#new-game-dialog #pc-message { flex: 1; margin: 0; min-height: 24px; color: #e7c7d7; font-size: 13px; overflow-wrap: anywhere; }
+#new-game-dialog [data-error="true"] #pc-message { color: #ffb8b8; }
+#new-game-dialog .pc-status-line > button { flex: none; background: transparent; padding: 6px 10px; color: var(--pc-muted); font-size: 11px; }
+#new-game-dialog #pc-catalog-notice { padding: 10px 12px; background: #100e1677; border-left: 2px solid #c699b366; }
+#new-game-dialog p.pc-help, #new-game-dialog .pc-help { margin: 7px 0 0; color: var(--pc-muted); font-size: 12px; line-height: 1.9; }
+#new-game-dialog .pc-form { min-width: 0; margin: 0; padding: 0; border: 0; }
+#new-game-dialog .pc-choice-row { display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; margin-top: 22px; }
+#new-game-dialog .pc-choice { min-width: 0; margin: 0; padding: 0; border: 0; }
+#new-game-dialog .pc-choice legend { margin-bottom: 10px; padding: 0; font-size: 16px; color: #eddae6; }
+#new-game-dialog .pc-segments { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+#new-game-dialog .pc-segments label { position: relative; display: block; cursor: pointer; }
+#new-game-dialog .pc-segments input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+#new-game-dialog .pc-segments span { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px; border: 1px solid var(--pc-border); background: #17131e77; color: #bcaec5; font-size: 13px; transition: background .15s, color .15s, border-color .15s; }
+#new-game-dialog .pc-segments label:first-child span { border-radius: 4px 0 0 4px; }
+#new-game-dialog .pc-segments label:last-child span { border-radius: 0 4px 4px 0; }
+#new-game-dialog .pc-segments input:checked + span { color: #ffedf6; background: #9f657734; border-color: #dca5bf99; }
+#new-game-dialog .pc-segments input:focus-visible + span { outline: 2px solid var(--pc-accent); outline-offset: 3px; }
+#new-game-dialog .pc-segments input:disabled + span { opacity: .55; cursor: not-allowed; }
+#new-game-dialog .pc-section { padding: 22px 0; border-bottom: 1px solid var(--pc-border); }
+#new-game-dialog .pc-section-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+#new-game-dialog .pc-section-heading h3, #new-game-dialog #pc-cosmetics-title { margin: 0; color: #eddae6; font-size: 19px; font-weight: 500; letter-spacing: .08em; }
+#new-game-dialog .pc-section-heading > span { color: #a99bb2; font-size: 11px; }
+#new-game-dialog .pc-actors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+#new-game-dialog .pc-actor-card { position: relative; display: flex; align-items: center; gap: 9px; min-width: 0; height: 76px; padding: 7px 9px; border: 1px solid var(--pc-border); border-radius: 4px; background: #1815209c; cursor: pointer; transition: border-color .15s, background .15s; }
+#new-game-dialog .pc-actor-card:has(input:checked) { border-color: #dca5bf; background: linear-gradient(120deg, #9f65773c, #33233270); box-shadow: inset 0 0 0 1px #c48caa22; }
+#new-game-dialog .pc-actor-card:hover { border-color: #c395b077; }
+#new-game-dialog .pc-actor-card:has(input:focus-visible) { outline: 2px solid var(--pc-accent); outline-offset: 3px; }
+#new-game-dialog .pc-actor-card input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+/* Landscape thumbnails share the name's centerline inside the taller slot. */
+#new-game-dialog .pc-actor-frame { display: flex; align-items: center; justify-content: center; flex: none; width: 46px; height: 60px; overflow: hidden; }
+#new-game-dialog .pc-actor-card img { display: block; width: 100%; height: auto; max-height: 100%; object-fit: contain; object-position: center; filter: drop-shadow(0 2px 4px #0006); }
+#new-game-dialog .pc-actor-card-name { display: block; min-width: 0; color: #e6d9e5; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+#new-game-dialog .pc-actor-description { margin-top: 12px; padding: 12px 16px; border-left: 2px solid #c194a980; background: #16111f60; }
+#new-game-dialog .pc-actor-description h4 { margin: 0 0 5px; font-size: 14px; color: #efdce9; font-weight: 500; }
+#new-game-dialog .pc-actor-description p { margin: 2px 0; color: var(--pc-muted); font-size: 12px; }
+#new-game-dialog .pc-presets, #new-game-dialog .pc-advanced, #new-game-dialog .pc-attribute-rules { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--pc-border); border-radius: 4px; background: #15111c55; }
+#new-game-dialog .pc-presets > summary, #new-game-dialog .pc-advanced > summary { color: #dfc6d7; font-size: 13px; }
+#new-game-dialog summary span { margin-left: 10px; color: #a795b2; font-size: 11px; }
+#new-game-dialog .pc-preset-grid, #new-game-dialog .pc-two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-top: 14px; }
+#new-game-dialog .pc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+#new-game-dialog .pc-actions button { background: #3b2e4188; }
+#new-game-dialog button.pc-danger { border-color: #be7b8255; color: #dfa7b0; background: #642e3c29; }
+#new-game-dialog button.pc-danger:hover:not(:disabled) { background: #8a3d503f; border-color: #d89aa5; }
+#new-game-dialog .pc-delete-confirm { margin-top: 12px; padding: 10px 12px; background: #5c26333d; border: 1px solid #ca8d9a50; border-radius: 3px; }
+#new-game-dialog .pc-delete-confirm p { margin: 0; color: #e4bfc7; }
+#new-game-dialog .pc-field { display: block; min-width: 0; margin: 0 0 14px; color: #dfd1df; font-size: 13px; }
+#new-game-dialog .pc-field > span { margin-left: 7px; color: #b7a2ba; font-size: 11px; }
+#new-game-dialog .pc-field input, #new-game-dialog .pc-field textarea, #new-game-dialog .pc-field select { display: block; width: 100%; min-width: 0; margin-top: 7px; padding: 10px 12px; border: 1px solid #b795ad44; border-radius: 3px; background: #120f1b99; color: #efe4f1; font-size: 14px; line-height: 1.7; outline: none; }
+#new-game-dialog .pc-field textarea { resize: vertical; min-height: 76px; max-height: 480px; }
+#new-game-dialog .pc-field input { min-height: 44px; }
+#new-game-dialog .pc-field select { min-height: 44px; }
+#new-game-dialog .pc-field input::placeholder, #new-game-dialog .pc-field textarea::placeholder { color: #8e7f9a; opacity: 1; font-size: 12px; }
+#new-game-dialog .pc-field input:focus, #new-game-dialog .pc-field textarea:focus, #new-game-dialog .pc-field select:focus { border-color: #d59dbb; box-shadow: 0 0 0 2px #b981a122; }
+#new-game-dialog .pc-field > small { display: block; margin-top: 5px; color: #aa98b6; font-size: 11px; }
+#new-game-dialog .pc-character-basics { display: grid; grid-template-columns: minmax(0, 1fr) 160px; gap: 16px; }
+#new-game-dialog .pc-ai { margin: 16px 0; padding: 14px 16px; border: 1px solid #b992b43c; border-radius: 4px; background: linear-gradient(110deg, #4a354c55, #21172944); }
+#new-game-dialog .pc-ai h4 { margin: 0 0 5px; font-size: 14px; color: #e6c8df; font-weight: 500; }
+#new-game-dialog .pc-ai p { margin: 0 0 10px; color: #bdaacb; font-size: 12px; }
+#new-game-dialog .pc-ai .pc-field { margin-bottom: 10px; font-size: 12px; }
+#new-game-dialog .pc-ai textarea { min-height: 60px; font-size: 13px; }
+#new-game-dialog .pc-ai > button { color: #ead0e5; border-color: #be91b070; background: #6e466038; }
+#new-game-dialog .pc-preview { margin: 16px 0; padding: 18px; border: 1px solid #bdc8a967; background: #343c2d33; border-radius: 4px; }
+#new-game-dialog .pc-preview h4 { margin: 0 0 12px; color: #d8e0c9; font-size: 14px; }
+#new-game-dialog .pc-preview dl { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 10px 14px; margin: 0; font-size: 13px; }
+#new-game-dialog .pc-preview dt { color: #bfc9af; }
+#new-game-dialog .pc-preview dd { margin: 0; color: #e3ddde; white-space: pre-wrap; overflow-wrap: anywhere; }
+#new-game-dialog .pc-preview p { color: #bac2ad; }
+#new-game-dialog .pc-preview .pc-preview-prose { font-size: 14px; color: #e3ddde; white-space: pre-wrap; overflow-wrap: anywhere; }
+#new-game-dialog .pc-attributes { margin-top: 25px; padding-top: 22px; border-top: 1px solid var(--pc-border); }
+#new-game-dialog .pc-inline-field { display: flex; align-items: center; gap: 10px; color: var(--pc-muted); font-size: 12px; }
+#new-game-dialog .pc-inline-field select { min-height: 36px; padding: 6px 10px; border: 1px solid #b795ad44; border-radius: 3px; background: #17121f; color: #e6d4e2; font-size: 12px; }
+#new-game-dialog .pc-point-budget { margin: 0 0 16px; padding: 13px 16px; background: #15121d80; border: 1px solid var(--pc-border); border-radius: 4px; }
+#new-game-dialog .pc-point-budget > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#new-game-dialog #pc-points-remaining { color: #e8bed2; font-size: 19px; font-weight: 500; }
+#new-game-dialog #pc-points-spent { color: #b9a4be; font-size: 12px; }
+#new-game-dialog .pc-point-budget meter { display: block; width: 100%; height: 8px; margin: 10px 0; accent-color: #cc9eb5; }
+#new-game-dialog .pc-point-budget meter::-webkit-meter-bar { background: #443347; border: 0; border-radius: 4px; }
+#new-game-dialog .pc-point-budget meter::-webkit-meter-optimum-value { background: linear-gradient(90deg, #977b9a, #d8a5be); border-radius: 4px; }
+#new-game-dialog .pc-point-budget p { margin: 3px 0 0; color: var(--pc-muted); }
+#new-game-dialog .pc-point-budget[data-invalid="true"] { border-color: #c9798577; }
+#new-game-dialog .pc-point-budget[data-invalid="true"] #pc-points-remaining { color: #f5a5b5; }
+#new-game-dialog .pc-attribute-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+#new-game-dialog .pc-attribute { padding: 14px; border: 1px solid var(--pc-border); border-radius: 4px; background: #18131f66; }
+#new-game-dialog .pc-attribute > label { color: #e6d2e0; font-size: 16px; }
+#new-game-dialog .pc-attribute .pc-attribute-description { min-height: 44px; margin: 6px 0 12px; font-size: 11px; color: #b19ebd; }
+#new-game-dialog .pc-score-controls { display: grid; grid-template-columns: 34px minmax(0, 1fr) 34px; align-items: center; gap: 8px; }
+#new-game-dialog .pc-score-controls button { min-height: 34px; height: 34px; padding: 0; font-size: 18px; color: #e5b7cf; border-color: #a983a044; }
+#new-game-dialog .pc-score-controls input { width: 100%; min-width: 0; height: 42px; padding: 4px; border: 1px solid #b795ad55; border-radius: 3px; background: #0e0a1599; color: #f2e2ee; text-align: center; font-size: 24px; font-variant-numeric: tabular-nums; appearance: textfield; }
+#new-game-dialog .pc-score-controls input::-webkit-inner-spin-button, #new-game-dialog .pc-score-controls input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+#new-game-dialog .pc-score-controls input:focus-visible { outline: 2px solid var(--pc-accent); outline-offset: 2px; }
+#new-game-dialog .pc-score-controls input[aria-invalid="true"] { border-color: #e794a7; }
+#new-game-dialog .pc-score-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; color: #b5a0b9; font-size: 11px; }
+#new-game-dialog .pc-score-foot strong { color: #d9c1d5; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+#new-game-dialog .pc-attribute-rules { margin: 12px 0 0; padding: 10px 12px; font-size: 12px; }
+#new-game-dialog .pc-attribute-rules p { margin-bottom: 0; }
+#new-game-dialog .pc-opening-toggle { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 15px; font-size: 13px; color: #d9c7da; cursor: pointer; }
+#new-game-dialog .pc-opening-toggle input { margin: 4px 0 0; flex: none; }
+#new-game-dialog #pc-opening-inputs:disabled { opacity: .45; }
+#new-game-dialog .pc-location-field { max-width: 310px; }
+#new-game-dialog #pc-opening-text { min-height: 170px; }
+#new-game-dialog .pc-cosmetics-grid { display: grid; grid-template-columns: 1.4fr 1fr; align-items: start; gap: 22px; margin-top: 16px; }
+#new-game-dialog .pc-cosmetics-grid .avatar-editor { margin-top: 0; }
+#new-game-dialog .pc-color-field { padding: 14px 16px; border: 1px solid var(--pc-border); border-radius: 4px; background: #15111c66; }
+#new-game-dialog .pc-color-field label { display: block; font-size: 14px; color: #dfcadd; }
+#new-game-dialog #custom-impression-color { width: 100%; height: 45px; margin-top: 12px; padding: 3px; border: 1px solid #d4adc24d; border-radius: 3px; background: #211b2b; cursor: pointer; }
+#new-game-dialog .pc-color-field p { margin: 9px 0 0; font-size: 12px; }
+#new-game-dialog #new-game-example-status { padding-top: 6px; font-size: 12px; }
+#new-game-dialog .pc-backup-note { margin: 8px 0 16px; color: #a998b3; font-size: 11px; }
+#new-game-dialog .dialog-actions { position: sticky; z-index: 2; bottom: 0; margin: 0 -36px; padding: 16px 36px; border-top: 1px solid #c89bb942; background: #211b29f5; backdrop-filter: blur(12px); box-shadow: 0 -8px 22px #15101c60; }
+#new-game-dialog .pc-footer-note { margin-right: auto; color: #a58b9f; font-size: 11px; letter-spacing: .15em; }
+#new-game-dialog #new-confirm { color: #2d1c28; background: #e1b1c7; border-color: #e7bfd1; min-height: 42px; padding: 8px 22px; font-size: 14px; }
+#new-game-dialog #new-confirm:hover:not(:disabled) { background: #f0cadc; }
+#new-game-dialog #new-cancel { color: #cbb4ca; border-color: transparent; background: transparent; }
+@media (max-width: 760px) {
+  #new-game-dialog { padding: 24px 22px 0; }
+  #new-game-dialog .pc-actors { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #new-game-dialog .pc-choice-row { grid-template-columns: 1fr; gap: 16px; }
+  #new-game-dialog .pc-attribute-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #new-game-dialog .pc-preset-grid, #new-game-dialog .pc-two-columns, #new-game-dialog .pc-cosmetics-grid { grid-template-columns: 1fr; }
+  #new-game-dialog .dialog-actions { margin-inline: -22px; padding-inline: 22px; }
+  #new-game-dialog .pc-footer-note { max-width: 120px; }
+}
+@media (max-width: 480px) {
+  #new-game-dialog { width: calc(100% - 16px); max-height: 90dvh; padding: 20px 14px 0; }
+  #new-game-dialog .pc-actors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  #new-game-dialog .pc-actor-card { gap: 6px; padding: 6px; }
+  #new-game-dialog .pc-actor-card-name { font-size: 12px; }
+  #new-game-dialog .pc-section-heading h3 { font-size: 17px; }
+  #new-game-dialog .pc-section-heading > span { font-size: 10px; }
+  #new-game-dialog .pc-status-line { align-items: flex-start; gap: 6px; }
+  #new-game-dialog .pc-status-line > button { max-width: 80px; padding: 4px; font-size: 10px; }
+  #new-game-dialog .pc-character-basics { grid-template-columns: minmax(0, 1fr) 105px; gap: 10px; }
+  #new-game-dialog .pc-actions { gap: 6px; }
+  #new-game-dialog .pc-actions button { padding: 7px 9px; font-size: 11px; }
+  #new-game-dialog .pc-field > span { display: inline-block; font-size: 10px; }
+  #new-game-dialog .pc-attribute-grid { gap: 8px; }
+  #new-game-dialog .pc-attribute { padding: 10px; }
+  #new-game-dialog .pc-score-controls { grid-template-columns: 27px minmax(0, 1fr) 27px; gap: 5px; }
+  #new-game-dialog .pc-score-controls button { min-height: 32px; height: 32px; }
+  #new-game-dialog summary span { display: block; margin: 4px 0 0 14px; }
+  #new-game-dialog .pc-preview dl { grid-template-columns: 1fr; gap: 5px; }
+  #new-game-dialog .pc-preview dd { margin-bottom: 9px; }
+  #new-game-dialog .pc-preview, #new-game-dialog .pc-ai { padding: 12px; }
+  #new-game-dialog .dialog-actions { margin-inline: -14px; padding: 12px 14px; gap: 8px; }
+  #new-game-dialog .pc-footer-note { display: none; }
+  #new-game-dialog #new-cancel { margin-right: auto; }
+  #new-game-dialog #new-confirm { padding-inline: 14px; font-size: 13px; }
+}
+@media (max-width: 560px) {
+  #new-game-dialog .pc-character-basics,
+  #new-game-dialog .pc-attribute-grid,
+  #new-game-dialog .pc-choice-row,
+  #new-game-dialog .pc-preset-grid,
+  #new-game-dialog .pc-two-columns,
+  #new-game-dialog .pc-cosmetics-grid { grid-template-columns: minmax(0, 1fr); }
+  #new-game-dialog .pc-character-basics { gap: 0; }
+  #new-game-dialog .pc-attribute { display: grid; grid-template-columns: minmax(0, 1fr) 138px; gap: 5px 12px; }
+  #new-game-dialog .pc-attribute > label { grid-column: 1; grid-row: 1; }
+  #new-game-dialog .pc-attribute .pc-attribute-description { grid-column: 1; grid-row: 2 / 4; min-height: 0; margin: 0; }
+  #new-game-dialog .pc-score-controls { grid-column: 2; grid-row: 1 / 3; grid-template-columns: 32px minmax(0, 1fr) 32px; gap: 5px; }
+  #new-game-dialog .pc-score-foot { grid-column: 2; grid-row: 3; margin-top: 0; }
+  #new-game-dialog .pc-field input,
+  #new-game-dialog .pc-field textarea,
+  #new-game-dialog .pc-field select { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #new-game-dialog *, #new-game-dialog *::before, #new-game-dialog *::after { transition: none !important; scroll-behavior: auto !important; }
+}

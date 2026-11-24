@@ -1,0 +1,20 @@
+{
+  "reference": {
+    "repository": "https://github.com/PolarisSdesu/shosu",
+    "revision": "0c5f7852ca2d4a2acc8edcd65e4ba235f743f7b4",
+    "website": "https://shosu.polarissdesu.cn/",
+    "retrievedAt": "2026-10-21",
+    "interaction": "5.5-second bottom-up #953949 fill, circular layered button, hold loop and finish cue"
+  },
+  "assets": [
+    { "file": "screen-bg.webp", "source": "https://shosu.polarissdesu.cn/img/bg.CXb2JGSY.webp" },
+    { "file": "button.webp", "source": "https://shosu.polarissdesu.cn/img/button.BUaazApJ.webp" },
+    { "file": "button-bg.webp", "source": "https://shosu.polarissdesu.cn/img/button_bg.DkI1_SB8.webp" },
+    { "file": "finish.png", "source": "https://raw.githubusercontent.com/PolarisSdesu/shosu/0c5f7852ca2d4a2acc8edcd65e4ba235f743f7b4/app/src/main/res/drawable/finish.png" },
+    { "file": "hold.mp3", "source": "https://shosu.polarissdesu.cn/sounds/hold.mp3" },
+    { "file": "finished.mp3", "source": "https://shosu.polarissdesu.cn/sounds/finished.mp3" }
+  ],
+  "adaptation": "Filling alone does not submit a game action. The player must release the same held pointer or key while the reviewed verdict is still current. All media stays local and is presentation-only.",
+  "rights": "The reference Android application is a fan work of 魔法少女ノ魔女裁判 (Re,AER / Acacia). Its repository license is reproduced below, but this is not an independent redistribution license for the original game's artwork or audio. Verify those rights before sharing a release. Website assets have no separately verified grant.",
+  "repositoryLicense": "MIT License\n\nCopyright (c) 2025 PolarisS夜搠星\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"
+}

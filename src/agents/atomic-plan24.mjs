@@ -1,0 +1,8 @@
+import { LOSSLESS_PLAN23_INSTRUCTIONS, LOSSLESS_PLAN23_FINAL_INSTRUCTIONS } from './lossless-plan23.mjs';
+
+// Immutable24: one complete existing branch, not independently mixed selection and plan channels.
+export const ATOMIC_PLAN24_RULES = `WHOLE OUTPUT BRANCH runtime24:
+Determine actual current meaning and material facts FIRST, then emit ONE COMPLETE existing branch. A clarification selection requires root route:clarification, steps:[], actual original missing reason and explanatory summary TOGETHER. Do not attach executable steps or a side ordinary conversation addressed to an unchosen recipient; catalog legality does not authorize that choice. Lossless text coverage applies ONLY to route:steps, not clarification: do not invent a step to preserve raw words, nor change meaning to evade coverage. Valid ordinary and invite branches retain their actual meaning, complete original schema and material thresholds; do not turn all uncertainty or ordinary speech into clarification. No keyword/pronoun rule, Host route/steps/target coercion, classifier or second model.`;
+
+export const ATOMIC_PLAN24_INSTRUCTIONS = `${LOSSLESS_PLAN23_INSTRUCTIONS}\n\n${ATOMIC_PLAN24_RULES}`;
+export const ATOMIC_PLAN24_FINAL_INSTRUCTIONS = `${LOSSLESS_PLAN23_FINAL_INSTRUCTIONS}\n\nFINAL runtime24 ATOMIC BRANCH: meaning/material facts first, ONE whole original union. clarification selection => root clarification AND steps:[] with actual reason/summary, no executable side conversation or guessed target. Raw coverage is for steps route only, not a reason to retain clarification steps. Preserve actual ordinary/invite meaning and original bounds; no Host repair.`;

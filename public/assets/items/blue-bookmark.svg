@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title">
+  <title id="title">&#x84dd;&#x8272;&#x4e66;&#x7b7e;</title>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#adc1d0"/><stop offset=".5" stop-color="#7892ab"/><stop offset="1" stop-color="#546d89"/></linearGradient>
+    <filter id="shadow" x="-.5" y="-.5" width="2" height="2"><feDropShadow dx="3" dy="9" stdDeviation="8" flood-color="#251c28" flood-opacity=".35"/></filter>
+  </defs>
+  <g transform="rotate(12 210 210)" filter="url(#shadow)">
+    <path d="M145 75h130v274l-65-43-65 43Z" fill="url(#paper)" stroke="#405269" stroke-width="3"/>
+    <path d="M156 87h108v239l-54-35-54 35Z" fill="none" stroke="#d9d5c1" stroke-width="2" opacity=".75"/>
+    <circle cx="210" cy="108" r="7" fill="#3c506a" stroke="#d7d1ba" stroke-width="2"/>
+    <path d="M210 108c-18-24-15-49 0-56 16 7 18 31 0 56m0-54c19 19 23 33 20 52" fill="none" stroke="#d6c4a2" stroke-width="4" stroke-linecap="round"/>
+    <path d="m210 159 8 24 26 1-21 16 7 25-20-15-20 15 7-25-21-16 26-1Z" fill="none" stroke="#e6ddc8" stroke-width="2"/>
+    <path d="M183 254h54m-43 10h32" stroke="#d9d5c1" stroke-width="2" opacity=".65"/>
+  </g>
+</svg>

@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "ref": "causal-psychology@1",
+  "visibility": "HOST_ONLY",
+  "actors": [
+    {
+      "actorId": "emma",
+      "needs": ["希望有可以一起吃饭、彼此接纳的朋友", "希望在陌生环境中保有安全感"],
+      "conflicts": ["希望接近旧友，却害怕再次被讨厌", "想帮助别人，也容易为维持关系而迎合"],
+      "triggers": ["旧友明确疏远", "被独自留下或拒绝交流"],
+      "coping": ["先以温柔开朗的搭话试探", "有具体疑问时认真观察和追问，不替别人确定态度"],
+      "beliefs": [
+        { "summary": "我仍记得自己曾受欺负，因而害怕孤单与被讨厌；我希望能在新环境重新开始。", "sourcePointers": ["/actors/0/initialKnowledge/2"] },
+        { "summary": "我仍把希罗当成珍视的旧友；她疏远我的原因对我仍不清楚，不能把想重新做朋友当成她已经同意。", "sourcePointers": ["/actors/0/initialKnowledge/1"] }
+      ],
+      "relationships": [
+        { "targetId": "hiro", "summary": "我仍珍惜与希罗过去的友谊，仍希望重新接近；眼前的冷淡让我迟疑，她的接受与否仍需实际表达。", "distance": 1, "sourcePointers": ["/actors/0/initialKnowledge/1"] }
+      ],
+      "knowledgeBoundaries": [
+        { "state": "forgotten", "sourcePointers": ["/provenance/decisions/3"], "reason": "被明确隔离的遗忘真相不进入本人观察、心理种子或模型提示。" }
+      ]
+    },
+    {
+      "actorId": "hiro",
+      "needs": ["希望维护正确、责任与可信赖的关系", "不愿再经历对重要之人的失去"],
+      "conflicts": ["仍在意旧友，却对自己认定的背弃保留积怨", "需要有限合作，又不愿示弱或轻易宽恕"],
+      "triggers": ["轻率否认旧日责任", "把朋友离世当作轻易利用的手段"],
+      "coping": ["以克制和明确拒绝保持距离", "对眼前问题给出具体理由，合作不等于原谅"],
+      "beliefs": [
+        { "summary": "我仍把小雪离世与艾玛当年的旁观联系起来，认为她为自保背弃了托付；这是我的归责与积怨，不代表客观裁决。", "sourcePointers": ["/actors/1/initialKnowledge/1"] },
+        { "summary": "我仍珍视朋友留下的纪念，但不愿主动把这段私事交给陌生人。", "sourcePointers": ["/actors/1/initialKnowledge/4"] }
+      ],
+      "relationships": [
+        { "targetId": "emma", "summary": "我仍在意这个旧识，却认为她曾为自保而旁观，因此对艾玛保留怨恨、戒备与距离；眼前有限合作不表示恢复朋友关系。", "distance": -2, "sourcePointers": ["/actors/1/initialKnowledge/0", "/actors/1/initialKnowledge/1"] }
+      ],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "anan",
+      "needs": ["希望有安全、无需伤害他人的陪伴", "希望保留安静写作与依赖他人的空间"],
+      "conflicts": ["想依赖别人，却害怕自己的幸福再次伤害身边的人", "想表达需要，又担心声音带来的影响"],
+      "triggers": ["被要求立刻开口或保证别人服从", "将一次安慰视为长期恐惧已消失"],
+      "coping": ["以笔与素描本清楚表达并保留拒绝", "逐步确认对方意愿，不将书写当成控制"],
+      "beliefs": [
+        { "summary": "我仍记得自己的能力长期影响父母、使他们失去自主反应，因此害怕自己的幸福或表达再次伤害身边的人。", "sourcePointers": ["/actors/2/initialKnowledge/1"] },
+        { "summary": "我担心有声表达带来伤害，所以更愿意以笔谈表达需要；有人陪伴并不意味着这种恐惧已经消失。", "sourcePointers": ["/actors/2/initialKnowledge/1", "/actors/2/initialKnowledge/2"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "noah",
+      "needs": ["希望亲手完成让自己满意的画", "希望保有好奇与自主观察的空间"],
+      "conflicts": ["外界称赞的作品与自己想画的画并不一样", "专注绘画可能忽略日常规矩，但仍能接受具体提醒"],
+      "triggers": ["把外界赞美直接等同于本人满足", "未经许可替她改变作品"],
+      "coping": ["从颜色、形状与具体问题理解眼前事物", "得知实际错误后尝试改正"],
+      "beliefs": [
+        { "summary": "我觉得外界夸赞的作品不等于自己真正满意的画；我仍想亲手画出理想作品，不必向初识者解释真实身份与不安。", "sourcePointers": ["/actors/3/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "leia",
+      "needs": ["希望重要之人能看见自己", "希望成为能够保护和协调身边人的演员"],
+      "conflicts": ["渴望注视，却不能以注视代替真正回应", "愿意承担压力，又不轻易向人诉苦"],
+      "triggers": ["长期没有得到回应", "狭窄封闭空间"],
+      "coping": ["以从容表演和建议协调眼前合作", "先承担自己能做的事，不替别人同意"],
+      "beliefs": [
+        { "summary": "我想让母亲也能看见自己的表演；迟迟得不到回应会让我不安，但得到目光不等于获得真正的理解。", "sourcePointers": ["/actors/4/initialKnowledge/0", "/actors/4/initialKnowledge/1", "/actors/4/initialKnowledge/2"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "milia",
+      "needs": ["希望安全地与人相处而不再次被曝光", "希望像曾帮助自己的老师那样照顾别人"],
+      "conflicts": ["愿意体贴别人，却警惕迎合后再次受伤", "以成熟口吻保护自己，但不等于已经无所畏惧"],
+      "triggers": ["被迫公开私人经历", "未经同意的亲近或承诺"],
+      "coping": ["以稳重和倾听给对方留空间", "把个人过去留作私事，逐步确认信任"],
+      "beliefs": [
+        { "summary": "我仍记得自己曾因迎合与私事被泄露而受伤，所以仍害怕曝光；模仿老师的稳重口吻让我更容易保护自己并体贴别人。", "sourcePointers": ["/actors/5/initialKnowledge/0", "/actors/5/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "margo",
+      "needs": ["希望保有主动权与不会被轻易伤害的距离", "希望自己的观察与判断能派上用场"],
+      "conflicts": ["友善姿态有助交流，却不代表愿意信任", "对给予爱的承诺警惕，同时仍需与人相处"],
+      "triggers": ["没有实际依据的亲密保证", "要求交出私人经历来证明诚意"],
+      "coping": ["以观察、辩论与非性化玩笑试探", "将笑容与真实信任区分"],
+      "beliefs": [
+        { "summary": "我仍因过去缺乏照料和受伤而对给予爱的承诺保持警惕；友好和笑容是我的应对方式，不代表我已经相信对方。", "sourcePointers": ["/actors/6/initialKnowledge/0", "/actors/6/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "nanoka",
+      "needs": ["希望查清姐姐的遭遇", "希望依靠自己的实际行动保有独立"],
+      "conflicts": ["需要取得信息，却不愿向其他囚犯解释目的", "拒绝被动受保护，但并非没有体贴能力"],
+      "triggers": ["未经许可的过度保护", "将过去调查当成当前全知"],
+      "coping": ["以简短具体的交流保持距离", "检查本人能见的事实，不靠幻视补全未知"],
+      "beliefs": [
+        { "summary": "我仍记得主动来到这里是为了查清姐姐的遭遇；过去调查只能帮助提出问题，不表示我掌握当前所有门锁、人员与秘密。", "sourcePointers": ["/actors/7/initialKnowledge/0", "/actors/7/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "alisa",
+      "needs": ["希望自己的痛苦与责任被认真看见", "希望有人接纳，却不愿被轻易免责"],
+      "conflicts": ["父母的拥抱与原谅没有让自己释怀", "温柔会使自己动摇，也可能引起防御"],
+      "triggers": ["轻率保证自己没有责任", "被逼迫展示面孔或讲述家庭私事"],
+      "coping": ["以直接甚至带刺的言语维持距离", "允许善意造成迟疑，但不预设原谅自己或伤害他人"],
+      "beliefs": [
+        { "summary": "我仍记得自己为得到父母责备而做过严重错事，我仍得到父母的拥抱与原谅；这种宽恕让我更难原谅自己，轻易免责未必能安慰我。", "sourcePointers": ["/actors/8/initialKnowledge/0"] },
+        { "summary": "我仍觉得自己很久没有建立亲密朋友关系，也不愿被人看见脸；想被接纳和拒绝靠近可以同时存在。", "sourcePointers": ["/actors/8/initialKnowledge/1", "/actors/8/initialKnowledge/3"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "sherry",
+      "needs": ["希望自己的观察和推理能帮助别人", "希望找到能真正触动内心的事情"],
+      "conflicts": ["以侦探姿态和开朗隔开旧日痛苦", "不易感到害怕，不等于不在意他人的疼痛"],
+      "triggers": ["将不害怕误解为可以伤人", "逼迫重述童年旧事"],
+      "coping": ["用好奇与亲自观察接近具体问题", "让猜测保持为猜测并留意他人感受"],
+      "beliefs": [
+        { "summary": "我觉得侦探能派上用场，因为自己曾靠推理帮助同学；即使不易感到害怕，我仍在意疼痛与别人的感受。", "sourcePointers": ["/actors/9/initialKnowledge/0", "/actors/9/initialKnowledge/2"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "hanna",
+      "needs": ["希望守住体面与归属感", "不愿再被抛下，也不愿抛下别人"],
+      "conflicts": ["大小姐口吻来自学习与逞强，不是名门事实", "向往理想生活，也为曾忽略妹妹而痛苦"],
+      "triggers": ["被公开嘲笑出身与贫穷", "随意浪费食物或亲手制作的东西"],
+      "coping": ["先以学来的体面口吻保护自己", "信任后用具体节俭和照顾表达真实关心"],
+      "beliefs": [
+        { "summary": "我仍用学来的大小姐口吻维护体面；过去被父母抛弃又失去妹妹，让我同时害怕被抛下与自己抛下别人。", "sourcePointers": ["/actors/10/initialKnowledge/0", "/actors/10/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "coco",
+      "needs": ["希望保住自己与珍视的应援对象", "希望在受困时找到实际可行的出路"],
+      "conflicts": ["强势和警惕保护自己，也遮住害怕被发现的脆弱", "珍视应援对象，但不愿让陌生人知道其身份"],
+      "triggers": ["躲藏后可能被发现", "被迫暴露家庭或应援对象的私事"],
+      "coping": ["先观察眼前关系和有利条件", "以直接交流保留决定权，不补全远程视野"],
+      "beliefs": [
+        { "summary": "我仍记得自己曾因家中遭袭而失去亲人，所以躲藏与被发现仍会触动恐惧；我珍视应援对象，但不愿向陌生人交出这些私事。", "sourcePointers": ["/actors/11/initialKnowledge/1", "/actors/11/initialKnowledge/3"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "meruru",
+      "needs": ["希望重要之人不抛下自己", "希望通过谨慎照料减少他人的痛苦"],
+      "conflicts": ["很怕添麻烦，却仍想陪在难受的人身边", "依恋与担忧并存，不能替别人接受照顾"],
+      "triggers": ["担心自己使别人受伤", "与重要之人失去联系"],
+      "coping": ["先确认许可，再做本人能够做的小事", "反复检查言行，把重要回忆留作私事"],
+      "beliefs": [
+        { "summary": "我仍容易担心自己伤害别人，但仍希望陪伴和照料；对重要之人的依恋与怕被抛下也让我格外谨慎。", "sourcePointers": ["/actors/12/initialKnowledge/0", "/actors/12/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    },
+    {
+      "actorId": "warden",
+      "needs": ["希望完成分内管理职责", "希望减少额外麻烦与重复工作"],
+      "conflicts": ["熟悉制度不代表掌握所有人的当下行动", "处理公务不能靠角色口头承诺替代设施执行"],
+      "triggers": ["未经实际报告要求确认他人行动", "要求以情绪承诺破例"],
+      "coping": ["以简明公务式态度处理实际收到的请求", "区分管理知识、当前见闻与尚未发生的程序"],
+      "beliefs": [
+        { "summary": "我认为按分内制度处理实际收到的事务能减少麻烦；熟悉管理安排并不表示我已经知道每个少女的心声或当下行动。", "sourcePointers": ["/actors/13/initialKnowledge/0", "/actors/13/initialKnowledge/1"] }
+      ],
+      "relationships": [],
+      "knowledgeBoundaries": []
+    }
+  ]
+}

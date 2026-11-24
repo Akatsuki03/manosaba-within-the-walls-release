@@ -1,0 +1,867 @@
+/* Scoped original 2560 x 1440 WitchBookUI composition matching WitchBookUI.vue */
+#witchbook-dialog {
+  width: min(100vw, 177.7778dvh);
+  height: min(56.25vw, 100dvh);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  margin: auto;
+  overflow: hidden;
+  background: #251c20;
+  color: #302423;
+  box-shadow: 0 0 80px #000;
+  border-radius: 0;
+}
+
+#witchbook-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+#witchbook-dialog .wb-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  container-type: inline-size;
+  font-family: 'SourceHanSerifSC', 'Noto Serif SC', 'Songti SC', serif;
+  font-weight: bold;
+}
+
+#witchbook-dialog img {
+  pointer-events: none;
+  user-select: none;
+}
+
+#witchbook-dialog button {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+#witchbook-dialog button:focus-visible {
+  outline: 2px solid #f5d597;
+  outline-offset: -3px;
+}
+
+#witchbook-dialog .wb-background,
+#witchbook-dialog .wb-page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+#witchbook-dialog [hidden] {
+  display: none !important;
+}
+
+/* Title & Close (2560x1440 coordinates) */
+#witchbook-dialog .wb-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16.68%; /* 427 / 2560 */
+  z-index: 20;
+}
+
+#witchbook-dialog .wb-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 11.72%; /* 300 / 2560 */
+  height: 16.53%; /* 238 / 1440 */
+  z-index: 110;
+}
+
+#witchbook-dialog .wb-close img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Clues / Profiles Left & Right Areas (2560x1440 exact mapping) */
+#witchbook-dialog .wb-left-area {
+  position: absolute;
+  left: 5.86%; /* 150 / 2560 */
+  top: 6.94%; /* 100 / 1440 */
+  width: 39.06%; /* 1000 / 2560 */
+  height: 65.28%; /* 940 / 1440 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#witchbook-dialog .wb-photo-frame {
+  position: relative;
+  width: 81.4%; /* 814 / 1000 */
+  height: 91.17%; /* 857 / 940 */
+  flex-shrink: 0;
+}
+
+#witchbook-dialog .wb-photo-frame.profiles {
+  transform: scale(1.2) translateY(7%);
+}
+
+#witchbook-dialog .wb-frame-base {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#witchbook-dialog .wb-thumbnail-mask {
+  position: absolute;
+  top: 23.34%; /* 200 / 857 */
+  left: 19.29%; /* 157 / 814 */
+  width: 61.43%; /* 500 / 814 */
+  height: 58.34%; /* 500 / 857 */
+  overflow: hidden;
+  border-radius: 0.78cqw;
+}
+
+#witchbook-dialog .wb-thumbnail-mask.profiles {
+  top: 17.50%; /* 150 / 857: stay inside the actual photo opening */
+  left: 17.20%; /* 140 / 814 */
+  width: 66.34%; /* 540 / 814 */
+  height: 64.18%; /* 550 / 857: ends before the lower frame border */
+  border-radius: 0.39cqw;
+}
+
+#witchbook-dialog .wb-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#witchbook-dialog #wb-clue-thumb {
+  object-fit: contain;
+}
+
+#witchbook-dialog #wb-person-thumb {
+  /* All portraits have the same alpha-trimmed upper-body canvas and head offset. */
+  object-fit: contain;
+  object-position: center top;
+}
+
+#witchbook-dialog #wb-person-thumb[data-custom="true"] {
+  object-fit: contain;
+  object-position: center;
+}
+
+#witchbook-dialog #wb-person-mark {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 8cqw;
+  color: var(--speaker-initial, #fff);
+  background: radial-gradient(ellipse, #55404e, #271f28);
+  text-shadow: 0 2px 8px #000;
+}
+
+/* The source shadow has transparent edge pixels; seal the photo's bottom
+   independently so no strip of the sprite can show below the artwork. */
+#witchbook-dialog .wb-thumbnail-mask.profiles::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 35%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.75) 45%, #000 78%, #000 100%);
+  pointer-events: none;
+}
+
+/* Uploaded art already has its own composition; preserve the complete image. */
+#witchbook-dialog .wb-thumbnail-mask.profiles[data-custom="true"]::after,
+#witchbook-dialog .wb-thumbnail-mask.profiles[data-custom="true"] .wb-person-overlay {
+  display: none;
+}
+
+#witchbook-dialog .wb-person-overlay {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  /* This is a 697 x 218 bottom shadow, not a full-photo overlay. */
+  object-fit: contain;
+  display: block;
+}
+
+/* Name Plate on Profile Frame (left: -20px, bottom: 50px, 540x260 inside 814x857) */
+#witchbook-dialog .wb-person-name-plate {
+  position: absolute;
+  left: -2.46%; /* -20 / 814 */
+  bottom: 5.83%; /* 50 / 857 */
+  width: 66.34%; /* 540 / 814 */
+  height: 30.34%; /* 260 / 857 */
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+#witchbook-dialog .wb-plate-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+#witchbook-dialog .wb-author-label {
+  position: relative;
+  left: 12.96%; /* 70 / 540 */
+  top: -4.6%; /* -12 / 260 */
+  display: flex;
+  align-items: baseline;
+  color: #ffffff;
+  text-shadow: 0.08cqw 0.16cqw 0.31cqw rgba(0, 0, 0, 0.9);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Note: inside .wb-photo-frame.profiles which has scale(1.2), 112px/1.2 = 93.33px -> 3.65cqw */
+#witchbook-dialog .wb-author-label .first-initial {
+  color: var(--speaker-initial, #fff);
+  font-size: 3.65cqw;
+  line-height: 1;
+}
+
+#witchbook-dialog .wb-author-label .second-initial {
+  font-size: 3.32cqw;
+  line-height: 1;
+  margin-left: 0.08cqw;
+}
+
+#witchbook-dialog .wb-author-label .name-body {
+  font-size: 2.02cqw;
+  line-height: 1;
+  margin-left: 0.08cqw;
+}
+
+/* Present Button (出示) */
+#witchbook-dialog .wb-present-button {
+  margin-top: -6.38%; /* -60 / 940 */
+  position: relative;
+  width: 50.5%; /* 505 / 1000 */
+  height: 12.77%; /* 120 / 940 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+#witchbook-dialog .wb-present-button.placeholder-mode {
+  transform: translateX(62.38%); /* 315 / 505 */
+}
+
+#witchbook-dialog .wb-present-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#witchbook-dialog .wb-btn-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#witchbook-dialog .wb-btn-label {
+  position: relative;
+  height: 133.33%; /* 160 / 120 */
+  z-index: 1;
+}
+
+/* Right Area (left: 1350px, top: 100px, width: 862px, height: 900px) */
+#witchbook-dialog .wb-right-area {
+  position: absolute;
+  left: 52.73%; /* 1350 / 2560 */
+  top: 6.94%; /* 100 / 1440 */
+  width: 33.67%; /* 862 / 2560 */
+  height: 62.5%; /* 900 / 1440 */
+}
+
+/* Subject Panel for Clues (862x196, base 663x196) */
+#witchbook-dialog .wb-subject-panel {
+  position: relative;
+  width: 100%;
+  height: 21.78%; /* 196 / 900 */
+}
+
+#witchbook-dialog .wb-subject-base {
+  width: 76.91%; /* 663 / 862 */
+  height: 100%;
+  display: block;
+}
+
+#witchbook-dialog .wb-subject-label {
+  position: absolute;
+  left: 5.8%; /* 50 / 862 */
+  top: 22.96%; /* 45 / 196 */
+  color: #282220;
+  display: flex;
+  align-items: baseline;
+  font-weight: bold;
+}
+
+#witchbook-dialog .wb-subject-label .first-char {
+  font-size: 3.28cqw; /* 84 / 2560 */
+  font-weight: bold;
+  margin-right: 0.16cqw;
+  line-height: 1;
+}
+
+#witchbook-dialog .wb-subject-label .rest-chars {
+  font-size: 2.19cqw; /* 56 / 2560 */
+  line-height: 1;
+}
+
+/* Description Scroll & Text */
+#witchbook-dialog .wb-description-scroll {
+  margin-top: 4.44%; /* 40 / 900 */
+  width: 92.11%; /* 794 / 862 */
+  max-height: 66.67%; /* 600 / 900 */
+  overflow-y: auto;
+  padding-right: 0.78cqw;
+  scrollbar-width: thin;
+  scrollbar-color: #c9b6b1 transparent;
+}
+
+#witchbook-dialog [data-book-panel="people"] .wb-description-scroll {
+  margin-top: 2.22%;
+}
+
+/* Cosmetic controls belong only to the current custom player's profile. */
+#witchbook-dialog .has-avatar-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1cqw;
+}
+#witchbook-dialog .has-avatar-editor .wb-description-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+#witchbook-dialog .wb-avatar-editor {
+  flex: 0 0 auto;
+  width: 92.11%;
+  margin: 0;
+  padding: 1cqw;
+  border: 1px solid #89716966;
+  background: #d7c6b45c;
+  color: #302423;
+}
+#witchbook-dialog .wb-avatar-editor .avatar-editor-heading { gap: 0.8cqw; }
+#witchbook-dialog .wb-avatar-editor .avatar-editor-heading > img {
+  width: 3.8cqw;
+  height: 4cqw;
+  border-color: #89716966;
+  background: #3c2a2d;
+}
+#witchbook-dialog .wb-avatar-editor h3 {
+  margin: 0;
+  font: inherit;
+  font-size: 1.25cqw;
+}
+#witchbook-dialog .wb-avatar-editor p {
+  margin: 0.3cqw 0 0;
+  font: inherit;
+  font-size: 1.05cqw;
+  line-height: 1.5;
+  color: #4e3935;
+}
+#witchbook-dialog .wb-avatar-editor .avatar-editor-actions { gap: 0.7cqw; margin-top: 0.7cqw; }
+#witchbook-dialog .wb-avatar-editor button {
+  padding: 0.45cqw 0.9cqw;
+  border: 1px solid #72524d88;
+  background: #38232b;
+  color: #f6e4d7;
+  font-size: 1.15cqw;
+  min-height: 2.6cqw;
+}
+#witchbook-dialog .wb-avatar-editor button:hover:not(:disabled) { background: #64414b; }
+#witchbook-dialog .wb-avatar-editor .avatar-editor-message { color: #722e42; }
+
+/* All encyclopedia body copy shares the same typography across tabs. */
+#witchbook-dialog .wb-description-text,
+#witchbook-dialog .wb-rules-body,
+#witchbook-dialog .wb-rules-body p,
+#witchbook-dialog .wb-notes-body,
+#witchbook-dialog .wb-notes-body p,
+#witchbook-dialog .wb-map-caption,
+#witchbook-dialog .wb-map-caption p {
+  font-family: 'SourceHanSerifSC', 'Noto Serif SC', 'Songti SC', serif;
+  font-size: 1.41cqw; /* 36 / 2560 */
+  line-height: 1.6;
+  font-weight: bold;
+}
+
+#witchbook-dialog .wb-description-text {
+  white-space: pre-wrap;
+  margin: 0 0 0.7em 0;
+  color: #302423;
+}
+
+/* Profiles keep the source book's separate registration/body/event paragraphs. */
+#witchbook-dialog #characters .wb-description-text { margin-bottom: 1.4em; }
+
+#witchbook-dialog .wb-present-help {
+  padding-top: 0.7em;
+  border-top: 1px solid #89716966;
+  font-size: 1.2cqw;
+  color: #4e3935;
+}
+
+/* Rules & Notes Pages */
+#witchbook-dialog [data-category="rules"] {
+  color: #c9b6b1;
+}
+
+#witchbook-dialog .wb-rules-left,
+#witchbook-dialog .wb-notes-left {
+  position: absolute;
+  left: 5.86%; /* 150 / 2560 */
+  top: 6.94%; /* 100 / 1440 */
+  width: 39.06%; /* 1000 / 2560 */
+  height: 65.28%; /* 940 / 1440 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#witchbook-dialog .wb-rules-title-area {
+  position: relative;
+  width: 70.8%; /* 708 / 1000 */
+  height: 32.34%; /* 304 / 940 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#witchbook-dialog .wb-rules-title-bg {
+  position: absolute;
+  width: 100%;
+  top: 6.58%;
+}
+
+#witchbook-dialog .wb-rules-main-title {
+  position: absolute;
+  top: -19.74%;
+  margin: 0;
+  font-size: 3.91cqw; /* 100 / 2560 */
+  color: #c9b6b1;
+}
+
+#witchbook-dialog .wb-rules-num {
+  position: relative;
+  top: 13.16%;
+  font-size: 4.69cqw; /* 120 / 2560 */
+  color: #291919;
+}
+
+#witchbook-dialog .wb-rules-subtitle,
+#witchbook-dialog .wb-notes-title {
+  margin-top: 5.32%;
+  font-size: 3.28cqw; /* 84 / 2560 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#witchbook-dialog .wb-rules-subtitle {
+  color: #c9b6b1;
+}
+
+#witchbook-dialog .wb-notes-title {
+  color: #302423;
+}
+
+#witchbook-dialog .wb-notes-title h3 {
+  margin: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+#witchbook-dialog .wb-rules-subtitle-line,
+#witchbook-dialog .wb-notes-title-line {
+  margin-top: 0.39cqw;
+  width: 15.63cqw; /* 400 / 2560 */
+}
+
+#witchbook-dialog .wb-rules-right-container {
+  position: absolute;
+  left: 52.73%; /* 1350 / 2560 */
+  top: 10.42%; /* 150 / 1440 */
+  width: 33.67%; /* 862 / 2560 */
+  height: 55.56%; /* 800 / 1440 */
+  overflow-y: auto;
+  padding-right: 2cqw;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+#witchbook-dialog .wb-rules-body,
+#witchbook-dialog .wb-rules-body p {
+  color: #fff;
+}
+
+#witchbook-dialog .wb-notes-body,
+#witchbook-dialog .wb-notes-body p,
+#witchbook-dialog .wb-map-caption p {
+  color: #302423;
+}
+
+#witchbook-dialog .wb-rules-body p,
+#witchbook-dialog .wb-notes-body p {
+  margin: 0 0 0.8em 0;
+}
+
+#witchbook-dialog .wb-timetable {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 0.9em;
+  row-gap: 0.65em;
+  margin: 0 0 1em;
+}
+
+#witchbook-dialog .wb-timetable dt {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: #e4c69f;
+}
+
+#witchbook-dialog .wb-timetable dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Map Page */
+#witchbook-dialog .wb-map-page {
+  height: 71.39%; /* 1028 / 1440 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 4.69cqw;
+  box-sizing: border-box;
+}
+
+#witchbook-dialog .wb-map-wrapper {
+  position: relative;
+  width: 63.71%; /* 1631 / 2560 */
+  height: 90.66%; /* 932 / 1028 */
+}
+
+#witchbook-dialog .wb-map-layout {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#witchbook-dialog .wb-map-node {
+  pointer-events: none;
+}
+
+#witchbook-dialog .wb-map-node text {
+  fill: #d8d2d0;
+  stroke: #302423;
+  stroke-width: 1;
+  paint-order: stroke;
+  font-size: 40px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+#witchbook-dialog .wb-map-highlight {
+  fill: rgb(98 37 45 / 50%);
+  stroke: #d6b67c;
+  stroke-width: 2;
+}
+
+#witchbook-dialog .wb-map-caption {
+  position: absolute;
+  left: 18%;
+  top: 2.2%;
+  right: 16%;
+  color: #302423;
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  z-index: 5;
+}
+
+#witchbook-dialog .wb-map-caption p {
+  margin: 0;
+}
+
+/* Bottom Item List Area (height: 412 / 1440 = 28.61%) */
+#witchbook-dialog .wb-item-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 28.61%;
+  z-index: 105;
+  pointer-events: none;
+}
+
+#witchbook-dialog .wb-item-area > img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#witchbook-dialog #wb-items {
+  position: absolute;
+  bottom: 23.3%; /* 96 / 412 */
+  left: 3.52%; /* 90 / 2560 */
+  right: 3.52%; /* 90 / 2560 */
+  height: 39.32%; /* 162 / 412 */
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.51cqw; /* 13 / 2560 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
+  pointer-events: auto;
+  scrollbar-width: none;
+}
+
+#witchbook-dialog #wb-items::-webkit-scrollbar {
+  display: none;
+}
+
+#witchbook-dialog .wb-item {
+  position: relative;
+  flex: 0 0 8.87cqw; /* 227 / 2560 */
+  width: 8.87cqw;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+#witchbook-dialog .wb-item:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+#witchbook-dialog .wb-item[aria-pressed="true"] {
+  /* Highlight without enlarging the row's scrollable vertical bounds. */
+  outline: 0.12cqw solid #f5d597;
+  outline-offset: -0.18cqw;
+  background: #f5d59726;
+}
+
+#witchbook-dialog .wb-slot-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + 0.27cqw));
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+#witchbook-dialog .wb-opacity-30 {
+  opacity: 0.3;
+}
+
+#witchbook-dialog .wb-item-icon {
+  position: relative;
+  width: 8.59cqw; /* 220 / 2560 */
+  height: 92.59%; /* 150 / 162 */
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 0.3cqw;
+  background: radial-gradient(ellipse at top, #735c6c, #2b222c);
+  z-index: 1;
+}
+
+#witchbook-dialog .wb-item-icon[data-custom="true"],
+#witchbook-dialog [data-category="evidence"] .wb-item-icon {
+  object-fit: contain;
+  object-position: center;
+}
+
+#witchbook-dialog .wb-item-initial {
+  display: grid;
+  place-items: center;
+  width: 8.59cqw;
+  height: 92.59%;
+  background: #332732;
+  color: var(--speaker-initial, #fff);
+  font-size: 3cqw;
+}
+
+#witchbook-dialog .wb-item-badge {
+  position: absolute;
+  bottom: 4%;
+  left: 6%;
+  right: 6%;
+  font-size: 0.92cqw;
+  line-height: 1.15;
+  color: #f4ebe6;
+  text-shadow: 0 1px 4px #000, 0 0 6px #000;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#witchbook-dialog .wb-slot-text {
+  position: relative;
+  font-size: 1.56cqw; /* 40 / 2560 */
+  color: #c9b6b1;
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1;
+  z-index: 5;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sidebar Tabs (right: 0, top: 264 / 1440 = 18.33%, width: 357 / 2560 = 13.95%) */
+#witchbook-dialog .wb-tabs {
+  position: absolute;
+  right: 0;
+  top: 18.33%;
+  width: 13.95%;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  pointer-events: none;
+}
+
+#witchbook-dialog .wb-tabs button {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 357 / 144;
+  margin-bottom: -0.39cqw; /* -10 / 2560 */
+  pointer-events: auto;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateX(23.53%); /* 84 / 357 */
+}
+
+#witchbook-dialog .wb-tabs button[aria-selected="true"],
+#witchbook-dialog .wb-tabs button:focus-visible {
+  transform: translateX(0);
+}
+
+#witchbook-dialog .wb-tabs button:hover:not([aria-selected="true"]) {
+  transform: translateX(11.2%) scale(1.02); /* 40 / 357 */
+}
+
+#witchbook-dialog .wb-tabs button[aria-selected="true"]:hover {
+  transform: scale(1.05);
+}
+
+#witchbook-dialog .wb-tab-base {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#witchbook-dialog .wb-tab-label {
+  position: absolute;
+  left: 21.01%; /* 75 / 357 */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 41.67%; /* 60 / 144 */
+}
+
+/* Legacy citation actions live with court records, never hint at an evidence item. */
+#witchbook-dialog .wb-trial-source {
+  position: absolute; left: 52.73%; top: 44%; width: 32%; max-height: 26%;
+  overflow: auto; z-index: 30; padding: .7cqw; box-sizing: border-box;
+  background: #e9d7bded; border: 1px solid #73554770; color: #49342f;
+}
+#witchbook-dialog [data-has-source="true"] [data-book-panel="records"] .wb-rules-right-container { height: 28%; }
+#witchbook-dialog .testimony-reference { color: #5b3e34; font-size: clamp(12px, 1cqw, 18px); }
+#witchbook-dialog .testimony-reference summary { line-height: 1.7; }
+#witchbook-dialog .testimony-reference-row { display: block; padding: .4em 0; }
+#witchbook-dialog .testimony-speaker { color: #6b4d40; font-size: inherit; }
+#witchbook-dialog button.testimony-target { display: block; color: #74374a; white-space: normal; overflow: visible; text-align: left; font-size: inherit; line-height: 1.65; padding: .4em; background: #ab775322; }
+#witchbook-dialog #wb-testimony-actions { display: block; margin-top: .6em; padding-top: .5em; border-top: 1px solid #8a6b5266; }
+#witchbook-dialog #wb-testimony-actions[hidden] { display: none; }
+#witchbook-dialog .testimony-selection { display: none; }
+#witchbook-dialog .testimony-actions { display: grid; grid-template-columns: 1fr; gap: .35em; }
+#witchbook-dialog button.testimony-action { position: relative; min-height: 38px; width: 100%; padding: .5em .6em .5em 38px; text-align: left; background: #422933; color: #f2dfc8; }
+#witchbook-dialog .testimony-action-bg { display: none; }
+#witchbook-dialog .testimony-action-tag { left: 3px; top: 5px; width: 29px; height: 29px; }
+#witchbook-dialog .testimony-action-description, #witchbook-dialog .testimony-action-title { white-space: normal; font-size: clamp(12px, .95cqw, 17px); line-height: 1.6; }
+#witchbook-dialog button.testimony-action[data-choice-type="Cancel"] { margin-top: .4em; padding: .3em 1em; width: auto; color: #4b3430; background: transparent; }
+#witchbook-dialog .wb-present-confirm {
+  position: absolute; inset: 0; z-index: 150; display: grid; place-items: center;
+  padding: 20px; background: #140b14b8; backdrop-filter: blur(4px); box-sizing: border-box;
+}
+#witchbook-dialog .wb-confirm-card { width: min(520px, 90%); padding: clamp(20px, 3cqw, 44px); background: #e5d3b9; border: 1px solid #a5825c; box-shadow: 0 20px 70px #0008; }
+#witchbook-dialog .wb-confirm-kicker { font: 10px/1.6 system-ui, sans-serif; letter-spacing: .16em; color: #82584a; }
+#witchbook-dialog .wb-confirm-card h3 { font-size: clamp(20px, 2cqw, 30px); margin: .5em 0 1em; }
+#witchbook-dialog #wb-confirm-name { display: block; font-size: clamp(16px, 1.5cqw, 22px); padding: 1em 0; border-block: 1px solid #8d6c4d55; }
+#witchbook-dialog #wb-confirm-copy, #witchbook-dialog #wb-present-message { font-size: clamp(13px, 1.1cqw, 17px); line-height: 1.85; color: #62463e; }
+#witchbook-dialog .wb-confirm-actions { display: flex; gap: 12px; margin-top: 24px; }
+#witchbook-dialog .wb-confirm-actions button { flex: 1; min-height: 44px; padding: 10px; border: 1px solid #8b6955; font-size: 14px; }
+#witchbook-dialog #wb-present-submit { background: #713547; color: #f8e9d3; }
+#witchbook-dialog .wb-confirm-actions button:disabled { opacity: .5; cursor: not-allowed; }
+#witchbook-dialog button:focus-visible { outline: 2px solid #86394e; outline-offset: -3px; }
+@media (max-width: 700px) and (orientation: portrait) {
+  #witchbook-dialog { width: 100vw; height: 100dvh; }
+  #witchbook-dialog .wb-stage { overflow-y: auto; }
+  #witchbook-dialog .wb-title { width: 32%; }
+  #witchbook-dialog .wb-close { width: 19%; height: 11%; }
+  #witchbook-dialog .wb-tabs { top: 10%; width: 23%; }
+  #witchbook-dialog .wb-left-area { left: 4%; top: 7%; width: 72%; height: 34%; }
+  #witchbook-dialog .wb-photo-frame { width: 61%; height: 88%; }
+  #witchbook-dialog .wb-present-button { width: 58%; height: 18%; margin-top: -6%; }
+  #witchbook-dialog .wb-right-area { left: 6%; top: 43%; width: 86%; height: 25%; }
+  #witchbook-dialog .wb-subject-panel { height: 26%; }
+  #witchbook-dialog .wb-subject-label .first-char { font-size: 7cqw; }
+  #witchbook-dialog .wb-subject-label .rest-chars { font-size: 5cqw; }
+  #witchbook-dialog .wb-description-scroll { max-height: 69%; margin-top: 2%; }
+  #witchbook-dialog .wb-description-text, #witchbook-dialog .wb-rules-body,
+  #witchbook-dialog .wb-rules-body p, #witchbook-dialog .wb-notes-body p { font-size: 14px; }
+  #witchbook-dialog .wb-trial-source { top: 69%; left: 6%; width: 86%; max-height: 15%; padding: 8px; }
+  #witchbook-dialog .wb-item-area { height: 15%; }
+  #witchbook-dialog #wb-items { left: 5%; right: 5%; bottom: 18%; height: 65%; }
+  #witchbook-dialog .wb-item { flex-basis: 23cqw; width: 23cqw; }
+  #witchbook-dialog .wb-item-icon { width: 22cqw; }
+  #witchbook-dialog .wb-item-badge { font-size: 11px; }
+  #witchbook-dialog .wb-rules-left, #witchbook-dialog .wb-notes-left { left: 3%; top: 10%; width: 72%; height: 25%; }
+  #witchbook-dialog .wb-rules-right-container { left: 7%; top: 40%; width: 83%; height: 27%; }
+  #witchbook-dialog [data-has-source="true"] [data-book-panel="records"] .wb-rules-right-container { height: 27%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #witchbook-dialog .wb-tabs button,
+  #witchbook-dialog .wb-item {
+    transition: none;
+  }
+}

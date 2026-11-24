@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>魔法少女的魔女裁判：高墙之内</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/player-creator.css"><link rel="stylesheet" href="/settings.css" data-manosaba-settings-css="true"><link rel="stylesheet" href="/witchbook.css"><script src="/settings.js" defer></script><script src="/app.js" type="module"></script></head>
+<body class="at-title">
+<div id="screen-transition" class="screen-transition" role="status" aria-label="正在切换页面" tabindex="-1" hidden>
+  <div class="screen-transition-lockup" role="img" aria-label="魔法少女的魔女裁判：高墙之内">
+    <img class="screen-transition-title" src="/assets/start/title.png" alt="" aria-hidden="true" width="1071" height="627" decoding="async">
+    <img class="screen-transition-subtitle" src="/assets/start/subtitle_gaogiangzhinei_ornate.png" alt="" aria-hidden="true" width="880" height="220" decoding="async">
+  </div>
+</div>
+<section id="title-screen" aria-label="游戏标题界面">
+  <div class="title-lockup" role="img" aria-label="魔法少女的魔女裁判：高墙之内">
+    <img class="title-art" src="/assets/start/title.png" alt="" aria-hidden="true">
+    <img class="title-subtitle" src="/assets/start/subtitle.png" alt="" aria-hidden="true" width="880" height="220">
+  </div>
+  <nav class="title-menu" aria-label="主菜单">
+    <button id="title-resume" class="title-button" type="button" aria-label="Continue · 继续游戏" hidden disabled><img src="/assets/start/Continue-unselected.png" alt="Continue"><img class="selected-art" src="/assets/start/Continue-selected.png" alt=""></button>
+    <button id="title-load" class="title-button" type="button" aria-label="Load Game · 读取游戏"><img src="/assets/start/LoadGame-unselected.png" alt="Load Game"><img class="selected-art" src="/assets/start/LoadGame-selected.png" alt=""></button>
+    <button id="title-new" class="title-button raised" type="button" aria-label="New Game · 开始游戏"><img src="/assets/start/NewGame-unselected.png" alt="New Game"><img class="selected-art" src="/assets/start/NewGame-selected.png" alt=""></button>
+    <button id="title-options" class="title-button" type="button" aria-label="Options · 模型设置"><img src="/assets/start/Options-unselected.png" alt="Options"><img class="selected-art" src="/assets/start/Options-selected.png" alt=""></button>
+    <button id="title-exit" class="title-button" type="button" aria-label="Exit · 退出游戏"><img src="/assets/start/Exit-unselected.png" alt="Exit"><img class="selected-art" src="/assets/start/Exit-selected.png" alt=""></button>
+  </nav>
+  <p id="title-product-version" class="title-product-version" hidden></p>
+  <p id="title-message" role="status"></p>
+</section>
+<div id="game-screen" hidden>
+<section id="trial-opening" class="trial-opening" role="status" aria-label="审问开始" hidden>
+  <span class="sr-only">魔女审判，审问开始。演出不消耗故事时间，可按 Escape 跳过。</span>
+  <button id="trial-opening-skip" class="trial-opening-skip" type="button">跳过演出 <kbd>ESC</kbd></button>
+</section>
+<div class="scene-backdrop" aria-hidden="true"></div>
+<header>
+  <a class="brand" href="/" aria-label="魔法少女的魔女裁判：高墙之内">
+    <img class="brand-title" src="/assets/title.png" alt="" aria-hidden="true">
+    <img class="brand-subtitle" src="/assets/start/subtitle.png" alt="" aria-hidden="true" width="880" height="220">
+  </a>
+  <div class="chapter-label"><span>PROLOGUE · CHAPTER 00</span><strong>高墙之内，由你的行动继续。</strong></div>
+  <nav class="game-menu" aria-label="游戏功能">
+    <button id="top-save" class="menu-art-btn" data-menu-action="Save" type="button" aria-label="保存进度"><img class="normal-art" src="/assets/menu/Save-Normal.png" alt="保存"><img class="hover-art" src="/assets/menu/Save-Highlighted.png" alt=""></button>
+    <button id="open-saves" class="menu-art-btn" type="button" aria-label="读取进度"><img class="normal-art" src="/assets/menu/Load-Normal.png" alt="读取"><img class="hover-art" src="/assets/menu/Load-Highlighted.png" alt=""></button>
+    <button class="menu-art-btn" data-menu-action="Log" type="button" aria-label="历史记录" aria-haspopup="dialog" aria-controls="history-dialog"><img class="normal-art" src="/assets/menu/Log-Normal.png" alt="历史记录"><img class="hover-art" src="/assets/menu/Log-Highlighted.png" alt=""></button>
+    <button id="game-options" class="menu-art-btn" type="button" aria-label="选项设置"><img class="normal-art" src="/assets/menu/Options-Normal.png" alt="选项设置"><img class="hover-art" src="/assets/menu/Options-Highlighted.png" alt=""></button>
+    <button id="back-title" class="menu-art-btn" type="button" aria-label="返回标题"><img class="normal-art" src="/assets/menu/Title-Normal.png" alt="返回标题"><img class="hover-art" src="/assets/menu/Title-Highlighted.png" alt=""></button>
+  </nav>
+</header>
+<main>
+<div class="game-utilities">
+  <button id="witchbook-open" class="witchbook-open" type="button" aria-label="打开魔女图鉴"><img src="/assets/ui/book.png" alt="魔女图鉴"></button>
+</div>
+<section id="developer-panel" class="developer-panel" aria-labelledby="developer-panel-title" hidden></section>
+<section class="story">
+  <div class="story-bar">
+    <div class="heading">
+      <span class="eyebrow">樱羽艾玛</span>
+      <span class="divider" aria-hidden="true">/</span>
+      <strong id="location"></strong>
+      <button id="guard-rules-open" class="guard-rules-open" type="button" aria-haspopup="dialog" aria-controls="guard-rules-dialog" hidden>旧档 · 启用守卫检定</button>
+    </div>
+    <div id="scene-speaking-portraits" class="scene-speaking-portraits" aria-label="最新发言者" hidden></div>
+    <div class="story-top" aria-label="监牢时刻">
+      <span id="story-day">入狱第 1 天</span>
+      <time id="story-time">--:--</time>
+      <span id="story-period" hidden></span>
+    </div>
+  </div>
+  <section id="episode-panel" class="episode-panel" aria-label="当前日常片段" hidden>
+    <div class="episode-heading"><span class="eyebrow">DAILY LIFE</span><strong id="episode-title"></strong><span id="episode-status" class="episode-status"></span></div>
+    <p id="episode-objective" role="status" aria-live="polite"></p>
+    <p id="episode-nearby" class="episode-nearby"></p>
+    <details><summary>本轮可做什么？</summary><p>用一句话描述观察、移动、交谈或物品交互，例如「看看四周」「去走廊」「和安安聊聊」。每次只执行一个动作；无法理解时会提示，且不耗时。快捷选项不会替你作出最终决定。</p><p>已经发现的物品会记在魔女图鉴的「证物」页。</p></details>
+  </section>
+  <section id="case-panel" class="case-panel" aria-label="当前案件进度" hidden>
+    <div class="case-heading"><img class="case-emblem" src="/assets/trial/Debate_Deco_Libra_Normal.png" alt="" aria-hidden="true"><strong id="case-title"></strong><span id="case-stage"></span><button id="trial-book-open" type="button" aria-haspopup="dialog" aria-controls="witchbook-dialog" hidden>魔女图鉴 · 出示</button></div>
+  </section>
+  <p id="story-display-help" class="sr-only">新旁白和对白会逐字显示；点击普通正文或在正文区域按空格可立即显示本轮全文，不执行行动。审问中可用鼠标或键盘选择已显示的高亮短句，再选择质疑、赞同或反驳；仅选择片段不会发送行动。</p>
+  <div id="log" role="log" aria-label="已感知事件" aria-describedby="story-display-help" tabindex="0"></div>
+  <p id="completion" hidden></p>
+  <form id="action-form">
+    <div class="input-title">
+      <label for="action" class="input-actor-label">
+        <span class="input-nameplate" aria-hidden="true">
+          <img src="/assets/ui/nameplate.png" alt="">
+          <span class="input-speaker"><span class="name-first">樱</span><span class="name-body">羽</span><span class="name-second">艾</span><span class="name-body">玛</span></span>
+        </span>
+        <span class="sr-only">樱羽艾玛</span>
+        <small>下一步，你想做什么？</small>
+      </label>
+      <div id="suggestions" aria-label="快捷行动选项"></div>
+    </div>
+    <section id="trial-testimony" class="trial-testimony" aria-label="所选片段的回应" hidden></section>
+    <div class="input-composer">
+      <textarea id="action" maxlength="2000" rows="2" aria-describedby="input-help" placeholder="描述你想采取的行动，或写下想说的话……"></textarea>
+      <button type="submit" id="send"><span>执行行动</span></button>
+    </div>
+    <button id="new-attempt" class="prototype-retry" type="button" aria-describedby="new-attempt-help" hidden>另开新尝试（重新计费）</button>
+    <p id="new-attempt-help" class="input-help" hidden>默认执行会续接原请求，保留已完成任务与原时限。只有点击“另开新尝试”才为相同原文创建新请求、重新开始模型工作，可能再次产生费用；旧记录不会删除。</p>
+    <p id="input-help" class="input-help">Enter 发送 · Shift + Enter 换行 · 快捷选项：点击填入后手动发送</p>
+  </form>
+  <p id="message" role="status" aria-live="polite"></p>
+  <button id="book-action-retry" class="prototype-retry" type="button" hidden>续接图鉴出示（可能调用模型）</button>
+</section>
+<aside>
+  <div id="case-trial-timer" class="trial-timer" role="timer" aria-label="审判剩余时间" aria-live="off" hidden>
+    <img class="trial-timer-art" src="/assets/trial/ClockBase.png" width="465" height="151" alt="" aria-hidden="true">
+    <time id="case-trial-clock" class="trial-timer-digits"></time>
+  </div>
+  <div id="agent-status" class="agent-status" data-status="idle" hidden>
+    <details id="agent-status-disclosure">
+      <summary><span class="agent-status-sigil" aria-hidden="true"></span><span class="agent-status-kicker">STORY</span><span id="agent-status-label">待命</span><span class="agent-status-chevron" aria-hidden="true">⌄</span></summary>
+      <div class="agent-status-details"><p class="agent-status-caption">高墙之内 · 此刻的动静</p><ul id="agent-status-activities"></ul><p id="agent-status-note">静候你的下一步行动。</p><p id="agent-progress-note" class="agent-progress-note" hidden></p></div>
+    </details>
+    <span id="agent-status-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></span>
+  </div>
+<section class="phone" aria-label="艾玛的手机">
+<img class="phone-frame-art" src="/assets/menu/MenuFrame.png" alt="" aria-hidden="true">
+<div class="phone-status"><img class="phone-wifi" src="/assets/menu/WiFi_Notice.png" alt="本地网络"><time id="phone-time">--:--</time></div>
+<div class="phone-screen">
+<div class="phone-date">第 1 日 · 序章 <span>监牢内网</span></div>
+<div id="phone-app-heading" class="phone-app-heading"><div><p class="eyebrow">PERSONAL TERMINAL</p><h2 id="phone-title">随身听</h2></div></div>
+<section id="phone-execution" class="phone-execution" aria-labelledby="phone-execution-title" hidden>
+  <p class="execution-kicker">VERDICT · 已成立的判决</p>
+  <h3 id="phone-execution-title">等待处刑确认</h3>
+  <p class="execution-target-label">本次判决的执行对象</p>
+  <ul id="execution-targets" aria-label="判决执行对象"></ul>
+  <button id="case-execution-open" class="execution-button" type="button" aria-haspopup="dialog" aria-controls="case-execution-dialog"><span class="execution-seal-preview" aria-hidden="true"><img src="/assets/execution/button-bg.webp" alt=""><img src="/assets/execution/button.webp" alt=""></span><span id="case-execution-open-label">处刑 · 核对判决</span></button>
+  <button id="case-execution-refresh" type="button" hidden>核对当前进度</button>
+  <p id="execution-message" role="status" aria-live="polite"></p>
+</section>
+<section id="phone-ballot" class="phone-ballot" aria-labelledby="phone-ballot-title" aria-describedby="phone-ballot-help" hidden>
+  <p class="phone-ballot-kicker">TRIAL · BALLOT</p>
+  <h3 id="phone-ballot-title">审判投票</h3>
+  <p id="phone-ballot-help" class="phone-ballot-help">从当前程序给出的候选项中选一人。选择不会提交；确认后才会投出这一票，不会自动重试。</p>
+  <fieldset class="phone-ballot-fieldset">
+    <legend class="sr-only">选择投票对象</legend>
+    <div id="phone-ballot-choices" role="radiogroup" aria-label="投票候选"></div>
+  </fieldset>
+  <p id="phone-ballot-selected" class="phone-ballot-selected"></p>
+  <p id="phone-ballot-status" class="phone-ballot-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <button id="phone-ballot-confirm" class="phone-ballot-confirm" type="button" disabled>确认投票</button>
+</section>
+<nav id="phone-app-tabs" class="phone-tabs" aria-label="手机应用"><button type="button" data-phone-tab="music" aria-selected="true" aria-controls="phone-music">音乐</button><button type="button" data-phone-tab="time" aria-selected="false" aria-controls="phone-time-panel">时间</button><button type="button" data-phone-tab="notes" aria-selected="false" aria-controls="phone-notes">记录</button></nav>
+<div class="phone-scroll" id="phone-scroll" tabindex="0" aria-label="手机内容，可在内部滚动">
+<section id="phone-people" hidden><p class="muted">人物、证物与地图请通过左上角的魔女图鉴入口查看。手机保留音乐、故事时钟与行动记录。</p></section>
+<section id="phone-music" aria-label="背景音乐播放器" data-status="idle">
+  <div class="bgm-now-playing"><div class="bgm-record" aria-hidden="true"><span></span></div><div class="bgm-track-info"><p class="bgm-kicker">LOCAL SOUNDTRACK</p><h3 id="bgm-track">等待场景</h3><span class="bgm-private-label">场景配乐 · 隐藏曲名</span></div></div>
+  <p id="bgm-status" role="status" aria-live="polite">进入游戏后载入场景配乐。</p>
+  <div class="bgm-timeline"><label class="sr-only" for="bgm-seek">背景音乐播放进度</label><input id="bgm-seek" class="bgm-range" type="range" min="0" max="1" step="0.1" value="0" disabled><div class="bgm-time"><span id="bgm-current">0:00</span><span id="bgm-duration">0:00</span></div></div>
+  <div class="bgm-controls">
+    <button id="bgm-restart" class="bgm-icon-button" type="button" aria-label="从头播放背景音乐" title="从头播放" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8V3M5 8h5M5 8a8 8 0 1 1-1 8"/></svg></button>
+    <button id="bgm-toggle" class="bgm-play-button" type="button" aria-label="播放背景音乐" disabled><svg class="bgm-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7Z"/></svg><svg class="bgm-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M16 5v14"/></svg><span id="bgm-toggle-label">播放</span></button>
+    <button id="bgm-loop" class="bgm-icon-button" type="button" aria-label="整曲循环" aria-pressed="true" title="整曲循环"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 2 4 4-4 4M20 6H7a4 4 0 0 0-4 4m5 12-4-4 4-4M4 18h13a4 4 0 0 0 4-4"/></svg><span class="bgm-loop-dot" aria-hidden="true"></span></button>
+  </div>
+  <div class="bgm-volume-row"><button id="bgm-mute" class="bgm-icon-button" type="button" aria-label="背景音乐静音" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="bgm-mute-slash" d="m3 3 18 18"/></svg></button><label class="sr-only" for="bgm-volume">背景音乐音量</label><input id="bgm-volume" class="bgm-range" type="range" min="0" max="100" step="1" value="45"><span id="bgm-volume-value">45%</span></div>
+  <p class="bgm-footnote" title="跟随场景选曲；循环开启时整曲重播。">不推进故事时间 · 循环为整曲重播</p>
+</section>
+<section id="phone-time-panel" hidden><p class="eyebrow">STORY TIME</p><h3 id="phone-large-time">--:--</h3><p id="clock"></p><p id="phone-place"></p><div id="phone-clock-notice" class="phone-notice">监牢内的公共时钟。</div></section>
+<section id="phone-notes" hidden><p class="eyebrow">SESSION NOTES</p><h3>此刻的记录</h3><p id="phone-summary"></p><div id="phone-notes-notice" class="phone-notice">这里记下了迄今的见闻。</div></section>
+</div>
+<img id="phone-pager" class="phone-pager" src="/assets/menu/Pager_Decolation.png" alt="" aria-hidden="true">
+<div class="phone-footer"><span id="phone-connection">监牢内网</span><span id="phone-elapsed"></span></div>
+</div></section>
+</aside>
+</main>
+</div>
+<dialog id="dice-dialog" aria-labelledby="dice-title" aria-describedby="dice-help" closedby="none"></dialog>
+<dialog id="guard-rules-dialog" aria-labelledby="guard-rules-title" aria-describedby="guard-rules-description">
+  <p class="eyebrow">LEGACY SAVE · GUARD REACTIONS</p><h2 id="guard-rules-title">为当前旧档启用守卫检定？</h2>
+  <p id="guard-rules-description">启用前会自动创建备份存档。只对启用后的新行动生效，不改写旧历史、不追溯抓捕，也不会调用模型。启用后，危险时将先进行 d20 反应检定，再展示后续。</p>
+  <p id="guard-rules-message" role="status" aria-live="polite"></p>
+  <div class="dialog-actions"><button id="guard-rules-cancel" type="button" autofocus>暂不启用</button><button id="guard-rules-confirm" type="button">自动备份并启用</button><button id="guard-rules-check" type="button" hidden>核对启用结果</button></div>
+</dialog>
+<dialog id="history-dialog" aria-labelledby="history-heading">
+  <div class="history-header">
+    <img class="history-title-art" src="/assets/ui/log-title.png" alt="" aria-hidden="true">
+    <div class="history-title-copy"><span class="history-kicker">DAYS IN CAPTIVITY</span><h2 id="history-heading">高墙内的日记</h2><p>一日一页，记下你走过的故事。</p></div>
+    <button id="history-close" class="saveload-close" type="button" aria-label="关闭历史记录" autofocus></button>
+  </div>
+  <div class="history-layout">
+    <nav class="history-sidebar" aria-label="按入狱天数查看历史"><div class="history-sidebar-heading"><span class="history-kicker">CHRONICLE</span><strong>入狱日记</strong><span id="history-count"></span></div><div id="history-days"></div><p class="history-sidebar-note">只收录当前故事中的亲历见闻。</p></nav>
+    <section id="history-day-content" class="history-day-content" tabindex="0" aria-label="所选日期的总结与足迹"></section>
+  </div>
+  <div class="history-footer"><span id="history-current"></span><span>ESC / 关闭</span></div>
+</dialog>
+<dialog id="witchbook-dialog" aria-labelledby="witchbook-title">
+  <div class="wb-stage" data-category="people">
+    <img id="wb-background" class="wb-background" src="/assets/witchbook/UI_WitchBook_1/Background_1.png" alt="">
+    <h2 id="witchbook-title" class="sr-only">魔女图鉴</h2>
+    <img class="wb-title" src="/assets/witchbook/UI_WitchBook_1/BookTitle@ZhHans.png" alt="">
+    <section data-book-panel="people" class="wb-page">
+      <div class="wb-left-area">
+        <div class="wb-photo-frame profiles">
+          <img class="wb-frame-base" src="/assets/witchbook/UI_WitchBook_1/PersonFrame.png" alt="">
+          <div class="wb-thumbnail-mask profiles">
+            <img id="wb-person-thumb" class="wb-thumbnail" src="/assets/characters/custom-default.png" alt="">
+            <div id="wb-person-mark" hidden aria-hidden="true"></div>
+            <img class="wb-person-overlay" src="/assets/witchbook/UI_WitchBook_1/PersonOverlay.png" alt="">
+          </div>
+          <div class="wb-person-name-plate">
+            <img class="wb-plate-base" src="/assets/ui/nameplate.png" alt="">
+            <div id="wb-person-name" class="wb-author-label"></div>
+          </div>
+        </div>
+        <button id="wb-present-people" class="wb-present-button placeholder-mode" type="button" aria-label="出示">
+          <img class="wb-btn-bg" src="/assets/ui/ButtonBase_Default.png" alt="">
+          <img class="wb-btn-label" src="/assets/witchbook/UI_WitchBook_1/PresentButtonBody@ZhHans.png" alt="">
+        </button>
+      </div>
+      <div class="wb-right-area">
+        <p class="wb-kicker" hidden>已知人物 · <span id="people-count"></span></p>
+        <div id="characters" class="wb-description-scroll"></div>
+        <section id="wb-avatar-editor" class="avatar-editor wb-avatar-editor" aria-label="自定义角色头像" hidden>
+          <div class="avatar-editor-heading"><img data-avatar-preview src="/assets/characters/custom-default.png" alt="当前自定义角色头像"><div><h3>自定义角色头像</h3><p>仅保存在本机，随存档保存；更换不推进剧情。</p></div></div>
+          <input data-avatar-file class="sr-only" type="file" accept="image/png,image/jpeg,image/webp" aria-label="选择自定义角色头像" tabindex="-1">
+          <div class="avatar-editor-actions"><button data-avatar-upload type="button">上传 / 更换头像</button><button data-avatar-reset type="button" disabled>恢复默认</button></div>
+          <p class="avatar-editor-help">PNG / JPEG / WebP · 原图不超过 10 MB</p>
+          <p data-avatar-message class="avatar-editor-message" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </section>
+    <section data-book-panel="evidence" class="wb-page" hidden>
+      <div class="wb-left-area">
+        <div class="wb-photo-frame clues">
+          <img class="wb-frame-base" src="/assets/witchbook/UI_WitchBook_1/EvidenceFrame.png" alt="">
+          <div class="wb-thumbnail-mask clues">
+            <img id="wb-clue-thumb" class="wb-thumbnail" src="/assets/ui/book.png" alt="">
+          </div>
+        </div>
+        <button id="wb-present-clue" class="wb-present-button" type="button" aria-label="出示">
+          <img class="wb-btn-bg" src="/assets/ui/ButtonBase_Default.png" alt="">
+          <img class="wb-btn-label" src="/assets/witchbook/UI_WitchBook_1/PresentButtonBody@ZhHans.png" alt="">
+        </button>
+      </div>
+      <div class="wb-right-area">
+        <div class="wb-subject-panel">
+          <img class="wb-subject-base" src="/assets/witchbook/UI_WitchBook_1/EvidenceNameBase.png" alt="">
+          <div id="wb-clue-title" class="wb-subject-label">
+            <span class="first-char">暂</span><span class="rest-chars">无证物</span>
+          </div>
+        </div>
+        <div id="wb-clue-desc" class="wb-description-scroll">
+          <p class="wb-description-text">尚未记录证物。</p>
+        </div>
+      </div>
+    </section>
+    <section data-book-panel="maps" class="wb-page wb-map-page" hidden>
+      <div class="wb-map-caption"><p id="book-location"></p></div>
+      <div class="wb-map-wrapper">
+        <svg id="wb-map-canvas" class="wb-map-layout" viewBox="0 0 1631 932" role="group" aria-labelledby="wb-map-title">
+          <title id="wb-map-title">1F 地图（仅标注已到访地点）</title>
+          <svg id="wb-map-base" width="1631" height="932" viewBox="0 0 1631 932" overflow="hidden">
+            <image id="wb-map" href="/assets/witchbook/UI_WitchBook_2/Layout_F1_1.png" width="1631" height="932"></image>
+          </svg>
+          <g id="wb-map-extension"></g>
+          <g id="wb-map-nodes" role="group" aria-label="已到访地点"></g>
+        </svg>
+      </div>
+    </section>
+    <section data-book-panel="rules" class="wb-page wb-rules-container" hidden>
+      <div class="wb-rules-left">
+        <div class="wb-rules-title-area">
+          <img class="wb-rules-title-bg" src="/assets/witchbook/UI_WitchBook_2/Rule_TitleBack.png" alt="">
+          <h3 class="wb-rules-main-title">规定</h3>
+          <div class="wb-rules-num">I</div>
+        </div>
+        <div class="wb-rules-subtitle">
+          <span>当前已知规定</span>
+          <img class="wb-rules-subtitle-line" src="/assets/witchbook/UI_WitchBook_2/Rule_SubtitleUnderline.png" alt="">
+        </div>
+      </div>
+      <div class="wb-rules-right-container">
+        <div id="wb-rule-content" class="wb-rules-body">
+          <p>配发手机中收录了监牢的生活规定，可在此逐页查阅。</p>
+        </div>
+      </div>
+    </section>
+    <section data-book-panel="records" class="wb-page wb-notes-container" hidden>
+      <div class="wb-notes-left">
+        <div class="wb-notes-title">
+          <h3>备忘录</h3>
+          <img class="wb-notes-title-line" src="/assets/witchbook/UI_WitchBook_2/Note_TitleUnderline.png" alt="">
+        </div>
+      </div>
+      <div class="wb-rules-right-container">
+        <div class="wb-notes-body">
+          <p id="book-records"></p>
+          <p>这里记下了迄今的见闻。</p>
+        </div>
+      </div>
+    </section>
+    <section id="wb-trial-source" class="wb-trial-source" aria-label="庭上引用" hidden>
+      <details id="testimony-reference" class="testimony-reference" hidden><summary>引文</summary><div id="testimony-reference-passages"></div></details>
+      <section id="wb-testimony-actions" class="trial-testimony" aria-label="材料原文回应" hidden></section>
+    </section>
+    <section id="wb-present-confirm" class="wb-present-confirm" role="dialog" aria-modal="true" aria-labelledby="wb-present-confirm-title" tabindex="-1" hidden>
+      <div class="wb-confirm-card"><p class="wb-confirm-kicker">PRESENT EVIDENCE · 庭上公开</p><h3 id="wb-present-confirm-title">出示这份材料？</h3><strong id="wb-confirm-name"></strong><p id="wb-confirm-copy">将这份材料出示给庭上的所有人。</p><p id="wb-present-message" role="status" aria-live="polite"></p><div class="wb-confirm-actions"><button id="wb-present-cancel" type="button">返回查阅</button><button id="wb-present-submit" type="button">确认出示</button></div></div>
+    </section>
+    <div class="wb-item-area"><img src="/assets/witchbook/UI_WitchBook_1/ItemSlot.png" alt=""><div id="wb-items" aria-label="图鉴条目"></div></div>
+    <nav class="wb-tabs" aria-label="图鉴分类"></nav>
+    <button id="witchbook-close" class="wb-close" type="button" aria-label="关闭魔女图鉴"><img src="/assets/ui/CloseButton_Default.png" alt=""></button>
+  </div>
+</dialog>
+<dialog id="options-dialog"><div id="options-root"></div></dialog>
+<dialog id="run-policy-dialog" aria-labelledby="run-policy-title" aria-describedby="run-policy-description">
+  <h2 id="run-policy-title">本局偏好与玩法边界</h2>
+  <p id="run-policy-description">这是场外设置，不是角色行动。仅「采用修改」会更新本局；已经发生的剧情不变。</p>
+  <p id="run-policy-current" hidden></p>
+  <form id="run-policy-form">
+    <fieldset id="run-policy-fields" disabled>
+      <legend class="sr-only">待采用的草稿</legend>
+      <label for="run-policy-style">导演偏好 · 最多 1600 字</label>
+      <textarea id="run-policy-style" rows="3" maxlength="1600"></textarea>
+      <label for="run-policy-cases">本局案件</label>
+      <select id="run-policy-cases"><option value="allowed">允许案件</option><option value="excluded">排除新增案件</option></select>
+      <details class="run-policy-boundary-form">
+        <summary>其他玩法边界 · 最多 8 条</summary>
+        <p>每框一条，至多 500 字，可换行；留空则不采用该条。</p>
+        <label for="run-policy-boundary-1">边界 1<textarea id="run-policy-boundary-1" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-2">边界 2<textarea id="run-policy-boundary-2" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-3">边界 3<textarea id="run-policy-boundary-3" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-4">边界 4<textarea id="run-policy-boundary-4" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-5">边界 5<textarea id="run-policy-boundary-5" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-6">边界 6<textarea id="run-policy-boundary-6" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-7">边界 7<textarea id="run-policy-boundary-7" rows="2" maxlength="500"></textarea></label>
+        <label for="run-policy-boundary-8">边界 8<textarea id="run-policy-boundary-8" rows="2" maxlength="500"></textarea></label>
+      </details>
+    </fieldset>
+    <p id="run-policy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <div class="run-policy-actions">
+      <button id="run-policy-reload" type="button">重新读取</button>
+      <button id="run-policy-close" type="button">返回选项</button>
+      <button id="run-policy-adopt" type="submit" disabled>采用修改</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="new-game-dialog" aria-labelledby="new-game-title">
+  <div class="pc-dialog-heading"><p class="pc-eyebrow">MANOSABA / 入监档案</p><h2 id="new-game-title">以谁的视角，走进高墙？</h2><p>选择熟悉的少女，或写下属于你的第十四份档案。填写与预设管理不调用模型。</p></div>
+  <fieldset id="new-game-examples">
+    <legend>游玩内容</legend>
+    <p class="prototype-choice"><label><input type="radio" name="new-game-example" value="agent" checked> 高墙之内 <span class="prototype-tag">自由行动</span></label><br>选择一位少女，从第一或第二周目的清晨开始。以自己的行动与话语，续写高墙之内的故事。</p>
+    
+  </fieldset>
+  <section id="player-creator" aria-label="玩家角色创建" hidden>
+    <div class="pc-status-line"><p id="pc-message" role="status" aria-live="polite"></p><button type="button" data-pc-action="reload">刷新目录与预设</button></div>
+    <p id="pc-catalog-notice" class="pc-help"></p>
+    <fieldset id="pc-form" class="pc-form">
+      <legend class="sr-only">角色与开场设置</legend>
+      <div class="pc-choice-row">
+        <fieldset class="pc-choice"><legend>Ⅰ · 玩家视角</legend><div class="pc-segments"><label><input type="radio" name="pc-player-mode" value="original" checked><span>原作角色</span></label><label><input type="radio" name="pc-player-mode" value="custom"><span>新增自定义角色</span></label></div><p class="pc-help">自定义角色作为新人物加入，不会替换任何原作角色。</p></fieldset>
+        <fieldset class="pc-choice pc-loop-choice"><legend>故事周目</legend><div class="pc-segments"><label><input type="radio" name="pc-loop" value="1" checked><span>第一周目</span></label><label><input type="radio" name="pc-loop" value="2"><span>第二周目</span></label></div><p class="pc-help">角色预设通用；开场预设按周目分别保存。</p></fieldset>
+      </div>
+      <section class="pc-section" aria-labelledby="pc-scenario-title">
+        <h3 id="pc-scenario-title">故事起点</h3>
+        <label class="pc-field" for="pc-scenario">游玩场景<select id="pc-scenario" aria-describedby="pc-scenario-help"><option value="">常规开局 · 依周目与身份选择序幕</option></select></label>
+        <p id="pc-scenario-help" class="pc-help" role="status" aria-live="polite">常规开局只编辑开场文字；起点由牢房与床位设定决定。载入目录后可选择其他故事起点。</p>
+      </section>
+      <section id="pc-original-fields" class="pc-section" aria-labelledby="pc-original-title">
+        <div class="pc-section-heading"><h3 id="pc-original-title">选择你的视角</h3><span id="pc-actor-count">十三位原作少女</span></div>
+        <div id="pc-actors" class="pc-actors" role="group" aria-label="原作玩家角色"><p class="pc-help">打开时载入人物目录……</p></div>
+        <div id="pc-actor-description" class="pc-actor-description" hidden><h4 id="pc-actor-name"></h4><p id="pc-actor-appearance"></p><p id="pc-actor-communication"></p></div>
+        <label id="pc-original-magic-wrap" class="pc-field" for="pc-original-magic">本局魔法补充 <span>可选 · 1000 字以内 · 不改原作档案</span><textarea id="pc-original-magic" maxlength="1000" rows="2" placeholder="写下这局想加入的魔法、怎么发动、有什么限制。"></textarea></label>
+      </section>
+      <section id="pc-custom-fields" class="pc-section" aria-labelledby="pc-custom-title" hidden>
+        <div class="pc-section-heading"><h3 id="pc-custom-title">写下你的档案</h3><span>先写一句概念，细节可以留白</span></div>
+        <details class="pc-presets" open>
+          <summary>角色预设 <span>本机保存 · 各周目通用</span></summary>
+          <div class="pc-preset-grid"><label class="pc-field" for="pc-character-preset">已保存的角色<select id="pc-character-preset"><option value="">选择一份角色预设</option></select></label><label class="pc-field" for="pc-character-preset-name">角色预设备注名<input id="pc-character-preset-name" type="text" maxlength="60" placeholder="例如：失去记忆的绘本作者（不修改角色姓名）"></label></div>
+          <div class="pc-actions"><button type="button" data-pc-action="load-character">载入所选</button><button type="button" data-pc-action="save-character">另存为新预设</button><button type="button" data-pc-action="overwrite-character">覆盖所选</button><button type="button" data-pc-action="delete-character" class="pc-danger">删除所选</button></div>
+          <div class="pc-delete-confirm" data-pc-delete="character" hidden><p data-pc-delete-label></p><div class="pc-actions"><button type="button" data-pc-action="cancel-delete-character">保留</button><button type="button" data-pc-action="confirm-delete-character" class="pc-danger">确认删除角色预设</button></div></div>
+          <p class="pc-help">载入会替换当前角色资料、属性、头像与印象色，不改周目、开场或备注名。选择预设本身不会覆盖输入。</p>
+        </details>
+        <div class="pc-character-basics"><label class="pc-field" for="pc-character-name">姓名 <span>必填</span><input id="pc-character-name" type="text" maxlength="32" autocomplete="off" placeholder="这份档案上的名字"></label><label class="pc-field" for="pc-character-age">年龄<input id="pc-character-age" type="number" min="15" max="18" step="1" value="16" inputmode="numeric" aria-describedby="pc-age-help"><small id="pc-age-help">15—18 岁，默认 16 岁</small></label></div>
+        <label class="pc-field" for="pc-character-concept">一句角色概念 <span>必填 · 500 字以内</span><textarea id="pc-character-concept" maxlength="500" rows="2" placeholder="例如：习惯把心事画进绘本，却不擅长向他人求助的少女。"></textarea></label>
+        <label class="pc-field" for="pc-character-magic">本局魔法设定 <span>可选 · 1000 字以内</span><textarea id="pc-character-magic" maxlength="1000" rows="2" placeholder="描述魔法如何发动、有什么表现和限制；可以没有术名。"></textarea></label>
+        <p class="pc-help">普通开局直接带入这段设定，用日常行动框描述要做什么。实际结果以现场和回合结算为准。</p>
+        <section class="pc-section" id="pc-ability-authoring" aria-labelledby="pc-ability-title">
+          <div class="pc-section-heading"><h3 id="pc-ability-title">可选：编译专用能力</h3><span>保留既有机制</span></div>
+          <p class="pc-help">普通开局无需编译。只有想选用现有机制的专用结算时，才需要编译、核对并确认。</p>
+          <div class="pc-two-columns">
+            <label class="pc-field" for="pc-ability-stage">初始阶段<select id="pc-ability-stage"><option value="basic" selected>尚未觉醒</option><option value="awakened">已觉醒</option></select><small>你希望这个角色从哪一步开始。</small></label>
+            <label class="pc-field" for="pc-ability-recognition">初始认知<select id="pc-ability-recognition"><option value="known" selected>已知</option><option value="unknown">未知</option><option value="partial">部分已知</option></select><small>改变后需要重新编译。</small></label>
+          </div>
+          <div class="pc-status-line"><p id="pc-ability-status" class="pc-help" role="status" aria-live="polite"></p><button id="pc-ability-compile" type="button" disabled>编译能力</button></div>
+          <section id="pc-ability-preview" class="pc-preview" tabindex="-1" aria-labelledby="pc-ability-preview-title" hidden>
+            <h4 id="pc-ability-preview-title">能力预览</h4>
+            <dl id="pc-ability-definition"></dl>
+            <p id="pc-ability-note" class="pc-help"></p>
+            <details id="pc-ability-technical" hidden><summary>技术详情</summary><dl id="pc-ability-technical-definition"></dl></details>
+            <div class="pc-actions"><button id="pc-ability-confirm" type="button" disabled>确认这份能力</button></div>
+          </section>
+          <p id="pc-ability-entry-status" class="pc-help" role="status" aria-live="polite" hidden></p>
+        </section>
+        <details id="pc-character-advanced" class="pc-advanced"><summary>补充档案 <span>外貌、性格、背景与愿望 · 可选</span></summary><div class="pc-two-columns"><label class="pc-field" for="pc-character-appearance">外貌<textarea id="pc-character-appearance" maxlength="800" rows="3" placeholder="发型、服饰、神态与随身的小物……"></textarea></label><label class="pc-field" for="pc-character-personality">性格<textarea id="pc-character-personality" maxlength="800" rows="3" placeholder="与人交往的方式、习惯与弱点……"></textarea></label><label class="pc-field" for="pc-character-background">背景<textarea id="pc-character-background" maxlength="1600" rows="3" placeholder="来到这里之前，她过着怎样的生活？"></textarea></label><label class="pc-field" for="pc-character-desire">愿望<textarea id="pc-character-desire" maxlength="500" rows="3" placeholder="她最想守住或实现的事情……"></textarea></label></div></details>
+        <section class="pc-ai" aria-labelledby="pc-character-ai-title"><div><h4 id="pc-character-ai-title">需要一点灵感？</h4><p>仅点击下方按钮才发送一次 AI 请求，可能产生模型费用；若这一次没通过，会按选项里的自动重试次数再请求。候选先预览，你确认后才补入空白文字，已写内容、年龄、属性、头像与印象色均不改变。</p></div><label class="pc-field" for="pc-character-instruction">给 AI 的补充要求 <span>可选 · 1000 字以内</span><textarea id="pc-character-instruction" maxlength="1000" rows="2" placeholder="例如：她说话克制，遇到陌生人时会反复斟酌措辞，也有想努力改变的弱点。"></textarea></label><button type="button" data-pc-action="complete-character">请求一次角色补全（可能收费）</button></section>
+        <section id="pc-character-preview" class="pc-preview" tabindex="-1" aria-labelledby="pc-character-preview-title" hidden><h4 id="pc-character-preview-title">AI 候选档案 · 尚未应用</h4><dl id="pc-character-preview-content"></dl><p>只填入仍为空白的文字项；不会修改年龄、属性或外观印记。继续编辑会使这份候选失效。</p><div class="pc-actions"><button type="button" data-pc-action="accept-character">接受：仅补空白项</button><button type="button" data-pc-action="discard-character">舍弃候选</button></div></section>
+        <section class="pc-attributes" aria-labelledby="pc-attributes-title"><div class="pc-section-heading"><h3 id="pc-attributes-title">Ⅱ · 六项属性</h3><label class="pc-inline-field" for="pc-attribute-mode">分配方式<select id="pc-attribute-mode"><option value="standard">标准购点 · 27 点</option><option value="custom">自定义数值 · 1—20</option></select></label></div><div id="pc-point-budget" class="pc-point-budget"><div><strong id="pc-points-remaining">剩余 0 / 27 点</strong><span id="pc-points-spent">已用 27 点</span></div><meter id="pc-points-meter" min="0" max="27" value="27" aria-label="标准购点已使用点数">27 / 27</meter><p id="pc-points-help">标准模式：8—15，必须恰好花完 27 点；降低数值会返还点数。</p></div><p id="pc-custom-points-help" class="pc-help" hidden>自由设定每项 1—20，不使用 27 点预算；允许六项均为 20。按你设想的人物特点分配即可。</p><div id="pc-attributes" class="pc-attribute-grid"></div><p id="pc-attribute-message" class="pc-help" role="status" aria-live="polite"></p><details class="pc-attribute-rules"><summary>购点成本与调整值怎么算？</summary><p>属性 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15，分别花费 0 / 1 / 2 / 3 / 4 / 5 / 7 / 9 点。默认 12、12、12、13、13、13，正好 27 点；14 与 15 各需额外 2 点。</p><p>调整值 = ⌊（属性 − 10）÷ 2⌋，例如 8 → −1、12 → +1、15 → +2、20 → +5。六项属性分别记录力量、敏捷、体质、智力、感知与魅力。</p></details></section>
+        <p class="pc-help">头像与人物印象色在本页下方设置；保存角色预设时会一并保存。</p>
+      </section>
+      <section class="pc-section pc-opening-section" aria-labelledby="pc-opening-title"><div class="pc-section-heading"><h3 id="pc-opening-title">Ⅲ · 开场文字</h3><span id="pc-opening-loop-label">第一周目</span></div><p id="pc-fixed-opening-help" class="pc-help" hidden>第一案从第一周目、案发后的清晨在会客厅集合开始。此处的序幕、开场文字与起始地点固定；常规开场草稿会保留，切回常规开局后可继续编辑。</p><label id="pc-card-opening-wrap" class="pc-field" for="pc-card-opening">默认序幕<select id="pc-card-opening"><option value="auto">依周目与身份自动适配</option></select><small id="pc-card-opening-help">选择故事开始的清晨。自填开场优先。</small></label><label id="pc-opening-toggle-wrap" class="pc-opening-toggle"><input id="pc-opening-enabled" type="checkbox"> 使用自定义开场文字（不勾选时保留所选原作角色的默认开场）</label><fieldset id="pc-opening-inputs" class="pc-form"><legend class="sr-only">自定义开场内容</legend>
+        <details class="pc-presets"><summary>开场预设 <span>与角色分开 · 仅当前周目</span></summary><div class="pc-preset-grid"><label class="pc-field" for="pc-opening-preset">本周目已保存的开场<select id="pc-opening-preset"><option value="">选择一份开场预设</option></select></label><label class="pc-field" for="pc-opening-preset-name">开场预设备注名<input id="pc-opening-preset-name" type="text" maxlength="60" placeholder="例如：第一周目 · 在陌生的牢房醒来"></label></div><div class="pc-actions"><button type="button" data-pc-action="load-opening">载入所选</button><button type="button" data-pc-action="save-opening">另存为新预设</button><button type="button" data-pc-action="overwrite-opening">覆盖所选</button><button type="button" data-pc-action="delete-opening" class="pc-danger">删除所选</button></div><div class="pc-delete-confirm" data-pc-delete="opening" hidden><p data-pc-delete-label></p><div class="pc-actions"><button type="button" data-pc-action="cancel-delete-opening">保留</button><button type="button" data-pc-action="confirm-delete-opening" class="pc-danger">确认删除开场预设</button></div></div><p class="pc-help">只载入开场文字并勾选自定义开场；起始牢房仍由牢房床位设定决定，不改角色资料、周目或任何备注名。</p></details>
+        <label class="pc-field pc-location-field" for="pc-opening-location">起始地点<select id="pc-opening-location"><option value="PLAYER_CELL" selected>八号牢房</option></select><small>地点独立于开场文字；留空文字也可以选择起点。</small></label>
+        <label class="pc-field" for="pc-opening-text">你眼中的开场 <span><output id="pc-opening-count" for="pc-opening-text">0</output> / 4000 字 · 可留空</span><textarea id="pc-opening-text" maxlength="4000" rows="5" placeholder="以你的视角，描述醒来时的感受、眼前的景象，或最想说的第一句话……"></textarea></label><p class="pc-help">从自己的视角写下醒来的这一刻：眼前的景象、最初的动作，或想说的第一句话。</p>
+        <section class="pc-ai" aria-labelledby="pc-opening-ai-title"><div><h4 id="pc-opening-ai-title">补写一段开场</h4><p>仅在开场留空时请求一次 AI 补全，可能收费；若这一次没通过，会按选项里的自动重试次数再请求。先预览，再手动接受；不改已写文字、起始地点或角色。</p></div><label class="pc-field" for="pc-opening-instruction">给 AI 的开场要求 <span>可选 · 1000 字以内</span><textarea id="pc-opening-instruction" maxlength="1000" rows="2" placeholder="例如：用第一人称写醒来时的凉意、眼前的石墙和一句轻声的询问。"></textarea></label><button type="button" data-pc-action="complete-opening">请求一次开场补全（可能收费）</button></section>
+        <section id="pc-opening-preview" class="pc-preview" tabindex="-1" aria-labelledby="pc-opening-preview-title" hidden><h4 id="pc-opening-preview-title">AI 候选开场 · 尚未应用</h4><p id="pc-opening-preview-content" class="pc-preview-prose"></p><p>接受后补入空白的开场文字，地点保持不变；继续编辑会使这份候选失效，不覆盖已有文字。</p><div class="pc-actions"><button type="button" data-pc-action="accept-opening">接受这段开场文字</button><button type="button" data-pc-action="discard-opening">舍弃候选</button></div></section>
+      </fieldset></section>
+      <details class="pc-section pc-advanced" id="pc-run-policy">
+        <summary>本局偏好与玩法边界 <span>可选 · 不属于角色对白</span></summary>
+        <fieldset class="pc-form" id="pc-run-policy-fields" aria-describedby="pc-run-policy-help">
+          <legend class="sr-only">新一局的偏好与玩法边界</legend>
+          <p id="pc-run-policy-help" class="pc-help">仅用于这次常规开局。偏好供后续叙事参考；玩法边界由游戏规则约束，不改已有剧情。</p>
+          <label class="pc-field" for="pc-director-preferences">导演偏好 <span>最多 1600 字</span><textarea id="pc-director-preferences" maxlength="1600" rows="3" placeholder="例如：放慢节奏，多给我观察和交流的机会。"></textarea></label>
+          <label class="pc-field" for="pc-policy-cases">本局案件<select id="pc-policy-cases"><option value="allowed">允许案件</option><option value="excluded">排除新增案件</option></select></label>
+          <label class="pc-field" for="pc-policy-boundaries">其他玩法边界 <span>每行一条，最多 8 条，每条 500 字</span><textarea id="pc-policy-boundaries" maxlength="4007" rows="4" aria-describedby="pc-policy-boundaries-help"></textarea></label>
+          <p id="pc-policy-boundaries-help" class="pc-help">写出明确希望避开的内容；空行不计入条数。</p>
+        </fieldset>
+        <p id="pc-run-policy-unavailable" class="pc-help" hidden>固定案件或预制故事弧沿用原规则；草稿保留，切回常规开局可继续编辑。</p>
+      </details>
+    </fieldset>
+  </section>
+  <section id="custom-character-options" hidden class="pc-section" aria-labelledby="pc-cosmetics-title">
+    <h3 id="pc-cosmetics-title">Ⅳ · 头像与印象色</h3>
+    <fieldset id="pc-cosmetics-inputs" class="pc-form"><legend class="sr-only">自定义人物外观印记</legend><div class="pc-cosmetics-grid">
+      <div id="new-avatar-editor" class="avatar-editor" aria-label="创建角色头像">
+        <div class="avatar-editor-heading"><img data-avatar-preview src="/assets/characters/custom-default.png" alt="自定义角色头像预览"><div><h3>角色头像</h3><p>上传一张图片，作为人物图鉴中的头像。</p></div></div>
+        <input data-avatar-file class="sr-only" type="file" accept="image/png,image/jpeg,image/webp" aria-label="选择创建角色的头像" tabindex="-1">
+        <div class="avatar-editor-actions"><button data-avatar-upload type="button">上传头像</button><button data-avatar-reset type="button" disabled>恢复默认</button></div>
+        <p class="avatar-editor-help">PNG / JPEG / WebP · 原图不超过 10 MB，自动缩小至最长边 768 px，仅保存在本机。</p>
+        <p data-avatar-message class="avatar-editor-message" role="status" aria-live="polite"></p>
+      </div>
+      <div class="pc-color-field"><label for="custom-impression-color">人物印象色</label><input id="custom-impression-color" type="color" value="#a0beeb"><p>用于人物名字的视觉印记，不影响剧情与属性。原作角色保留各自的外观。</p></div>
+    </div></fieldset>
+  </section>
+  <p id="new-game-example-status" role="status" aria-live="polite">写下人物档案，选择故事开始的清晨。</p>
+  <p class="pc-backup-note">开始游戏时，已有行动的当前进度将先自动备份，已有存档保留。取消或切换场景不会修改游戏进度。</p>
+  <div class="dialog-actions"><span class="pc-footer-note">落笔之后，故事才开始。</span><button id="new-cancel" type="button">取消</button><button id="new-confirm" type="button">开始游戏</button></div>
+</dialog>
+<dialog id="saves-dialog" aria-labelledby="saveload-heading">
+  <img class="saveload-underlay" src="/assets/saveload/base.png" alt="" aria-hidden="true">
+  <div class="saveload-header">
+    <div class="saveload-title-wrap">
+      <img id="saveload-title-img" src="/assets/saveload/load-title.png" alt="存档与读档">
+      <div class="saveload-mode-tabs" role="tablist" aria-label="存档或读档模式">
+        <button type="button" id="mode-save-btn" data-saveload-mode="save" aria-selected="false">SAVE · 保存进度</button>
+        <button type="button" id="mode-load-btn" data-saveload-mode="load" aria-selected="true">LOAD · 读取存档</button>
+      </div>
+    </div>
+    <h2 id="saveload-heading" class="sr-only">本地存档管理</h2>
+    <button id="close-saves" class="saveload-close" type="button" aria-label="关闭存档界面"></button>
+  </div>
+  <section class="saves">
+    <div class="saveload-QuickBar" id="saveload-save-bar">
+      <div class="saveload-current-summary">
+        <span class="eyebrow">CURRENT PROGRESS · 当前进度快照</span>
+        <strong id="save-current-desc">牢房 · 06:00</strong>
+      </div>
+      <div class="saveload-save-controls">
+        <input id="save-custom-name" type="text" maxlength="80" placeholder="输入存档备注名（留空自动按阶段与时间生成）……">
+        <button id="save" type="button" class="saveload-primary-btn">+ 新建存档</button>
+      </div>
+    </div>
+    <p id="save-selected-desc" class="save-selected-desc" role="status">尚未选择存档</p>
+    <div id="save-grid" class="save-grid" role="listbox" aria-label="存档槽位列表"></div>
+    <p id="saves-message" class="saves-message" role="status" aria-live="polite"></p>
+    <div class="saveload-bottom-bar">
+      <p id="saveload-hint" class="muted">读取模式：点击选择，双击卡片或点击「读取所选存档」读取。可重命名所选存档；删除需另行确认。</p>
+      <div class="saveload-legacy-controls">
+        <label for="save-slots" class="sr-only">选择存档</label>
+        <select id="save-slots" hidden><option value="">暂无存档</option></select>
+        <button id="new-save-target" type="button" hidden>选择新建存档</button>
+        <button id="rename-save" type="button" aria-haspopup="dialog" aria-controls="save-confirm-dialog" disabled>重命名所选存档</button>
+        <button id="delete-save" type="button" class="saveload-danger-btn" disabled>删除所选存档</button>
+        <button id="load" type="button" class="saveload-primary-btn"><span>读取所选存档</span></button>
+      </div>
+    </div>
+  </section>
+</dialog>
+<dialog id="save-confirm-dialog" aria-labelledby="save-confirm-title" aria-describedby="save-confirm-preview">
+  <h2 id="save-confirm-title">确认存档操作</h2>
+  <p id="save-confirm-preview"></p>
+  <form id="save-confirm-form" novalidate>
+    <div id="save-rename-fields" hidden>
+      <label for="save-rename-name">存档名称</label>
+      <input id="save-rename-name" type="text" maxlength="80" autocomplete="off" aria-describedby="save-rename-help save-rename-error">
+      <p id="save-rename-help" class="muted">名称需为 1—80 字；只修改名称，不会覆盖存档进度。</p>
+      <p id="save-rename-error" role="alert"></p>
+    </div>
+    <div class="dialog-actions"><button id="save-confirm-cancel" type="button" autofocus>取消</button><button id="save-confirm-accept" type="submit" class="saveload-danger-btn">确认</button></div>
+  </form>
+</dialog>
+<dialog id="exit-dialog" aria-labelledby="exit-title" aria-describedby="exit-description">
+  <p class="eyebrow">EXIT GAME</p>
+  <h2 id="exit-title">离开高墙，暂别此刻？</h2>
+  <p id="exit-description">当前进度与已有存档会保留，下次打开后可选择 Continue 继续。</p>
+  <p id="exit-message" role="status"></p>
+  <div class="dialog-actions"><button id="exit-cancel" type="button" autofocus>取消</button><button id="exit-confirm" type="button">退出游戏</button></div>
+</dialog>
+<dialog id="case-execution-dialog" aria-label="处刑确认" closedby="any">
+  <img class="execution-phone-art" src="/assets/menu/MenuFrame.png" alt="" aria-hidden="true" draggable="false">
+  <div class="execution-seal-stage">
+    <button id="case-execution-confirm" type="button" class="execution-seal" aria-label="长按处刑印章 5.5 秒，填满后松开确认；Escape 取消" autofocus data-seal-phase="idle">
+      <img class="execution-seal-bg" src="/assets/execution/button-bg.webp" alt="" aria-hidden="true" draggable="false">
+      <span class="execution-seal-fill" aria-hidden="true"></span>
+      <img class="execution-seal-ink" src="/assets/execution/button.webp" alt="" aria-hidden="true" draggable="false">
+      <span class="execution-seal-complete" aria-hidden="true"><img src="/assets/execution/finish.png" alt="" draggable="false"></span>
+    </button>
+  </div>
+</dialog>
+<dialog id="rewind-dialog" aria-labelledby="rewind-title"><h2 id="rewind-title">回溯到此行动之前？</h2><p id="rewind-preview"></p><div class="dialog-actions"><button id="rewind-cancel" type="button">取消</button><button id="rewind-confirm" type="button">确认回溯</button></div></dialog>
+<footer><span>MANOSABA</span><span id="edition-notice">高墙之内</span></footer>
+</body></html>

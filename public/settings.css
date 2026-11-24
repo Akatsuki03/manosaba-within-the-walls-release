@@ -1,0 +1,167 @@
+/* Standalone settings styles; all rules are scoped to the options dialog. */
+#options-dialog.ms-dialog {
+  color-scheme: dark;
+  --ms-background: #17121f;
+  --ms-panel: #21192d;
+  --ms-input: #120e1a;
+  --ms-border: #493454;
+  --ms-muted: #bcaec8;
+  --ms-text: #f4eaf9;
+  --ms-accent: #eda3d0;
+  box-sizing: border-box;
+  width: min(1120px, calc(100vw - 40px));
+  max-width: 1120px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #815574;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at top left, #35203b 0, transparent 50%), var(--ms-background);
+  color: var(--ms-text);
+  box-shadow: 0 28px 100px #000a, 0 0 50px #c777b31a;
+  font: 14px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  scrollbar-color: #74516f var(--ms-background);
+}
+#options-dialog.ms-dialog::backdrop { background: #08050ed9; backdrop-filter: blur(6px); }
+#options-root { padding: 26px; }
+#options-root *, #options-root *::before, #options-root *::after { box-sizing: border-box; }
+#options-root h2, #options-root h3, #options-root h4, #options-root p { margin: 0; }
+#options-root h2 { font-size: clamp(21px, 3vw, 27px); font-weight: 700; letter-spacing: .02em; }
+#options-root h3 { font-size: 18px; }
+#options-root h4 { font-size: 14px; color: #f0c8e4; }
+#options-root .ms-header, #options-root .ms-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+#options-root .ms-header { margin-bottom: 22px; }
+#options-root .ms-eyebrow { color: var(--ms-accent); font-size: 10px; letter-spacing: .22em; }
+#options-root .ms-notice { margin-bottom: 22px; padding: 14px 17px; border: 1px solid #79536b; border-radius: 12px; background: #e6a2c50a; }
+#options-root .ms-notice strong { color: #f4bdd9; }
+#options-root .ms-notice p { margin-top: 5px; color: #cebed4; font-size: 12px; overflow-wrap: anywhere; }
+#options-root .ms-controls { min-width: 0; margin: 0; padding: 0; border: 0; }
+#options-root .ms-runtime-settings { display: grid; gap: 14px; margin-bottom: 24px; padding: 18px; border: 1px solid #79536b; border-radius: 13px; background: var(--ms-panel); }
+#options-root .ms-model-preferences > h3 { margin-bottom: 14px; }
+#options-root .ms-runtime-controls { display: grid; gap: 16px; }
+#options-root .ms-runtime-logs { display: grid; gap: 5px; min-width: 0; padding-top: 13px; border-top: 1px solid var(--ms-border); }
+#options-root .ms-log-directory { color: #e2caed; font-size: 12px; overflow-wrap: anywhere; user-select: text; }
+#options-root .ms-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 12px; margin-bottom: 24px; }
+#options-root .ms-columns { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: 22px; }
+#options-root .ms-connections, #options-root .ms-advanced { min-width: 0; }
+#options-root .ms-model-settings { min-width: 0; display: grid; gap: 14px; }
+/* Isolate the dialog from game-wide header/aside/footer positioning rules. */
+#options-root .ms-header { height: auto; padding: 0; border: 0; position: static; }
+#options-root .ms-notice { position: static; width: auto; align-self: auto; }
+#options-root .ms-footer { max-width: none; }
+#options-root .ms-input { pointer-events: auto; user-select: text; }
+#options-root .ms-agent .ms-field { position: relative; }
+#options-root .ms-section-heading { margin-bottom: 13px; }
+#options-root .ms-nodes { display: grid; gap: 16px; }
+#options-root .ms-node, #options-root .ms-advanced { padding: 16px; border: 1px solid var(--ms-border); border-radius: 13px; background: var(--ms-panel); }
+#options-root .ms-node-fields { display: grid; gap: 12px; margin-bottom: 14px; }
+#options-root .ms-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+#options-root .ms-label { color: #d9c7e3; font-size: 12px; font-weight: 600; }
+#options-root .ms-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  background: var(--ms-input);
+  color: var(--ms-text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: border-color .15s, box-shadow .15s;
+}
+#options-root select.ms-input { text-overflow: ellipsis; }
+#options-root .ms-input::placeholder { color: #9785a6; opacity: 1; }
+#options-root .ms-input:focus-visible, #options-root .ms-button:focus-visible, #options-root summary:focus-visible { outline: 2px solid var(--ms-accent); outline-offset: 3px; }
+#options-root .ms-input:focus { border-color: #ce91c6; }
+#options-root .ms-hint { display: block; color: var(--ms-muted); font-size: 12px; overflow-wrap: anywhere; }
+#options-root .ms-node > .ms-hint { margin-top: 9px; }
+#options-root .ms-check-field { flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 9px; }
+#options-root .ms-check-field .ms-input { flex: none; width: 17px; min-height: 17px; height: 17px; margin: 0; padding: 0; accent-color: var(--ms-accent); }
+#options-root .ms-check-field .ms-label { cursor: pointer; }
+#options-root .ms-runtime-option { display: grid; grid-template-columns: 17px minmax(0, 1fr); column-gap: 10px; row-gap: 5px; }
+#options-root .ms-runtime-option .ms-input { grid-column: 1; grid-row: 1; }
+#options-root .ms-runtime-option .ms-label { grid-column: 2; grid-row: 1; font-size: 14px; }
+#options-root .ms-runtime-option .ms-hint { grid-column: 2; }
+#options-root .ms-retry-count { max-width: 8rem; }
+#options-root .ms-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin: 0;
+  padding: 9px 16px;
+  border: 1px solid #a46a94;
+  border-radius: 9px;
+  background: #775072;
+  color: #fff3fa;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  white-space: normal;
+  transition: background .15s, border-color .15s;
+}
+#options-root .ms-button:hover:not(:disabled) { background: #915d85; border-color: #e2abd4; }
+#options-root .ms-primary { background: linear-gradient(120deg, #b966a3, #825bc0); border-color: #d992c8; }
+#options-root .ms-secondary { background: #30243e; border-color: #65466f; }
+#options-root .ms-danger { background: #3a202e; color: #ffb5c9; border-color: #794253; }
+#options-root .ms-danger:hover:not(:disabled) { background: #612e44; }
+#options-root .ms-small { min-height: 32px; padding: 5px 11px; font-size: 12px; }
+#options-root button:disabled, #options-root input:disabled, #options-root select:disabled, #options-root textarea:disabled { opacity: .5; cursor: not-allowed; }
+#options-root .ms-advanced > summary { color: #e9c1e4; font-weight: 600; cursor: pointer; user-select: none; overflow-wrap: anywhere; }
+#options-root .ms-advanced > summary::marker { color: #e5a0cd; }
+#options-root .ms-advanced-body { display: grid; gap: 15px; padding-top: 15px; }
+#options-root .ms-agent { display: grid; gap: 10px; min-width: 0; padding: 14px; border: 1px solid #483250; border-radius: 10px; background: #181220; }
+#options-root .ms-default { border-color: #c18bc5; background: #352443; }
+#options-root .ms-dialogue { border-color: #a36a98; background: #31213e; }
+#options-root .ms-overrides { min-width: 0; padding: 12px 14px; border: 1px dashed #75517b; border-radius: 10px; background: #21182c; }
+#options-root .ms-overrides > summary { color: #e9c1e4; font-weight: 600; cursor: pointer; user-select: none; overflow-wrap: anywhere; }
+#options-root .ms-overrides > summary::marker { color: #e5a0cd; }
+#options-root .ms-overrides-body { display: grid; gap: 12px; padding-top: 13px; }
+#options-root .ms-system { display: grid; gap: 12px; min-width: 0; padding-top: 16px; border-top: 1px solid var(--ms-border); }
+#options-root .ms-system > h4 { color: #dbc9ed; font-size: 15px; }
+#options-root .ms-footer { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--ms-border); }
+#options-root .ms-prompt-settings { margin-top: 24px; border-color: #926a96; }
+#options-root .ms-prompt-fields { display: grid; gap: 12px; min-width: 0; }
+#options-root .ms-prompt-fields[hidden] { display: none; }
+#options-root .ms-prompt-source { padding: 9px 12px; border-left: 3px solid var(--ms-accent); background: #eda3d00a; color: #efc6e7; font-size: 12px; overflow-wrap: anywhere; }
+#options-root .ms-prompt-editor { min-height: 220px; resize: vertical; tab-size: 2; white-space: pre-wrap; }
+#options-root .ms-prompt-editor[aria-invalid="true"] { border-color: #ffb0bd; }
+#options-root .ms-prompt-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+#options-root .ms-prompt-previews { display: grid; gap: 10px; min-width: 0; }
+#options-root .ms-prompt-preview { min-width: 0; padding: 12px 14px; border: 1px solid var(--ms-border); border-radius: 10px; background: var(--ms-input); }
+#options-root .ms-prompt-preview > summary { color: #dfc6e9; cursor: pointer; user-select: none; overflow-wrap: anywhere; }
+#options-root .ms-prompt-text { max-height: 320px; margin: 12px 0 0; overflow: auto; color: #d3c3df; font: inherit; font-size: 12px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+#options-root .ms-prompt-status { min-height: 20px; color: var(--ms-muted); font-size: 12px; overflow-wrap: anywhere; }
+#options-root .ms-developer-trace { padding: 14px; border-color: #94627b; background: #181220; }
+#options-root .ms-developer-trace[aria-disabled="true"] > summary { color: var(--ms-muted); cursor: not-allowed; }
+#options-root .ms-trace-body { display: grid; gap: 12px; padding-top: 14px; }
+#options-root .ms-trace-summary, #options-root .ms-trace-text { min-width: 0; max-width: 100%; max-height: 320px; margin: 0; overflow: auto; color: #d3c3df; font: 12px/1.7 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+#options-root .ms-trace-text { padding: 12px; border: 1px solid var(--ms-border); border-radius: 8px; background: var(--ms-input); }
+#options-root .ms-context-text[hidden] { display: none; }
+#options-root .ms-context-warning { padding: 10px 12px; border-left: 3px solid #d783a3; color: #ffc2d3; background: #d783a30a; font-size: 12px; overflow-wrap: anywhere; }
+#options-root .ms-status { min-height: 24px; margin-top: 13px; color: #ddbbec; font-size: 13px; overflow-wrap: anywhere; }
+#options-root .ms-error { color: #ffb0bd; }
+#options-root .ms-loading { padding: 20px 0; }
+@media (max-width: 720px) {
+  #options-dialog.ms-dialog { width: calc(100vw - 20px); border-radius: 14px; }
+  #options-root { padding: 18px; }
+  #options-root .ms-columns { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  #options-root .ms-toolbar { grid-template-columns: minmax(0, 1fr) auto; }
+  #options-root .ms-toolbar > :last-child { grid-column: 1 / -1; }
+  #options-root .ms-header { gap: 12px; }
+  #options-root .ms-header .ms-button { padding-inline: 13px; }
+  #options-root .ms-node, #options-root .ms-advanced { padding: 13px; }
+  #options-root .ms-footer .ms-button, #options-root .ms-prompt-actions .ms-button { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #options-root .ms-button, #options-root .ms-input { transition: none; }
+  #options-dialog.ms-dialog::backdrop { backdrop-filter: none; }
+}
