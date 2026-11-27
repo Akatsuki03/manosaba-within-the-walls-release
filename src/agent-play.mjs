@@ -14,6 +14,7 @@ import { AGENT_SCENARIO_HASH } from './content/agent-scenario.mjs';
 import { authoredMagicText, normalizeCreation, normalizeNewGameCreation } from '../public/player-creation-rules.mjs';
 import { CREATED_ROOMS, ROOM_CODES, roomKey, createdPlayerId, actorForState, actorsForState, startingRoom, relationshipSetupForState, relationshipInitialKnownIds, usesRelationshipSetup } from './creation/player-setup.mjs';
 import { preservesExplicitSpeech } from './agents/narrative-boundaries.mjs';
+import { currentPrivateReflection, hostPrivateReflectionAction, supportsOpenPlayerAction } from './agents/open-player-action.mjs';
 import { enableAutonomy, applyNpcDecisions, persistEnactments, isNicknameSelfIntroduction, enactedSelfIntroduction } from './agents/agent-autonomy.mjs';
 import { parseReadingIntent, readingMaterial, acquisitionAudience } from './characters/actor-perception.mjs';
 import { validateSceneDocument, mergeHostSceneEvents } from './scenes/scene-document.mjs';
@@ -602,8 +603,34 @@ function applyNarrativeAction(state, action, { numberedRoomLabels = false } = {}
 /** Reuse the historical, deterministic action resolver on a detached draft.
  * Strip its placeholder narration; only canonical enactments are available to
  * the composer. Historical narrative@2 replay is left completely unchanged. */
+export function canCapturePrivateReflection(state) {
+  return state.exampleId === 'agent' && state.creation?.version === 2 && !hasCaseOne(state)
+    && supportsOpenPlayerAction(state.agentRuntimeRevision)
+    && ['daily', 'aftermath'].includes(activeProcedure(state)?.stage ?? 'daily');
+}
+
+function privateReflectionDraft(state, action) {
+  const thought = currentPrivateReflection(action.rawInput);
+  if (!thought || typeof action.jobId !== 'string' || !action.jobId || !canCapturePrivateReflection(state)
+    || !isDeepStrictEqual(action, hostPrivateReflectionAction({ job_id: action.jobId, text: action.rawInput },
+      { guardRules: guardRuleReference(state) }))) fail();
+  const draft = structuredClone(state); const player = createdPlayerId(draft);
+  // Reuse the owner-only reflection delivery without a public scene document,
+  // simulated gesture, schedule tick or another role choosing on this input.
+  const where = agentScene(state).location;
+  const punctuation = action.rawInput.trim().match(/[。！？!?]$/u)?.[0] ?? '。';
+  emit(draft, `在${where}，我心中掠过一个念头：${thought}${punctuation}我还没有把它付诸行动。`, player,
+    { delivery: 'reflection', audienceIds: [player], observationKey: `reflection:${action.jobId}` });
+  draft.agentActions.push(structuredClone(action)); draft.revision++;
+  return { draft, events: [{ id: 'event-1', entry: draft.entries.at(-1) }], publicEvents: [] };
+}
+
 export function sceneActionDraft(state, action) {
   validateSceneExtensions(action);
+  if (Object.hasOwn(action, 'privateReflectionVersion')) {
+    assertGuardOrdinaryAction(state);
+    return privateReflectionDraft(state, action);
+  }
   if (Object.hasOwn(action, 'caseActionTimingVersion') && (action.caseActionTimingVersion !== 2
     || runtimeCapabilityId(state.agentRuntimeRevision) !== 'agent-prison-runtime@8')) fail();
   // The object-inspection timing pin is semantic, never presentation-only. It
@@ -764,6 +791,12 @@ export function takeNpcMagicPublication(state) {
 }
 function applySceneAction(state, action) {
   const { draft, events, publicEvents } = sceneActionDraft(state, action);
+  if (action.privateReflectionVersion === 1) {
+    delete draft.magic;
+    Object.assign(state, draft);
+    delete state.magic;
+    return;
+  }
   // A custom prepared use is a Host-settled prefix, not model prose. Keep its
   // real entries deterministic even when the composer document omits them;
   // the composer may reference them, but cannot add, drop, duplicate or re-key
@@ -788,7 +821,8 @@ function applySceneAction(state, action) {
   const hostEventIds = [...hostCustomEventIds, ...hostMagicEventIds];
   const document = validateSceneDocument(medicalContact
     ? mergeHostSceneEvents(action.document, hostEventIds, publicEvents.map(event => event.id))
-    : mergeHostSceneEvents(action.document, hostCustomEventIds), publicEvents);
+    : mergeHostSceneEvents(action.document, hostCustomEventIds), publicEvents, { narrationPacingVersion: action.narrationPacingVersion,
+      hostOmittedNarration: action.narrationPacingVersion === 2 && (action.omittedNarrationParagraphs ?? 0) > 0 });
   const byId = new Map(events.map(event => [event.id, event.entry]));
   const narrationTimes = action.sceneEventTimeVersion === 1
     ? sceneNarrationTimes(document, sceneEventTimeline(state, draft, events, publicEvents), publicEvents) : null;
@@ -952,6 +986,25 @@ function projectPlayerSpeaker(state, entry, introducedSpeakers, actorById) {
   if (state.known.includes(actor.id) && canonical === actor.name) return entry;
   return { ...entry, speaker: UNKNOWN_PLAYER_SPEAKER };
 }
+// Display corrections for exact authored guard rows, not a rewrite of the
+// saved transcript. A player's words or an unrelated row are never stripped.
+export function publicGuardStoryCaption(entry) {
+  if (entry.delivery !== 'action' || entry.speakerId !== null || entry.speaker !== '眼前的动静') return entry;
+  const key = entry.observationKey;
+  if (typeof key !== 'string') return entry;
+  let text;
+  if (/^guard:guard-encounter-\d+:captured$/u.test(key)) {
+    if (entry.text === '你没能及时避开抓握，被看守实际控制并沿管理通路押入惩罚室。门在身后锁上，两天禁闭从现在开始；没有跳过这段故事时间。') {
+      text = '看守一把抓住你，押着你进了惩罚室。门在你身后落了锁。接下来的两天，你都得待在这里。';
+    } else if (entry.text === '你还未来得及集中精神完成穿梭，看守的抓握便已落下，将你实际控制并沿管理通路押入惩罚室。门在身后锁上，两天禁闭从现在开始；尚未凝成的空间印象散在脑海里。') {
+      text = '还没来得及在脑中想清落脚的地方，看守已经抓住了你。门在你身后落了锁。接下来的两天，你都得留在这间惩罚室里。';
+    }
+  } else if (/^guard:guard-encounter-\d+:wait-ended:\d+$/u.test(key)) {
+    if (entry.text === '你仍在惩罚室内等待；外界的实际事件打断了这次等待，剩余禁闭没有被跳过。') text = '你还在惩罚室里。等候中断了，门却没有开。';
+    else if (entry.text === '惩罚室里的两天已经在共享时钟上度过，禁闭到期；门仍须由看守打开。') text = '两天终于过去了。惩罚室的门依然锁着，你还得等看守来开门。';
+  }
+  return text ? { ...entry, text } : entry;
+}
 export function agentStoryEntries(state, { projectUnknownSpeakers = false } = {}) {
   const introducedSpeakers = new Set();
   let roster;
@@ -994,6 +1047,8 @@ export function agentStoryEntries(state, { projectUnknownSpeakers = false } = {}
   }
   for (let index = 0; index < entries.length; index++) {
     const entry = entries[index];
+    const guardCaption = publicGuardStoryCaption(entry);
+    if (guardCaption !== entry) { entries[index] = guardCaption; continue; }
     if (entry.delivery === 'action' && entry.speakerId === createdPlayerId(state)
       && /^你沿通路来到.+。$/u.test(entry.text)) {
       entries[index] = { ...entry, text: `我${entry.text.slice(1)}` };

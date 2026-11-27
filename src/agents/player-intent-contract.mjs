@@ -11,6 +11,7 @@ import { adjudicationPolicy } from '../content/effective-run-boundary.mjs';
 import { requiresInitialBoundaryReview, validateInitialBoundaryAssessments, initialMechanismDecision } from '../content/initial-run-policy.mjs';
 import { isProxy } from 'node:util/types';
 import { nonPresentOpenAction } from './open-player-action.mjs';
+import { localRoomSpeechScene, ordinaryLocalSpeechSource, roomGroupSpeechSource, localTravelAttemptSource } from './player-address-resolution.mjs';
 import { isAuthoredMagicContext, validAuthoredMagicIntent } from './authored-magic-intent.mjs';
 
 // Selected only by the source-authenticated @11 service. A plan is not a result.
@@ -38,10 +39,17 @@ function record(value, fields, required = fields) {
     || required.some(key => !Object.hasOwn(value, key))) fail('intent-plan-schema');
 }
 const text = (value, max = 2000) => typeof value === 'string' && value.trim() && value.length <= max && !/[<>\u0000-\u001f\u007f]/u.test(value);
-export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolicy, intentContractVersion, ordinarySources, runBoundary, authoredMagic, openActionVersion }) {
+// Newlines in a source slice are original paragraphs, not generated prose.
+// Permit only LF for the affected revision; the byte-exact coverage check below
+// still binds it to the input. Summaries and other generated fields stay strict.
+const multilineSourceText = value => typeof value === 'string' && value.trim()
+  && value.length <= 2000 && !/[<>\u0000-\u0009\u000b-\u001f\u007f]/u.test(value);
+export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolicy, intentContractVersion, ordinarySources, runBoundary, authoredMagic, openActionVersion, roomGroupSpeechVersion, ordinaryDialogueSequenceVersion, localTravelAttemptVersion }) {
   const canCastAuthoredMagic = intentContractVersion === 2 && isAuthoredMagicContext(authoredMagic);
   const boundary = adjudicationPolicy({ initialRunPolicy, runBoundary });
-  const soft = hasSoftRuntime(initialRunPolicy?.source?.executionRevision?.revisionId) && intentContractVersion === 2;
+  const revision = initialRunPolicy?.source?.executionRevision?.revisionId;
+  const sourceText = intentContractVersion === 2 && revision === EVENT_DIRECTOR_RUNTIME_REVISION ? multilineSourceText : text;
+  const soft = hasSoftRuntime(revision) && intentContractVersion === 2;
   const semanticOrdinary = hasSemanticOrdinaryRuntime(initialRunPolicy?.source?.executionRevision?.revisionId);
   const screen26 = [SCREEN_BROADCAST_RUNTIME_REVISION, SOURCE_ACQUISITION_RUNTIME_REVISION, TRUSTED_COMMUNICATION_RUNTIME_REVISION, KNOWN_TARGET_RUNTIME_REVISION, CAPACITY_RUNTIME_REVISION, PUBLICATION_RUNTIME_REVISION, ADMISSION_RUNTIME_REVISION, EVENT_DIRECTOR_RUNTIME_REVISION].includes(initialRunPolicy?.source?.executionRevision?.revisionId);
   const reviewed = requiresInitialBoundaryReview(boundary);
@@ -55,15 +63,26 @@ export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolic
       return { type: 'plan', route: 'clarification', summary: '这项请求与本局初始边界冲突或尚不能确定兼容；请澄清当前请求。初始边界没有被更改，动作没有执行。', steps: [] };
   }
   const objects = new Set((scene.objects || []).map(row => row.id));
-  let cursor = 0;
+  const groupAllowed = roomGroupSpeechVersion === 1 && revision === EVENT_DIRECTOR_RUNTIME_REVISION && intentContractVersion === 2;
+  const local = groupAllowed && ordinaryDialogueSequenceVersion === 4 ? ordinaryLocalSpeechSource(rawInput, scene)?.parts[0] : undefined;
+  const groupSource = !groupAllowed ? null : ordinaryDialogueSequenceVersion === 4
+    ? (local?.speechScope === 'room' ? { stepText: rawInput, text: local.text } : null) : localTravelAttemptVersion===1 ? localTravelAttemptSource(rawInput,scene) : roomGroupSpeechSource(rawInput, scene);
+  let cursor = 0, groupStep;
   for (const step of candidate.steps) {
     record(step, ['text', 'intent', 'condition']);
-    if (!text(step.text) || !['always', 'previous_completed', 'passage_permitted', 'item_accepted'].includes(step.condition)) fail('intent-plan-step');
+    if (!sourceText(step.text) || !['always', 'previous_completed', 'passage_permitted', 'item_accepted'].includes(step.condition)) fail('intent-plan-step');
     const offset = rawInput.indexOf(step.text, cursor);
     if (offset < 0 || rawInput.slice(cursor, offset).replace(/[，,；;。\s]/gu, '')) fail('intent-plan-clause-gap');
     cursor = offset + step.text.length;
-    record(step.intent, ['type', 'summary', 'operation', 'objectId', 'subjectId', 'targetId', 'destination', 'playerText', ...(soft ? ['ordinaryAttempt'] : []), ...(canCastAuthoredMagic ? ['magic'] : [])], ['type', 'summary']);
+    record(step.intent, ['type', 'summary', 'operation', 'objectId', 'subjectId', 'targetId', 'destination', 'playerText', ...(soft ? ['ordinaryAttempt'] : []), ...(canCastAuthoredMagic ? ['magic'] : []), ...(groupAllowed ? ['speechScope'] : [])], ['type', 'summary']);
     const intent = step.intent;
+    if (Object.hasOwn(intent, 'speechScope')) {
+      record(intent, ['type', 'summary', 'playerText', 'speechScope'], ['type', 'summary', 'speechScope']);
+      if (groupStep || intent.type !== 'conversation' || intent.speechScope !== 'room' || !groupSource || groupSource.stepText !== step.text
+        || !localRoomSpeechScene(scene) || (Object.hasOwn(intent, 'playerText') && intent.playerText !== groupSource.text)
+        || !['always', 'previous_completed'].includes(step.condition)) fail('intent-plan-target');
+      groupStep = step;
+    }
     if (Object.hasOwn(intent, 'ordinaryAttempt')) {
       if (!soft) fail('intent-plan-activity-gate');
       if (candidate.steps.length !== 1 || step.condition !== 'always')
@@ -178,8 +197,57 @@ export function validateIntentPlan(candidate, { rawInput, scene, initialRunPolic
     }
   }
   if (candidate.route === 'steps' && rawInput.slice(cursor).replace(/[。！!\s]/gu, '')) fail('intent-plan-clause-tail');
+  if (candidate.route === 'steps' && groupSource && !groupStep) fail('intent-plan-target');
+  if (groupStep && candidate.steps.some(step => step !== groupStep && (!['look', 'act', 'wait'].includes(step.intent.type)
+    || Reflect.ownKeys(step.intent).some(key => !['type', 'summary'].includes(key)) || !['always', 'previous_completed'].includes(step.condition))))
+    fail('intent-plan-kind');
   return structuredClone(candidate);
 }
+// Fresh provider candidates only. An optional person field is extraneous when
+// the *same* complete step enacts a bounded look or landmark gesture at a
+// different, explicitly delivered non-person referent. Do not use the model's
+// summary as evidence, infer a listener, or interpret an arbitrary bad handle.
+export function projectOrdinaryNonPersonTargets(candidate, data) {
+  if (data.initialRunPolicy?.source?.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION
+    || data.openActionVersion !== 1 || data.ordinaryAddressVersion !== 3 || candidate?.route !== 'steps'
+    || candidate.activitySelection?.kind !== 'ordinary' || !Array.isArray(candidate.steps)) return null;
+  const { scene } = data;
+  const people = scene.nearby;
+  const nearbyName = (label, name) => typeof label === 'string' && (label === name
+    || /^[\p{Script=Han}]{2,4}$/u.test(name) && label.endsWith(name));
+  const visible = [
+    ...(scene.objects ?? []).map(row => ({ id: row.id, label: row.name, landmark: false })),
+    ...scene.adjacent.map(row => ({ id: row.id, label: row.label, landmark: true })),
+  ];
+  let changed = false;
+  const steps = candidate.steps.map(step => {
+    const { intent } = step ?? {};
+    if (intent?.type !== 'act' || typeof intent.targetId !== 'string' || typeof step.text !== 'string'
+      || people.some(row => row.id === intent.targetId || nearbyName(row.label, intent.targetId))) return step;
+    const matches = visible.filter(row => typeof row.label === 'string' && row.label.trim()
+      && (row.id === intent.targetId || row.label === intent.targetId));
+    if (matches.length !== 1) return step;
+    const { label, landmark } = matches[0];
+    const parts = step.text.trim().replace(/[。！!]$/u, '').split(/[，,]/u);
+    if (parts.length > 2) return step;
+    const [action, suffix] = parts.map(part => part.trim());
+    const front = action.replace(/^我?(?:又|轻轻|回头|转头){0,2}/u, '');
+    const observed = /^(?:看了一眼|看了看|看向|望了一眼|望向|瞥了一眼|瞥向|打量了?)(.+)$/u.exec(front)?.[1];
+    const pointed = /^(?:指了指|指向|指着)(.+)$/u.exec(front)?.[1]
+      ?? /^(?:朝|向)(.+?)(?:抬手示意|抬手指了指)$/u.exec(front)?.[1];
+    const refers = phrase => phrase === label || landmark && [`${label}的方向`, `${label}方向`, `${label}那边`].includes(phrase);
+    const awaitName = suffix && /^等([^\s]{1,24}?)(?:一起|一同|一道)(?:过去|走过去)$/u.exec(suffix)?.[1];
+    const nonContact = suffix === undefined || /^(?:还是|仍然|但)?(?:没有|没|并未)碰(?:它|到它)$/u.test(suffix);
+    if (!(observed !== undefined && refers(observed) && nonContact
+      || landmark && pointed !== undefined && refers(pointed)
+        && (suffix === undefined || awaitName && people.filter(row => nearbyName(row.label, awaitName)).length === 1))) return step;
+    const { targetId, ...targetless } = intent;
+    changed = true;
+    return { ...step, intent: targetless };
+  });
+  return changed ? { ...candidate, steps } : null;
+}
+
 export function firstPlanIntent(value) { return value?.type === 'plan' ? value.steps[0]?.intent : value; }
 // hostOptions is supplied only by the current-state HOST bridge, never a model packet.
 export function resolvePlanStep(step, scene, hostOptions = []) {

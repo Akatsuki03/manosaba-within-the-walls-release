@@ -83,7 +83,15 @@ export function mergeHostSceneEvents(output, hostEventIds, eventOrder) {
 /** A document can place atmosphere around events, but cannot create, omit,
  * reorder or rewrite any event. Semantic truth of atmospheric prose still
  * requires qualitative evaluation; these checks do not pretend to prove it. */
-export function validateSceneDocument(output, events) {
+export const NOVEL_MIN_PARAGRAPH_HAN = 500;
+export const NOVEL_MIN_ROUND_HAN = 500;
+// Keep this paragraph boundary in sync with the novel reader in public/app.js.
+const narrationBreak = /(?:\r?\n)[\t ]*(?:\r?\n)(?:[\t ]*\r?\n)*/u;
+export const sceneNarrationParagraphs = text => text.split(narrationBreak).filter(part => part.trim());
+
+export function validateSceneDocument(output, events, { narrationPacingVersion, hostOmittedNarration = false } = {}) {
+  if (![undefined, 1, 2, 3].includes(narrationPacingVersion) || hostOmittedNarration && narrationPacingVersion !== 2) fail();
+  const allowMissingNarration = hostOmittedNarration || narrationPacingVersion === 3;
   validateSceneEvents(events);
   exact(output, ['blocks', 'stopReason']);
   if (!SCENE_STOP_REASONS.includes(output.stopReason)) fail();
@@ -103,6 +111,7 @@ export function validateSceneDocument(output, events) {
     if (block.type !== 'narration') fail();
     prose(block.text, SCENE_BUDGET.maxBlockChars);
     if (containsMetaLanguage(block.text) || /[「」“”"]/u.test(block.text)) fail();
+    if (narrationPacingVersion === 2 && sceneNarrationParagraphs(block.text).some(text => countHan(text) < NOVEL_MIN_PARAGRAPH_HAN)) fail();
     // Exact repeated paragraphs are mechanical filler, not new scene content.
     const paragraphs = block.text.split(/\n\s*\n/u).map(text => text.trim()).filter(Boolean);
     for (const text of paragraphs) if (text.length > 24) {
@@ -114,12 +123,43 @@ export function validateSceneDocument(output, events) {
     if (narrationChars > SCENE_BUDGET.maxNarrationChars) fail();
     return Object.freeze({ type: 'narration', text: block.text });
   });
-  if (eventIndex !== events.length || !narrationCount) fail();
+  if (eventIndex !== events.length || !narrationCount && !allowMissingNarration) fail();
   return Object.freeze({ blocks: Object.freeze(blocks), stopReason: output.stopReason });
 }
 
-export function sceneDocumentText(document, events) {
-  const validated = validateSceneDocument(document, events);
+export function sceneParagraphFeedback(candidate, events) {
+  const document = validateSceneDocument(candidate, events);
+  const paragraphs = document.blocks.flatMap((block, blockIndex) => block.type !== 'narration' ? []
+    : sceneNarrationParagraphs(block.text).map((text, index) => ({ block: blockIndex + 1, paragraph: index + 1, han: countHan(text) }))
+      .filter(row => row.han < NOVEL_MIN_PARAGRAPH_HAN));
+  return paragraphs.length ? { minimumHan: NOVEL_MIN_PARAGRAPH_HAN, paragraphs } : null;
+}
+
+export function sceneRoundFeedback(candidate, events) {
+  const document = validateSceneDocument(candidate, events, { narrationPacingVersion: 3 });
+  const actualHan = document.blocks.reduce((sum, block) => sum + (block.type === 'narration' ? countHan(block.text) : 0), 0);
+  return actualHan < NOVEL_MIN_ROUND_HAN ? { minimumHan: NOVEL_MIN_ROUND_HAN, actualHan } : null;
+}
+
+// Only after the bounded repair opportunity: keep genuinely qualified prose,
+// omit the rest and leave every canonical event unchanged and in sequence.
+export function projectQualifiedSceneDocument(candidate, events) {
+  const source = validateSceneDocument(candidate, events);
+  let omittedParagraphs = 0;
+  const blocks = source.blocks.flatMap(block => {
+    if (block.type !== 'narration') return [block];
+    const paragraphs = sceneNarrationParagraphs(block.text);
+    const keep = paragraphs.filter(text => countHan(text) >= NOVEL_MIN_PARAGRAPH_HAN);
+    omittedParagraphs += paragraphs.length - keep.length;
+    if (keep.length === paragraphs.length) return [block];
+    return keep.length ? [{ type: 'narration', text: keep.join('\n\n') }] : [];
+  });
+  const document = validateSceneDocument({ ...source, blocks }, events, { narrationPacingVersion: 2, hostOmittedNarration: omittedParagraphs > 0 });
+  return { document, omittedParagraphs };
+}
+
+export function sceneDocumentText(document, events, paragraphPolicy) {
+  const validated = validateSceneDocument(document, events, paragraphPolicy);
   const byId = new Map(events.map(event => [event.id, event.text]));
   return validated.blocks.map(block => block.type === 'event' ? byId.get(block.eventId) : block.text).join('\n\n');
 }
@@ -142,9 +182,10 @@ export function sceneSummary(entries, stopReason, { outputContractVersion } = {}
     ...(lengthStatus === 'in_range' ? {} : { lengthException: lengthStatus === 'long' ? 'composition_budget'
       : stopReason === 'await_player' ? 'needs_player' : stopReason === 'material_limit' ? 'material_limit' : 'composition_budget' }) };
 }
-export function sceneNeedsRepair(document, events, { style = false, outputContractVersion, antiClicheVersion } = {}) {
+export function sceneNeedsRepair(document, events, { style = false, outputContractVersion, antiClicheVersion, narrationPacingVersion } = {}) {
   if (outputContractVersion !== undefined && outputContractVersion !== 1) fail();
-  const summary = sceneSummary([{ text: sceneDocumentText(document, events) }], document.stopReason);
+  const summary = sceneSummary([{ text: sceneDocumentText(document, events,
+    narrationPacingVersion === 3 ? { narrationPacingVersion: 3 } : undefined) }], document.stopReason);
   // Style requests are explicitly version-gated by the caller. The old contract
   // remains length-only so pending and historical jobs keep their semantics.
   const styleHits = style ? sceneStyleIssues(document, { antiClicheVersion }) : [];

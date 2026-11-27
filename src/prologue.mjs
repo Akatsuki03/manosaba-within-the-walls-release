@@ -16,7 +16,9 @@ import { validAuthoredMagicChoice } from './world/magic/roleplay-magic.mjs';
 import { INTENT_RUNTIME_REVISION, CASE_BOUNDARY_RUNTIME_REVISION, hasIntentRuntime } from './content/relationship-context-policy.mjs';
 import { projectActionOutcome } from './world/action-outcome.mjs';
 import { preparePlayerIntentTail } from './scenes/scene-beats.mjs';
-import { causalPlayerScene, resolvePlayerPlanStep } from './scenes/causal-scene.mjs';
+import { causalPlayerScene, resolvePlayerPlanStep, cellDoorAttemptActionPin, roomGroupSpeechAudience } from './scenes/causal-scene.mjs';
+import { bareReplyRootActionPin, proveReadinessHostIntent } from './agents/communication-selection30.mjs';
+import { ordinaryReplyContext, localPointReplySequenceDomain, samePeerGazeSequenceDomain, localStairReplySequenceDomain, roomGroupSpeechSource, dialogueSequencePerformance, dialogueSequenceActionPin, localAmbientSpeechDomain, ordinaryLocalAmbientSpeechSource, recentLocalWaitProposal, recentOpenWaitQuestion, localSearchConversationDomain, ordinaryLocalSearchSource, ordinaryLocalVisualPlanPins, ordinaryLocalVisualActionPins, localApproachDomain, observedOrientationSequenceDomain, ordinaryDialogueSequence, ordinaryLocalApproachSource } from './agents/player-address-resolution.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { RELATIONSHIP_RUNTIME_REVISION, RELATIONSHIP_CONTEXT_BUDGETS, isRelationshipRuntime, relationshipContextPin } from './content/relationship-context-policy.mjs';
 import { runtimeCapabilityId, RP_FOUNDATION_RUNTIME_REVISION } from './content/runtime-capabilities.mjs';
@@ -26,7 +28,7 @@ import { CustomAbilityStore } from './world/magic/custom-ability-store.mjs';
 import { customAbilityData, customAbilityExact } from './world/magic/custom-ability-contracts.mjs';
 import { CUSTOM_ABILITY_EXECUTABLE_COMPILER_REF } from './world/magic/custom-ability-compiler.mjs';
 import { CUSTOM_ABILITY_MECHANISMS } from './world/magic/custom-ability-runtime.mjs';
-import { newSceneJobExtensions, sceneExtensionPin, sceneEventTimeline } from './scenes/scene-event-policy.mjs';
+import { newSceneJobExtensions, sceneExtensionPin, sceneEventTimeline, narrationParagraphActionPin, novelFirstPresentation, novelNarrationFocusTaskPin, focusedNarratorPreference, ordinaryRoundProseMode } from './scenes/scene-event-policy.mjs';
 import { PUBLIC_ASSEMBLY_CATEGORY, captureEffectiveDirectorEventPin, isSealedDirectorExtension, isPrivateDirectorPacket, DIRECTOR_PLANNING_EXTENSION, DIRECTOR_LIFECYCLE_EXTENSION, isDirectorExtension, DIRECTOR_BLUEPRINT_DESCRIPTIONS, DIRECTOR_PRINCIPAL, buildDirectorContext, validateDirectorOutput, directorBoundary, directorOpportunities, directorSnapshotHash } from './director/director-effective-private-contract.mjs';
 import { DirectorCandidateStore, DirectorPlanningStore, directorPlanningInterest, candidateStatus, directorCandidateView } from './director/director-policy.mjs';
 import { directorEventMayReviewIntent } from './director/director-event-source.mjs';
@@ -51,7 +53,7 @@ import { DiceStore } from './world/dice-store.mjs';
 import { DICE_RULES, diceAbilities, diceCharacter, validateDiceRollInput, diceFailure } from './world/dice-core.mjs';
 import { REACTION_RULES } from './world/dice-reaction.mjs';
 import { GUARD_RULES, GUARD_FINGERPRINT } from './world/guard-rules.mjs';
-import { guardEnabled, guardView, guardOpportunity } from './world/guard-reaction.mjs';
+import { guardEnabled, guardView, guardOpportunity, guardDiceNarrationVersion, localDetentionAction } from './world/guard-reaction.mjs';
 import { ABILITY_FINGERPRINT, abilityRuleReference, approvedSpatialCreation } from './world/magic/ability-definitions.mjs';
 import { approvedSpatialActivation, MagicRepository, settleOwnedSelfFloat } from './world/magic/ability-runtime.mjs';
 import { assertApprovedBodyFactorPolicy } from './world/magic/magic-binding-policy.mjs';
@@ -65,7 +67,7 @@ import { actorPerception, actorRoom, actorHandle, actorTarget, recognizedActors,
 import { projectDeveloperActors } from './host/developer-view.mjs';
 import { enableAutonomy, selectDecisionActors, decisionActorInput, decisionSnapshotObservations, pendingReactionActors, pendingSocialRequests, projectSocialRequests } from './agents/agent-autonomy.mjs';
 import { DecisionStateStore, initialDecisionState, reviewDecisionState, reviewSceneDecisionState, deriveSituationalGoalTemplates } from './cognition/decision-state.mjs';
-import { assertPlayerPerformance, assertActorPerformance, assertSceneProse, resolvedSceneFacts } from './agents/narrative-guards.mjs';
+import { assertPlayerPerformance, assertActorPerformance, assertSceneProse, narrativeGuardDiagnostic, resolvedSceneFacts } from './agents/narrative-guards.mjs';
 const PROTOTYPE_NOTICE = "";
 const initialPrototypeState = unsupportedLegacy;
 const parsePrototypeIntent = unsupportedLegacy;
@@ -98,21 +100,24 @@ import { normalizeCreation, normalizeNewGameCreation, attributeModifier } from '
 import { CREATED_NOTICE, isCreatedCustom, createdPlayerId, actorForState, actorsForState, usesRelationshipSetup, relationshipSetupForState, withExactRelationshipProjection, ownStartingKnowledge, ROOM_CODES } from './creation/player-setup.mjs';
 import { buildRoleplayContext, buildCharacterDataContext, validateRoleplayDecision, validateCharacterDataProposal, validateNpcHostTextEnvelope } from './agents/agent-boundaries.mjs';
 import { buildNarrativeContext, validateNarrativeOutput } from './agents/narrative-boundaries.mjs';
-import { supportsOpenPlayerAction } from './agents/open-player-action.mjs';
+import { proveLocalTravelAttempt, proveLocalConditionalWait } from './scenes/scene-beats.mjs';
+import { localTravelAttemptSource, localConditionalWaitSource } from './agents/player-address-resolution.mjs';
+import { currentPrivateReflection, hostPrivateReflectionAction, supportsOpenPlayerAction } from './agents/open-player-action.mjs';
+import { canCapturePrivateReflection } from './agent-play.mjs';
 import { buildServiceTaskContext, validateServiceTaskOutput, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT, initialBoundaryReviewProposal } from './agents/service-task-contract.mjs';
 import { AgentPrompts } from './agents/agent-prompts.mjs';
 import { dialogueContextPin } from './cognition/dialogue-context-policy.mjs';
 import { modelSystemPolicySeal } from './agents/model-gateway.mjs';
 import { roleplayGuidance, playerPerformanceGuidance } from './agents/persona-guidance.mjs';
-import { SCENE_BUDGET, scenePalette, sceneAuthorizedPalette, sceneSummary, sceneNeedsRepair, sceneStyleFeedback,
-  hostSceneDocument, mergeHostSceneEvents } from './scenes/scene-document.mjs';
+import { SCENE_BUDGET, scenePalette, sceneAuthorizedPalette, sceneSummary, sceneNeedsRepair, sceneStyleFeedback, projectQualifiedSceneDocument, NOVEL_MIN_PARAGRAPH_HAN,
+  hostSceneDocument, mergeHostSceneEvents, sceneNarrationParagraphs, sceneParagraphFeedback, sceneRoundFeedback, NOVEL_MIN_ROUND_HAN } from './scenes/scene-document.mjs';
 import { CARD_ASSEMBLY_TEXT } from './content/card-world.mjs';
 import { hasCaseOne, CASE_ONE_NOTICE, caseBallotInput, caseObservedCondition, caseStatementReaction, caseTestimony } from './cases/case-one.mjs';
 import { enableCaseRuntime, hasCaseRuntime, runtimeObservedCondition, runtimeApplyItemPolicy, activateCaseItemPolicy, runtimeItemProjection, runtimePoseActions, validatePoseIntent, occupiedBodyWorld, runtimePhysicalActor, runtimeBodyActorId, runtimeActive, runtimeRoom, withMagicProjection } from './case-runtime.mjs';
 import { caseItemPolicyPin, caseItemPolicyV2Reference, isCaseItemPolicyV2Reference, CASE_ITEM_POLICY_V2_HASH } from './cases/case-item-policy.mjs';
 import { activeProcedure, procedureVoterIds, procedureBallotInput, procedureStatementReaction, procedureTestimony, executionLifeAction, hostCaseChoicePlan } from './cases/case-procedure.mjs';
 
-import { beginCausalScene, settlePlayerBoundary, applyCausalNpcBeat, finalizeCausalScene, npcMagicMenu, preparedSwapForNpcMenu, setSceneDomainStore, setSceneDeliveredMagicOffer, setSceneStageClocks } from './scenes/scene-beats.mjs';
+import { ordinaryLocalPointReplyContext, ordinaryLocalStairReplyContext, beginCausalScene, settlePlayerBoundary, applyCausalNpcBeat, finalizeCausalScene, npcMagicMenu, preparedSwapForNpcMenu, setSceneDomainStore, setSceneDeliveredMagicOffer, setSceneStageClocks } from './scenes/scene-beats.mjs';
 import { captureSceneScheduling, validateSceneScheduling } from './scenes/scene-scheduling.mjs';
 import { actorObservationId } from './characters/observation-identity.mjs';
 import { DEFAULT_RUNTIME_REVISION, runtimeRevisionById, runtimeRevisionForState, assertRuntimeJobRevision } from './content/content-revisions.mjs';
@@ -134,7 +139,8 @@ const guardHostCaption = action => action?.type === 'case_item_policy_activate' 
   : action?.type === 'guard_rules_activate' ? GUARD_ACTIVATION_TEXT
   : action?.type === 'guard_magic_rules_activate' ? ABILITY_ACTIVATION_TEXT
   : action?.type === 'guard_dice_resolution' ? GUARD_RESOLUTION_TEXT
-    : action?.type === 'guard_detention_wait' ? GUARD_WAIT_TEXT : action?.type === 'guard_release' ? GUARD_RELEASE_TEXT : undefined;
+    : action?.type === 'guard_detention_wait' ? GUARD_WAIT_TEXT : action?.type === 'guard_release' ? GUARD_RELEASE_TEXT
+      : action?.type === 'guard_detention_local' && [1, 2, 3].includes(action.version) ? action.rawInput : undefined;
 const guardRulePin = state => guardEnabled(state) ? { guardRules: { ref: GUARD_RULES.ref, fingerprint: GUARD_FINGERPRINT } } : {};
 const guardSuggestions = state => {
   const view = guardView(state);
@@ -752,7 +758,9 @@ export class PrologueEngine {
   }
   #assertMagicJournalStages(action, before, journalAnchor) {
     const job = this.#agentJobs.get(action.jobId); const plan = this.#agentJobs.input(job);
-    if (![6, 7].includes(plan.version)) return;
+    // The exact host-only action is checked by assertNarrativeAction; it has
+    // no model stage to replay and grants neither case contact nor magic.
+    if (![6, 7].includes(plan.version) || plan.privateReflectionVersion === 1) return;
     const base = plan.regeneration?.checkpoint || before;
     return withRunBoundary(base, plan.runPolicyConsumersVersion === 1 ? plan.effectiveRunPolicy : undefined,
       () => this.#assertMagicJournalStagesScoped(action, job, plan, base, journalAnchor));
@@ -984,7 +992,9 @@ export class PrologueEngine {
       // rules) are not model narrative turns and have no agent job to validate.
       // Their exact shape is still checked by applyAgentAction, the same
       // guardHostCaption classification and the custom history guard.
-      if(!guardActivation(action))this.#agentJobs.assertNarrativeAction(action);
+      if (action?.type === 'guard_detention_local') {
+        if (!guardHostCaption(action) || row?.text !== guardHostCaption(action)) fail('INVALID_TURN', '宿主行动输入不一致。');
+      } else if(!guardActivation(action))this.#agentJobs.assertNarrativeAction(action);
       // A pending custom action has no committed endpoint yet, so it cannot use
       // the historical Magic journal replay above. Reproduce the same live host
       // side channels the ordinary scene path uses: custom/swap preparation,
@@ -1355,8 +1365,9 @@ export class PrologueEngine {
       remember(before.location);
       const action = state.exampleId === 'agent' ? state.agentActions[index] : undefined;
       return { id: row.id, floor: index + 1, text: this.#testimonyInputDisplay(before, row.text, action), entryStart: presentation ? presentation.boundaries[row.entry_start] : row.entry_start, entryEnd: presentation ? presentation.boundaries[row.entry_end] : row.entry_end,
-        ...(guardHostCaption(action) || action?.type === 'case_execution' ? { regeneratable: false } : {}),
-        ...(action?.type === 'scene' ? { scene: sceneSummary(state.entries.slice(row.entry_start, row.entry_end), action.document.stopReason, action),
+        ...(guardHostCaption(action) || action?.type === 'case_execution' || action?.privateReflectionVersion === 1 ? { regeneratable: false } : {}),
+        ...(action?.type === 'scene' ? {
+          ...(action.privateReflectionVersion !== 1 ? { scene: sceneSummary(state.entries.slice(row.entry_start, row.entry_end), action.document.stopReason, action) } : {}),
           ...(hasIntentRuntime(state.agentRuntimeRevision) && action.actionOutcome ? { actionOutcome: structuredClone(action.actionOutcome) } : {}) } : {}) };
     });
     remember(state.location);
@@ -1436,7 +1447,7 @@ export class PrologueEngine {
     markPublicView('view:characters');
     const publicAssemblyEntryId = this.#domainReady ? this.#domain.playerAssemblyNoticeEntry(state, dossierOwner) : null;
     markPublicView('view:assembly');
-    const entries = structuredClone(delivered.map(({ speakerId, audienceIds, addresseeIds, communication, observationKey, openingSource, learnedAt, textByActor, receptionIntroduction, hostMagicEvent, magicObservation, storyTimelineEvent, executionScene, mediaAnchor, publicEvent: _undeliveredEvent, ...entry }, index) => {
+    const entries = structuredClone(delivered.map(({ speakerId, audienceIds, addresseeIds, communication, observationKey, openingSource, learnedAt, textByActor, receptionIntroduction, hostMagicEvent, magicObservation, storyTimelineEvent, executionScene, mediaAnchor, conversationRoomId, publicEvent: _undeliveredEvent, ...entry }, index) => {
       if (publicAssemblyEntryId !== null && entry.id === publicAssemblyEntryId && entry.delivery === 'speech'
         && speakerId === 'warden' && audienceIds?.includes(dossierOwner)) return { ...entry, publicEvent: PUBLIC_ASSEMBLY_CATEGORY };
       if (state.exampleId !== 'agent' || entry.delivery !== 'action') return entry;
@@ -1793,15 +1804,34 @@ export class PrologueEngine {
     const runtimePlan = this.#agentJobs.input(row);
     const regeneration = runtimePlan.regeneration;
     const failure = row.status === 'failed' ? this.#agentJobs.latestFailure(row, { developer: false }) : undefined;
-    return { status: row.status === 'failed' ? 'failed' : row.status === 'pending' ? 'pending' : 'running',
+    const expiredOrdinaryIntent = this.#expiredOrdinaryIntent(state, row, runtimePlan);
+    const sceneRecoveryAvailable = !!this.#sceneRecoveryTask(state, row, runtimePlan);
+    const usedSceneRecovery = this.#agentJobs.hasSceneRecovery(row);
+    const status = usedSceneRecovery ? this.#agentJobs.sceneRecoveryRunning(row) ? 'running' : 'failed' : row.status;
+    return { status,
+      ...(sceneRecoveryAvailable ? { sceneRecoveryAvailable: true } : {}),
+      ...(expiredOrdinaryIntent ? { ordinaryAttemptExpired: true } : {}),
       ...(failure ? { failure: { ...failure, ...this.#agentJobs.taskSummary(row) } } : {}),
       // Protocol support only: parent/head/text/lease checks remain mandatory in prepareAgentTurn.
       supportsExplicitNewAttempt: true,
-      canRetry: true, requestId: row.request_id, text: row.text,
+      canRetry: !usedSceneRecovery, requestId: row.request_id, text: row.text,
       ...(runtimePlan.explicitNewAttemptOf ? { newAttemptOf: runtimePlan.explicitNewAttemptOf } : {}),
       ...(parseTestimonyCommand(row.text) ? { displayText: this.#testimonyInputDisplay(state, row.text) } : {}),
       ...(regeneration ? { operation: 'regenerate', turnId: regeneration.turnId } : {}),
       expectedGeneration: row.generation, expectedRevision: row.base_revision };
+  }
+  #expiredOrdinaryIntent(state, row, plan) {
+    // Only the stopped, uncommitted first intent may start a linked attempt.
+    // Keep the durable deadline/ledger unchanged, including across restart.
+    if (row.status !== 'failed' || row.lease_owner !== null || row.lease_expires !== null
+      || row.turn_id !== null || row.receipt_json !== null || state.completed || guardView(state)?.pending
+      || plan.version !== 7 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION
+      || plan.regeneration || plan.explicitNewAttemptOf || plan.intentHint?.type === 'case' || parseTestimonyCommand(row.text)) return false;
+    const ledger = this.#agentJobs.modelAttemptLedger(row);
+    if (ledger.count < 1 || ledger.slots.intent !== ledger.count
+      || this.#agentJobs.ordinaryAdmissionClock(row, ledger).remainingMs > 0) return false;
+    const tasks = this.#agentJobs.tasks(row);
+    return tasks.length === 1 && tasks[0].id === 'intent' && tasks[0].result === undefined && tasks[0].terminal === undefined;
   }
   prepareAgentRegeneration(input = {}, { scenePresentation } = {}) {
     if (!input || typeof input !== 'object' || isProxy(input) || Object.getPrototypeOf(input) !== Object.prototype
@@ -1831,7 +1861,9 @@ export class PrologueEngine {
       if (attemptedEvent && head.agentWorld?.broadcasts.some(notice => notice.id === directorAssemblyKey(attemptedEvent)))
         fail('INVALID_REGENERATION', '已实际交付的公共广播是宿主事实；可以读取先前存档。');
       if (head.agentActions[head.turnIds.indexOf(turnId)]?.softResult) fail('INVALID_REGENERATION', '本版不重新裁判已经发布的合作复述结果。');
-      if (guardHostCaption(head.agentActions[head.turnIds.indexOf(turnId)])) fail('INVALID_REGENERATION', '规则启用与检定结算是宿主事实，不能用剧情重生成改写；可以回溯或读取先前存档。');
+      const originalAction = head.agentActions[head.turnIds.indexOf(turnId)];
+      if (originalAction?.privateReflectionVersion === 1) fail('INVALID_REGENERATION', '这是依原句留下的私想；可继续行动，或回溯后另作选择。');
+      if (guardHostCaption(originalAction)) fail('INVALID_REGENERATION', '规则启用与检定结算是宿主事实，不能用剧情重生成改写；可以回溯或读取先前存档。');
       if (!head.turnIds.includes(turnId)) fail('INVALID_TURN', '只能重新生成当前路径中的行动楼层。');
       this.#validateRestored(head);
       if (head.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION) this.#domain.assertGrowthRequest(head, null);
@@ -1851,6 +1883,14 @@ export class PrologueEngine {
         // Regeneration inherits the original action's captured pin, never the
         // current head's. An old unpinned action therefore stays unpinned.
         const originalAction = head.agentActions[head.turnIds.indexOf(turnId)];
+        const originalJob = checkpoint.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION && originalAction?.jobId
+          ? this.#agentJobs.get(originalAction.jobId) : null;
+        // Early V1 stored its speech pin only on the sealed job, not on the
+        // resulting scene action. Do not substitute the current version for
+        // a historical unpinned action or when that job is unavailable.
+        const ordinaryAddressVersion = originalAction?.ordinaryAddressVersion
+          ?? (originalJob?.status === 'committed' && originalJob.text === original.text
+            ? this.#agentJobs.input(originalJob).ordinaryAddressVersion : undefined);
         const projection = structuredClone(checkpoint);
         const itemPolicyVersion = checkpoint.itemPolicyVersion === 2 ? 2 : checkpoint.itemPolicyVersion === 1
           || runtimeRevisionForState(checkpoint).policy.sceneBeatVersion === 1 ? 1 : undefined;
@@ -1880,7 +1920,17 @@ export class PrologueEngine {
             ...(runtimeRevisionForState(checkpoint).policy.sceneBeatVersion === 1 ? { schedulingVersion: 1, decisionAuditVersion: 1, introductionVersion: 5,
               ...(scheduleWaitVersion !== undefined ? { scheduleWaitVersion } : {}) } : {}) } : {}), contentFingerprint: runtimeRevisionForState(checkpoint).content.fingerprint,
             executionRevision: runtimeRevisionForState(checkpoint).executionRevision,
-             ...(scenePresentation === 'novel' ? { novelScenePresentationVersion: 1, narrationPacingVersion: 1 } : {}),
+             ...(checkpoint.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION ? { bareReplyRootVersion: 1, cellDoorAttemptVersion: 1,
+               ...([1, 2, 3].includes(ordinaryAddressVersion) ? { ordinaryAddressVersion } : {}),
+                 ...([1,2,3].includes(originalAction?.ordinaryLocalAmbientSpeechVersion) ? { ordinaryLocalAmbientSpeechVersion: originalAction.ordinaryLocalAmbientSpeechVersion } : {}),
+                 ...(originalAction?.ordinaryLocalSearchConversationVersion === 1 ? { ordinaryLocalSearchConversationVersion: 1 } : {}),
+                 ...ordinaryLocalVisualPlanPins(original.text,originalAction ?? null),
+                 ...([1,2,3].includes(originalAction?.ordinaryLocalApproachVersion) ? { ordinaryLocalApproachVersion: originalAction.ordinaryLocalApproachVersion,
+                   ...(originalJob?.status === 'committed' && originalJob.text === original.text
+                     && this.#agentJobs.input(originalJob).localApproachHostPerformanceVersion === 1 ? { localApproachHostPerformanceVersion: 1 } : {}) } : {}),
+                ...(originalAction?.roomGroupSpeechVersion === 1 ? { roomGroupSpeechVersion: 1 } : {}),
+                ...([1, 2, 3, 4, 5, 6, 7, 8].includes(originalAction?.ordinaryDialogueSequenceVersion) ? { ordinaryDialogueSequenceVersion: originalAction.ordinaryDialogueSequenceVersion } : {}) } : {}),
+              ...(scenePresentation === 'novel' ? { novelScenePresentationVersion: 1, narrationPacingVersion: hasSoftRuntime(checkpoint) ? 3 : 1 } : {}),
             ...(initialRunPolicy === undefined ? {} : { initialRunPolicy }),
             ...(runtimeRevisionForState(checkpoint).policy.playerPerformanceVersion === 2 ? { performanceVersion: 2, caseRecallVersion: 1 } : {}), perceptionVersion: 1, jobId, intentHint: this.#narrativeHint(parsed.intent),
             questionKey: `question:${jobId}`, answerKey: `answer:${jobId}`, roomLabelVersion: 2, worldVersion: 1,
@@ -1948,14 +1998,58 @@ export class PrologueEngine {
     }
     return null;
   }
+  #sceneRecoveryTask(state, row, plan) {
+    if (row.status !== 'failed' || state.exampleId !== 'agent' || state.completed || guardView(state)?.pending || parseTestimonyCommand(row.text)
+      || row.generation !== state.generation || row.base_revision !== state.revision) return undefined;
+    const scope = this.#domain.scope(state);
+    if (scope.branchId !== row.branch_id || this.#agentJobs.active(state.generation)?.job_id !== row.job_id) return undefined;
+    return this.#agentJobs.sceneRecoveryTask(row, plan, scope.commitRef);
+  }
+  #prepareAgentSceneRecovery(input) {
+    const { requestId, text, expectedGeneration, expectedRevision } = input;
+    return this.#transaction(() => {
+      const state = this.#state();
+      const row = this.#agentJobs.getByRequest(requestId);
+      const reject = () => fail('INVALID_SCENE_RECOVERY', '当前行动没有可用的一次性旁白恢复。');
+      if (!row || row.text !== text || row.generation !== expectedGeneration || row.base_revision !== expectedRevision
+        || state.generation !== expectedGeneration) reject();
+      const scope = this.#domain.scope(state);
+      if (row.branch_id !== scope.branchId) reject();
+      if (row.status === 'committed') {
+        const receipt = this.#priorReceipt(state, requestId, text);
+        if (this.#agentJobs.hasSceneRecovery(row) && receipt && row.turn_id && state.turnIds.includes(row.turn_id))
+          return { kind: 'immediate', receipt };
+        reject();
+      }
+      if (this.#agentJobs.hasSceneRecovery(row)) {
+        if (row.base_revision === state.revision && this.#agentJobs.sceneRecoveryRunning(row))
+          return { kind: 'in_progress', receipt: this.#agentReceipt(input, state, false, '旁白恢复正在执行。', 'in_progress') };
+        reject();
+      }
+      const plan = this.#agentJobs.input(row);
+      const task = this.#sceneRecoveryTask(state, row, plan);
+      if (!task) reject();
+      assertRuntimeJobRevision(state, plan);
+      this.#assertMaterialTask(row, state, plan, task);
+      const recovery = this.#agentJobs.startSceneRecovery(row, plan, scope.commitRef);
+      return { kind: 'scene_recovery', jobId: row.job_id, ...recovery, task,
+        stopReason: hostSceneDocument(task.context.data.events).stopReason };
+    }, { reuseVerifiedCommitBytes: true, reuseExactPlanReads: true });
+  }
   prepareAgentTurn(input = {}, { scenePresentation } = {}) {
     const startedAt = performance.now();
     try {
-    const { requestId, text, expectedGeneration, expectedRevision, newAttemptOf } = input;
+    const { requestId, text, expectedGeneration, expectedRevision, newAttemptOf, recoverScene } = input;
+    if (recoverScene !== undefined || Object.hasOwn(input, 'recoverScene')) {
+      const flag = Object.getOwnPropertyDescriptor(input, 'recoverScene');
+      if (!flag?.enumerable || flag.value !== true || Object.hasOwn(input, 'newAttemptOf') || newAttemptOf !== undefined)
+        fail('INVALID_SCENE_RECOVERY', '旁白恢复必须明确指定同一原行动。');
+    }
     if (newAttemptOf !== undefined && (typeof newAttemptOf !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/u.test(newAttemptOf) || newAttemptOf === requestId)) fail('INVALID_NEW_ATTEMPT', '请明确关联另一条失败的普通行动。');
     if (typeof requestId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/u.test(requestId)) fail('INVALID_REQUEST_ID', '请求标识格式错误。');
     if (typeof text !== 'string' || !text.trim() || text.length > 2000) fail('INVALID_TEXT', '请输入不超过两千字的发言或行动。');
     requestVersion({ expectedGeneration, expectedRevision });
+    if (recoverScene === true) return this.#prepareAgentSceneRecovery(input);
     const magicRoute = newAttemptOf === undefined ? this.#routePlayerMagicText(input) : null;
     if (magicRoute) return magicRoute;
     return this.#transaction(() => {
@@ -1991,6 +2085,7 @@ export class PrologueEngine {
       this.#validateRestored(state);
       const scope = this.#domain.scope(state);
       if (existing && existing.text !== text) fail('IDEMPOTENCY_CONFLICT', '同一请求标识不能用于不同内容。');
+      let linkedLocalPointReply = false, linkedSamePeerGaze = false, linkedLocalStairReply = false;
       if (newAttemptOf !== undefined && !existing) {
         const parent = this.#agentJobs.getByRequest(newAttemptOf);
         const activeParent = this.#agentJobs.active(state.generation);
@@ -2001,6 +2096,10 @@ export class PrologueEngine {
           || parentPlan.regeneration || parentPlan.intentHint?.type === 'case' || parseTestimonyCommand(text)
           || state.completed || guardView(state)?.pending)
           fail('INVALID_NEW_ATTEMPT', '只能为当前版本、同一原文且已停止的失败普通行动另开新尝试。');
+        // Inherit only the lane from the authenticated parent; prove the current ask again below.
+        linkedLocalPointReply = parentPlan.ordinaryDialogueSequenceVersion === 6;
+        linkedSamePeerGaze = parentPlan.ordinaryDialogueSequenceVersion === 7;
+        linkedLocalStairReply = parentPlan.ordinaryDialogueSequenceVersion === 8;
       }
       if (existing && (state.completed || existing.generation !== state.generation || existing.base_revision !== state.revision
         || existing.branch_id !== scope.branchId || existing.status === 'cancelled')) fail('STALE_AGENT_TURN', '角色任务依据已经过期。');
@@ -2017,16 +2116,23 @@ export class PrologueEngine {
         return { kind: 'immediate', receipt };
       }
       const detention = guardView(state)?.detention;
-      if (detention && [GUARD_WAIT_TEXT, GUARD_RELEASE_TEXT].includes(text.trim())) {
+      const localDetention = detention && !existing && newAttemptOf === undefined ? localDetentionAction(state, text) : null;
+      if (localDetention || detention && [GUARD_WAIT_TEXT, GUARD_RELEASE_TEXT].includes(text.trim())) {
         if (this.#agentJobs.active(state.generation)?.base_revision === state.revision) fail('INVALID_GUARD_PENDING', '请先处理当前未决任务。');
         const next = structuredClone(state);
-        const type = text.trim() === GUARD_WAIT_TEXT ? 'guard_detention_wait' : 'guard_release';
-        applyAgentAction(next, { type, encounterId: detention.encounterId, narrationVersion: 1 });
+        const type = localDetention?.type ?? (text.trim() === GUARD_WAIT_TEXT ? 'guard_detention_wait' : 'guard_release');
+        applyAgentAction(next, localDetention ?? { type, encounterId: detention.encounterId, narrationVersion: 1 });
         const turnId = randomUUID(); next.turnIds.push(turnId);
-        this.#insertTurn(turnId, text.trim(), state, next);
+        this.#insertTurn(turnId, localDetention ? text : text.trim(), state, next);
         this.#write(next, 'act', { action: { intentKey: `guard-detention:${type}:${detention.encounterId}:${state.worldTime}` } });
         const receiptInput = { requestId, text };
-        const receipt = this.#agentReceipt(input, next, true, '已按共享故事时间处理禁闭状态。');
+        const receipt = this.#agentReceipt(input, next, true, localDetention ? '' : '已按共享故事时间处理禁闭状态。');
+        if (localDetention && scenePresentation === 'novel') {
+          const actualHan = next.entries.slice(state.entries.length).reduce((sum, row) => sum
+            + (row.delivery === 'narration' ? Array.from(row.text.matchAll(/\p{Script=Han}/gu)).length : 0), 0);
+          receipt.narrationOutcome = { kind: actualHan < NOVEL_MIN_ROUND_HAN ? 'round_minimum_not_met' : 'round_minimum_met',
+            minimumHan: NOVEL_MIN_ROUND_HAN, actualHan };
+        }
         this.#rememberAgentReceipt(receiptInput, next, receipt);
         return { kind: 'immediate', receipt };
       }
@@ -2067,7 +2173,11 @@ export class PrologueEngine {
         const parsed = courtChoice || ordinary;
         const actionLimit = hasCaseOne(state) ? 256 : Number.MAX_SAFE_INTEGER;
         if (!parsed.accepted || state.agentActions.length >= actionLimit) {
-          const receipt = this.#agentReceipt(input, state, false, parsed.message || `这段旅程已记下 ${actionLimit} 次行动。可以回到先前的选择，或开始新的故事。`);
+          const message = parsed.code === 'GUARD_DETAINED' && detention?.status === 'detained'
+            ? detention.remainingSeconds === 0 || detention.caseBoundaryAt !== undefined
+              ? '门还锁着；要离开，得等看守开门。' : '门还锁着。你可以留在门内，朝门口说话，再等一小会儿。'
+            : parsed.message;
+          const receipt = this.#agentReceipt(input, state, false, message || `这段旅程已记下 ${actionLimit} 次行动。可以回到先前的选择，或开始新的故事。`);
           this.#rememberAgentReceipt(input, state, receipt);
           return { kind: 'immediate', receipt };
         }
@@ -2075,11 +2185,80 @@ export class PrologueEngine {
         const jobId = randomUUID(); const questionKey = `question:${jobId}`; const answerKey = `answer:${jobId}`;
         const initialRunPolicy = this.#domain.initialRunPolicy(state);
         const casePolicy = effectiveRunPolicy?.source?.adoptedCommitRef ? effectiveRunPolicy.playPolicy.cases : initialRunPolicy?.playPolicy?.cases;
+        const privateReflection = !courtChoice && canCapturePrivateReflection(state)
+          && !requiresInitialBoundaryReview(adjudicationPolicy({ initialRunPolicy, effectiveRunPolicy, runPolicyConsumersVersion: 1 }))
+          && Boolean(currentPrivateReflection(text));
         // Only new case-allowed jobs opt in; preserve v12 ordinary evidence and pending plans.
         const npcActPreflight = this.#npcActPreflight >= 13 && casePolicy !== 'allowed' ? 12 : this.#npcActPreflight;
-        const intentHint = this.#narrativeHint(parsed.intent);
+        const intentHint = privateReflection ? { type: 'reflect' } : this.#narrativeHint(parsed.intent);
         const executionRevision = runtimeRevisionForState(state).executionRevision;
-        const hiddenSupplyMode = hiddenSupplyCapability?.version === 2 ? this.#privateDirectorMode() : 'off';
+         const localConditionalWait = newAttemptOf===undefined && executionRevision.revisionId===EVENT_DIRECTOR_RUNTIME_REVISION
+           && !courtChoice && intentHint.type==='interpret' && localConditionalWaitSource(text)
+           && !requiresInitialBoundaryReview(adjudicationPolicy({initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1}))
+           && proveLocalConditionalWait(parseProjection,actorId,text);
+         let localTravel;
+         if (newAttemptOf===undefined && executionRevision.revisionId===EVENT_DIRECTOR_RUNTIME_REVISION
+           && !courtChoice && intentHint.type==='interpret'
+           && !requiresInitialBoundaryReview(adjudicationPolicy({initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1}))) {
+           if (localTravelAttemptSource(text) && proveLocalTravelAttempt(parseProjection,actorId,text)) localTravel=1;
+           else if (localTravelAttemptSource(text,undefined,2) && proveLocalTravelAttempt(parseProjection,actorId,text,2)) localTravel=2;
+         }
+        const groupSpeech = localTravel===1 || executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION && intentHint.type === 'interpret'
+          && roomGroupSpeechSource(text, causalPlayerScene(parseProjection)) && roomGroupSpeechAudience(parseProjection).length >= 3;
+        const localSearch = executionRevision.revisionId===EVENT_DIRECTOR_RUNTIME_REVISION && intentHint.type==='interpret'
+           && !localTravel && !localConditionalWait && !groupSpeech && !parseProjection.caseRuntime?.occupiedBody && actorForState(parseProjection,actorId)?.communication==='speech'
+           && localSearchConversationDomain(text) && ordinaryLocalSearchSource(text,this.#observedOrientationScene(parseProjection,actorId).scene);
+          let ambientSpeech;
+          if (executionRevision.revisionId===EVENT_DIRECTOR_RUNTIME_REVISION && intentHint.type==='interpret'
+            && !localTravel && !localConditionalWait && !groupSpeech && !parseProjection.caseRuntime?.occupiedBody && actorForState(parseProjection,actorId)?.communication==='speech') {
+            if (localAmbientSpeechDomain(text) && ordinaryLocalAmbientSpeechSource(text,this.#observedOrientationScene(parseProjection,actorId).scene)) ambientSpeech=1;
+            else if (localAmbientSpeechDomain(text,2) && recentLocalWaitProposal(parseProjection,actorId,roomGroupSpeechAudience(parseProjection))
+              && ordinaryLocalAmbientSpeechSource(text,this.#observedOrientationScene(parseProjection,actorId).scene,2)) ambientSpeech=2;
+            else if (localAmbientSpeechDomain(text,3) && roomGroupSpeechAudience(parseProjection).length>=3
+              && ordinaryLocalAmbientSpeechSource(text,this.#observedOrientationScene(parseProjection,actorId).scene,3)) ambientSpeech=3;
+            else if (newAttemptOf===undefined && localAmbientSpeechDomain(text,4)
+              && this.#openOrientationIntentProof(parseProjection,actorId,text,{initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1})) ambientSpeech=4;
+          }
+          let localApproach;
+          if (executionRevision.revisionId===EVENT_DIRECTOR_RUNTIME_REVISION && intentHint.type==='interpret'
+            && !localTravel && !localConditionalWait && !groupSpeech && !parseProjection.caseRuntime?.occupiedBody && actorForState(parseProjection,actorId)?.communication==='speech') {
+            if (localApproachDomain(text)) localApproach=1;
+            else if (localApproachDomain(text,2) && ordinaryLocalApproachSource(text,this.#observedOrientationScene(parseProjection,actorId).scene,2)) localApproach=2;
+            else if (newAttemptOf===undefined && localApproachDomain(text,3)
+              && this.#hostReadinessIntentProof(parseProjection,actorId,text,{initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1})) localApproach=3;
+          }
+         let sequenceVersion = ambientSpeech || localSearch ? 1 : undefined;
+         if (!localTravel && !localConditionalWait && !ambientSpeech && !localSearch && executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION && intentHint.type === 'interpret'
+           && !parseProjection.caseRuntime?.occupiedBody && actorForState(parseProjection, actorId)?.communication === 'speech'
+           && /[「」『』“”"]/u.test(text)) {
+           const pointReply = (newAttemptOf === undefined || linkedLocalPointReply) && !groupSpeech && !localApproach && localPointReplySequenceDomain(text)
+              && this.#localPointReplySequence(parseProjection, actorId, text);
+            const namedGaze = (newAttemptOf===undefined || linkedSamePeerGaze) && !groupSpeech && !localApproach && samePeerGazeSequenceDomain(text)
+              && !requiresInitialBoundaryReview(adjudicationPolicy({initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1}))
+              && this.#localPointReplySequence(parseProjection,actorId,text,7);
+             const stairGaze = (newAttemptOf===undefined || linkedLocalStairReply) && !groupSpeech && !localApproach && localStairReplySequenceDomain(text)
+              && !requiresInitialBoundaryReview(adjudicationPolicy({initialRunPolicy,effectiveRunPolicy,runPolicyConsumersVersion:1}))
+              && this.#localPointReplySequence(parseProjection,actorId,text,8);
+             if (stairGaze) sequenceVersion=8;
+             else if (namedGaze) sequenceVersion=7;
+             else if (pointReply) sequenceVersion = 6;
+            else if (this.#roomShiftDialogueSequence(parseProjection, actorId, text)) sequenceVersion = 3;
+            else {
+              const local = this.#localDialogueSequence(parseProjection, actorId, text);
+              if (!local && !groupSpeech && this.#boundLocalSpeechSequence(parseProjection, actorId, text)) sequenceVersion = 4;
+              else if (!groupSpeech && observedOrientationSequenceDomain(text)) {
+                const perception = this.#observedOrientationScene(parseProjection, actorId);
+                const peer = perception.scene.replyPeer;
+                const unambiguous = ordinaryDialogueSequence(text, perception.scene, peer, 5);
+                // A valid legacy named-gaze proof can stand without a historical
+                // peer. Otherwise do not fall back to the old bare reply when
+                // the stronger source proof disagrees.
+                sequenceVersion = local && (!peer || unambiguous) ? 2
+                  : unambiguous && ordinaryDialogueSequence(text, perception.scene, peer, 1) ? 1 : 5;
+              } else sequenceVersion = local ? 2 : 1;
+            }
+         }
+         const hiddenSupplyMode = hiddenSupplyCapability?.version === 2 ? this.#privateDirectorMode() : 'off';
         const hiddenSupplyChoice = hiddenSupplyMode === 'active'
           ? this.#domain.hiddenSupplyChoice(state, jobId) : null;
         const director = state.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION
@@ -2090,11 +2269,25 @@ export class PrologueEngine {
           : !hasCaseOne(state) && runtimeRevisionForState(state).policy.sceneBeatVersion === 1 && this.#getDirectorMode() === 'advisory'
             ? this.#captureDirector(state, scope) : {};
         row = this.#agentJobs.insert({ requestId, text, scope, actorId,
-          plan: { ...(effectiveRunPolicy ? { effectiveRunPolicy, runPolicyConsumersVersion: 1 } : {}), ...(hiddenSupplyCapability ? { hiddenSupplyCapability } : {}), ...(hiddenSupplyCapability?.lifecycle === 1 ? { hiddenSupplyMode } : {}), ...(newAttemptOf === undefined ? {} : { explicitNewAttemptOf: newAttemptOf }), ...(state.storyLifeVersion === 1 && !hasCaseOne(state) ? { storyLifeVersion: 1 } : {}), ...(canCaptureRootCaseOptions(state) ? { rootCaseOptionsVersion: 1 } : {}), ...(runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && !hasCaseOne(state) && itemPolicyVersion === 2 && runtimeRevisionForState(state).policy.sceneBeatVersion === 1 ? { objectInspectionTimingVersion: 1 } : {}), ...(runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && (hasCaseOne(state) || itemPolicyVersion === 2) ? { caseActionTimingVersion: 2 } : {}), ...guardRulePin(state), ...director, version: hasSoftRuntime(state) ? 7 : hasCaseOne(state) ? 4 : runtimeRevisionForState(state).policy.sceneBeatVersion === 1 ? 6 : 5, ...this.#newSceneJobExtensions(state), ...(courtChoice?.accepted ? { hostCaseChoiceVersion: 1 } : {}), ...(hasSoftRuntime(state) ? { executionBudget: SOFT_EXECUTION_BUDGET } : {}), ...(this.#ballotInstrumentVersion === 1 && parsed.intent.type === 'case' && parsed.intent.operation === 'vote' ? { ballotInstrumentVersion: 1 } : {}), ...(state.caseRuntime?.occupiedBody ? { occupiedBodyVersion: 1 } : {}), ...(state.caseRuntime?.swapLifecycle ? { swapLifecycleVersion: 1, playerTextSwapVersion: 1, playerRuntimeCommunicationVersion: 1 } : {}), ...(itemPolicyVersion === 2 && !hasCaseOne(state) ? { playerRuntimeSelfServiceVersion: 1, playerRuntimeOfferedInspectionVersion: 1, shortObservationReferenceVersion: 1 } : {}), ...(state.customAbilitySetup ? { customAbilityVersion: 1, customAbilityRefs: structuredClone(state.customAbilitySetup.selections) } : {}), ...(this.#postureActionVersion === 1 && runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && !hasCaseOne(state) && itemPolicyVersion === 2 && this.#physicalFactsVersion === 2 ? { postureActionVersion: 1 } : {}), ...(!hasCaseOne(state) && runtimeRevisionForState(state).policy.playerPerformanceVersion === 2 ? { dialogueContextVersion: 1 } : {}), styleVersion: 1, movementGuardVersion: 1, ...(state.creation?.storyArcId === 'case-one-day3@1' ? { storyArcVersion: 1 } : {}), ...(!hasCaseOne(state) ? { causalTimingVersion: 1, ...(itemPolicyVersion !== undefined ? { itemPolicyVersion } : {}),
+          plan: { ...(effectiveRunPolicy ? { effectiveRunPolicy, runPolicyConsumersVersion: 1 } : {}), ...(hiddenSupplyCapability ? { hiddenSupplyCapability } : {}), ...(hiddenSupplyCapability?.lifecycle === 1 ? { hiddenSupplyMode } : {}), ...(newAttemptOf === undefined ? {} : { explicitNewAttemptOf: newAttemptOf }), ...(state.storyLifeVersion === 1 && !hasCaseOne(state) ? { storyLifeVersion: 1 } : {}), ...(canCaptureRootCaseOptions(state) ? { rootCaseOptionsVersion: 1 } : {}), ...(runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && !hasCaseOne(state) && itemPolicyVersion === 2 && runtimeRevisionForState(state).policy.sceneBeatVersion === 1 ? { objectInspectionTimingVersion: 1 } : {}), ...(runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && (hasCaseOne(state) || itemPolicyVersion === 2) ? { caseActionTimingVersion: 2 } : {}), ...guardRulePin(state), ...director, ...(privateReflection ? { privateReflectionVersion: 1 } : {}), version: hasSoftRuntime(state) ? 7 : hasCaseOne(state) ? 4 : runtimeRevisionForState(state).policy.sceneBeatVersion === 1 ? 6 : 5, ...this.#newSceneJobExtensions(state), ...(courtChoice?.accepted ? { hostCaseChoiceVersion: 1 } : {}), ...(hasSoftRuntime(state) ? { executionBudget: SOFT_EXECUTION_BUDGET } : {}), ...(this.#ballotInstrumentVersion === 1 && parsed.intent.type === 'case' && parsed.intent.operation === 'vote' ? { ballotInstrumentVersion: 1 } : {}), ...(state.caseRuntime?.occupiedBody ? { occupiedBodyVersion: 1 } : {}), ...(state.caseRuntime?.swapLifecycle ? { swapLifecycleVersion: 1, playerTextSwapVersion: 1, playerRuntimeCommunicationVersion: 1 } : {}), ...(itemPolicyVersion === 2 && !hasCaseOne(state) ? { playerRuntimeSelfServiceVersion: 1, playerRuntimeOfferedInspectionVersion: 1, shortObservationReferenceVersion: 1 } : {}), ...(state.customAbilitySetup ? { customAbilityVersion: 1, customAbilityRefs: structuredClone(state.customAbilitySetup.selections) } : {}), ...(this.#postureActionVersion === 1 && runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8' && !hasCaseOne(state) && itemPolicyVersion === 2 && this.#physicalFactsVersion === 2 ? { postureActionVersion: 1 } : {}), ...(!hasCaseOne(state) && runtimeRevisionForState(state).policy.playerPerformanceVersion === 2 ? { dialogueContextVersion: 1 } : {}), styleVersion: 1, movementGuardVersion: 1, ...(state.creation?.storyArcId === 'case-one-day3@1' ? { storyArcVersion: 1 } : {}), ...(!hasCaseOne(state) ? { causalTimingVersion: 1, ...(itemPolicyVersion !== undefined ? { itemPolicyVersion } : {}),
             ...(runtimeRevisionForState(state).policy.sceneBeatVersion === 1 ? { schedulingVersion: 1, decisionAuditVersion: 1, introductionVersion: 5,
               ...(scheduleWaitVersion !== undefined ? { scheduleWaitVersion } : {}), ...this.#npcMagicCastPin(state) } : {}) } : {}), contentFingerprint: runtimeRevisionForState(state).content.fingerprint,
             executionRevision,
-             ...(scenePresentation === 'novel' ? { novelScenePresentationVersion: 1, narrationPacingVersion: 1 } : {}),
+             ...(state.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION ? { bareReplyRootVersion: 1, cellDoorAttemptVersion: 1, ordinaryAddressVersion: 3 } : {}),
+                ...(localConditionalWait ? {localConditionalWaitVersion:1} : {}),
+                ...(localTravel ? {localTravelAttemptVersion:localTravel} : {}),
+              ...(groupSpeech || sequenceVersion === 4 ? { roomGroupSpeechVersion: 1 } : {}),
+               ...(sequenceVersion ? { ordinaryDialogueSequenceVersion: sequenceVersion } : {}),
+                ...(localApproach ? { ordinaryLocalApproachVersion: localApproach, localApproachHostPerformanceVersion: 1 } : {}),
+                 ...(localApproach===3 ? {localReadinessHostIntentVersion:1} : {}),
+                 ...(ambientSpeech ? { ordinaryLocalAmbientSpeechVersion: ambientSpeech } : {}),
+                 ...(localSearch ? { ordinaryLocalSearchConversationVersion: 1 } : {}),
+                 ...(executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION ? ordinaryLocalVisualPlanPins(text) : {}),
+              ...(scenePresentation === 'novel' ? novelFirstPresentation(
+                 { novelScenePresentationVersion: 1, narrationPacingVersion: hasSoftRuntime(state) ? 3 : 1 },
+                 executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION && newAttemptOf === undefined
+                   && intentHint.type === 'interpret' && !courtChoice && !hasCaseOne(state)
+                   && [undefined, null, 'daily', 'aftermath'].includes(activeProcedure(state)?.stage)) : {}),
              ...(executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION && casePolicy === 'allowed'
                && !courtChoice && !hasCaseOne(state) && newAttemptOf === undefined ? { npcIdentifySourceClosureVersion: 1 } : {}),
             ...(this.#npcManualRecovery && executionRevision.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION
@@ -2110,6 +2303,8 @@ export class PrologueEngine {
       if (!hasIntentRuntime(state.agentRuntimeRevision)) this.#domain.bindGrowthRequest(state, row, { requestId, text });
       const sealedPlan = this.#agentJobs.input(row);
       assertRuntimeJobRevision(state, sealedPlan);
+      if (this.#agentJobs.hasSceneRecovery(row) || this.#sceneRecoveryTask(state, row, sealedPlan))
+        fail('INVALID_SCENE_RECOVERY', '此原行动只支持明确的一次性旁白恢复。');
       // Legacy same-text rejoin under another ID is not an explicit resend.
       const manualNpcResume = [1, 2, 3].includes(sealedPlan.npcManualRecoveryVersion) && row.request_id === requestId
         && row.text === text && row.status === 'failed' && row.turn_id === null && row.receipt_json === null;
@@ -2118,6 +2313,8 @@ export class PrologueEngine {
         '此发言仍在执行，请稍后重试原请求。没有另起重复模型调用。', 'in_progress') };
       row = this.#agentJobs.get(row.job_id);
       const plan = this.#agentJobs.input(row);
+      if (plan.privateReflectionVersion === 1)
+        return { kind: 'immediate', receipt: this.#completePrivateReflection(row, state, plan, leaseToken) };
       if ([2, 3, 4, 5, 6, 7].includes(plan.version)) {
         const prepared = this.#prepareNarrativeStage(row, state, plan, leaseToken);
         return manualNpcResume && prepared.kind === 'model' ? { ...prepared, manualNpcResume: true } : prepared;
@@ -2128,6 +2325,21 @@ export class PrologueEngine {
           ...(this.#agentJobs.result(row, task.role) === undefined ? {} : { result: this.#agentJobs.result(row, task.role) }) })) };
     }, { reuseVerifiedCommitBytes: true, reuseExactPlanReads: true });
     } finally { v0Timing('prepareAgentTurn', startedAt); }
+  }
+  #completePrivateReflection(row, state, plan, leaseToken) {
+    this.#agentJobs.assertLease(row, leaseToken);
+    const action = hostPrivateReflectionAction(row, plan);
+    this.#agentJobs.assertNarrativeAction(action);
+    const next = structuredClone(state);
+    applyAgentAction(next, action);
+    const turnId = randomUUID(); next.turnIds.push(turnId);
+    this.#insertTurn(turnId, row.text, state, next);
+    this.#write(next, 'act', { action: { intentKey: `private-reflection:${row.job_id}` }, stageDelivery: false });
+    const receipt = this.#agentReceipt({ requestId: row.request_id }, next, true, '这个念头留在心里，接下来仍由你决定。');
+    this.#rememberAgentReceipt({ requestId: row.request_id, text: row.text }, next, receipt);
+    this.#agentJobs.commit(row, leaseToken, { turnId, receipt, review: { policy: 'private-reflection@1' } });
+    this.#delivery.stage(this.#view(next, { compactOrdinaryHistory: true }));
+    return receipt;
   }
   #privateDirectorMode() {
     if (!this.#hiddenSupply) return 'off';
@@ -2474,8 +2686,12 @@ export class PrologueEngine {
     const snapshot = this.#itemPolicySnapshot(state, plan);
     const projected = snapshot === state ? structuredClone(state) : snapshot;
     if (!hasCaseOne(projected)) enableCaseRuntime(projected);
-    const scene = playerPerceivedScene(projected, { ...agentScene(projected),
-      readable: materialReadableProjection(projected, createdPlayerId(projected)) }).scene;
+    const projectedScene = playerPerceivedScene(projected, { ...agentScene(projected),
+      readable: materialReadableProjection(projected, createdPlayerId(projected)) });
+    const scene = projectedScene.scene;
+    if (!composer && [2, 3].includes(plan.ordinaryAddressVersion)) {
+      Object.assign(scene, this.#playerReplyContext(projected, createdPlayerId(projected), projectedScene, plan));
+    }
     // Only the real current source projection enters the new authority packet.
     // Do not inherit old v1 optics or document/action-derived material overlays.
     delete scene.materialFacts; delete scene.access;
@@ -2615,9 +2831,15 @@ export class PrologueEngine {
     if (plan.ballotInstrumentVersion === 1) for (const task of existing) this.#assertBallotTask(row, state, plan, task);
     const playerId = createdPlayerId(state);
     const scopeFor = actorId => ({ actorId, branchId: row.branch_id, generation: row.generation, revision: row.base_revision });
-    const behavior = (role, actorId) => [...new Set([...(plan.directorExtension && !isSealedDirectorExtension(plan.directorExtension) ? [] : [4, 5, 6, 7].includes(plan.version) ? (role === 'scene_composer' ? [plan.promptSnapshot.director] : []) : [plan.promptSnapshot.director]),
+    const behavior = (role, actorId, slot) => [...new Set([...(plan.directorExtension && !isSealedDirectorExtension(plan.directorExtension) ? [] : [4, 5, 6, 7].includes(plan.version) ? (role === 'scene_composer' ? [plan.promptSnapshot.director] : []) : [plan.promptSnapshot.director]),
       role === 'character_dialogue' ? plan.promptSnapshot[actorId]
-        : role === 'scene_composer' ? `${plan.outputContractVersion === 1 && plan.novelScenePresentationVersion === 1
+        : role === 'scene_composer' && novelNarrationFocusTaskPin(plan, { id: slot, role }).novelNarrationFocusVersion === 1
+          ? `旁白风格偏好（只用于口吻）：\n${focusedNarratorPreference(plan.promptSnapshot.narrator)}`
+          : role === 'scene_composer' ? `${plan.narrationPacingVersion === 2
+           ? '只按已有材料展开，守住每个发布旁白自然段的下限；不延伸玩家行动或当前情节。\n旁白风格偏好（只用于口吻）：'
+           : plan.narrationPacingVersion === 3
+             ? '只按可核实的已有材料把本轮正文写足，全部新增旁白合计争取达到 500 汉字；按剧情自然分段，段无最低字数。材料不足就保留诚实短文，不延伸行动、不补造事实。\n旁白风格偏好（只用于口吻）：'
+           : plan.outputContractVersion === 1 && plan.novelScenePresentationVersion === 1
           ? '按已有材料充分展开现场，并把选择交还给玩家；篇幅是建议，场景上限和事件顺序优先。\n旁白写作偏好：'
           : `${plan.outputContractVersion === 1 ? '只按已有材料组织现场与交还选择；没有最少字数，短场景自然收束，不用篇幅推进时间。' : '按完整场景组织起势、回应、可见后果与交还选择，正文目标 1000–2500 汉字；不沿用旧版短旁白的篇幅。'}\n旁白风格偏好（仅适用于口吻，篇幅和契约以本场景要求为准）：`}\n${plan.promptSnapshot.narrator}` : plan.promptSnapshot[role],
       ...(role === 'player_performance' ? [plan.promptSnapshot[actorId]] : [])].filter(Boolean))].join('\n\n');
@@ -2634,7 +2856,10 @@ export class PrologueEngine {
         context = { version: hasIntentAdmissionRuntime(plan) ? 7 : plan.intentContractVersion === 2 ? 6 : [1, 2].includes(plan.intentContractVersion) ? 3 : plan.initialRunPolicy.version, role, principal: { kind: 'service', id: 'world_adjudicator' }, slot: id, ...(plan.intentContractVersion === 2 ? { purpose: hasIntentAdmissionRuntime(plan) ? INTENT_ADMISSION_PURPOSE : 'intent-plan@2' } : {}),
           scope: { principalId: WORLD_SERVICE_PRINCIPAL, ...scope },
           data: { viewpointActorId, ...context.data, ...(plan.openActionVersion === 1 ? { openActionVersion: 1 } : {}),
-             initialRunPolicy: plan.initialRunPolicy, ...effectiveAdjudicationData(plan) } };
+              ...(plan.localConditionalWaitVersion===1 ? {localConditionalWaitVersion:1} : {}),
+              ...([1,2].includes(plan.localTravelAttemptVersion) ? {localTravelAttemptVersion:plan.localTravelAttemptVersion} : {}),
+             ...(plan.localReadinessHostIntentVersion===1 ? {localReadinessHostIntentVersion:1} : {}),
+              initialRunPolicy: plan.initialRunPolicy, ...effectiveAdjudicationData(plan) } };
       }
       if (plan.npcMagicCastVersion === 1 && role === 'roleplay' && typeof id === 'string' && id.startsWith('npc:')) context = { ...context, npcMagicCastVersion: 1 };
       if (plan.npcActPreflightVersion && role === 'roleplay' && sceneFrame && id.startsWith('npc:')
@@ -2668,7 +2893,7 @@ export class PrologueEngine {
         behaviorPrompt: role === 'director' && isSealedDirectorExtension(plan.directorExtension) ? ''
           : (role === 'world_adjudicator' && Object.hasOwn(plan.promptSnapshot, 'world_adjudicator')
           ? plan.promptSnapshot.world_adjudicator
-          : behavior(behaviorRole === 'roleplay' ? 'character_dialogue' : behaviorRole, behaviorActorId))
+          : behavior(behaviorRole === 'roleplay' ? 'character_dialogue' : behaviorRole, behaviorActorId, id))
           + (plan.postureActionVersion === 1 && behaviorRole === 'intent_parser' ? '\nPosture action version1: postureActions is a closed HOST player-only menu. Only if the ENTIRE rawInput, apart from trailing 。！!, exactly matches a listed choices string, return {"type":"act","operation":"pose","subjectId":"offered id","playerChoice":"EXACT original rawInput","summary":"chosen posture"}. Quotes, reading, reflection, negation, hypotheticals, other actors or unsupported support never authorize posture. Otherwise retain the ordinary attempt contract. Upper bunks, chairs and injured/restrained bodies are gated. NPC typed posture execution is NOT IMPLEMENTED.' : '')
           + (plan.postureActionVersion === 1 && role === 'player_performance' ? '\nPosture action version1: selected pose is a PLAN, not a current physical fact. Describe preparation only; never announce sitting/lying/standing completion before the HOST settlement event. Existing current posture remains as physicalFacts.pose until then.' : '')
           + (plan.customAbilityVersion === 1 && behaviorActorId === playerId ? `\n本局自定义能力仅经独立宿主入口结算；当前已知能力：${JSON.stringify(plan.customAbilityRefs.filter(ref=>ref.initialState.recognition==='known').map(ref=>({definitionId:ref.definitionId,stage:ref.initialState.stage})))}。本任务不得自行宣告效果。` : '')
@@ -2715,7 +2940,7 @@ export class PrologueEngine {
           ...(plan.postureActionVersion === 1 ? { postureActionVersion: 1,
             ...(['intent_parser', 'player_performance'].includes(role) ? { postureActions: runtimePoseActions(this.#itemPolicySnapshot(state, plan), playerId) } : {}) } : {}),
           ...(plan.outputContractVersion === 1 ? { outputContractVersion: 1 } : {}),
-          ...(plan.outputContractVersion === 1 && plan.narrationPacingVersion === 1 && role === 'scene_composer' ? { narrationPacingVersion: 1 } : {}),
+          ...(plan.outputContractVersion === 1 && plan.narrationPacingVersion && role === 'scene_composer' ? { narrationPacingVersion: plan.narrationPacingVersion } : {}),
           ...(plan.ambientContinuityVersion === 1 && ['player_performance', 'scene_composer'].includes(role) ? { ambientContinuityVersion: 1 } : {}),
           ...([1, 2].includes(plan.materialProseVersion) && ['player_performance', 'scene_composer'].includes(role) ? { materialProseVersion: plan.materialProseVersion } : {}),
           // Bind only a public event id, never the private delivery audience.
@@ -2768,6 +2993,9 @@ export class PrologueEngine {
       const fresh = actorPerception(planningState, playerId);
       if (fresh.caseRuntime) perception.scene.caseRuntime = fresh.caseRuntime;
     }
+    if ([2, 3].includes(plan.ordinaryAddressVersion)) {
+      Object.assign(perception.scene, this.#playerReplyContext(planningState, playerId, perception, plan));
+    }
     // Human-only passage capabilities are not model instructions. In
     // particular do not inflate the actor packet with every reaction button.
     if (perception.scene.case) delete perception.scene.case.testimony;
@@ -2775,6 +3003,12 @@ export class PrologueEngine {
       const magic = plan.playerTextMagicVersion === 1 ? this.#playerTextMagicOffer(state, plan) : null;
       const ordinary = plan.version === 7 ? this.#domain.ordinaryScriptSources(state) : null;
       return prepared([narrative('intent', 'intent_parser', { rawInput: row.text, scene: perception.scene,
+         ...([1, 2, 3].includes(plan.ordinaryAddressVersion) ? { ordinaryAddressVersion: plan.ordinaryAddressVersion } : {}),
+          ...([1,2,3,4].includes(plan.ordinaryLocalAmbientSpeechVersion) ? { ordinaryLocalAmbientSpeechVersion: plan.ordinaryLocalAmbientSpeechVersion } : {}),
+          ...(plan.ordinaryLocalSearchConversationVersion === 1 ? { ordinaryLocalSearchConversationVersion: 1 } : {}),
+          ...([1,2,3].includes(plan.ordinaryLocalApproachVersion) ? { ordinaryLocalApproachVersion: plan.ordinaryLocalApproachVersion } : {}),
+         ...(plan.roomGroupSpeechVersion === 1 ? { roomGroupSpeechVersion: 1 } : {}),
+          ...([1, 2, 3, 4, 5, 6, 7, 8].includes(plan.ordinaryDialogueSequenceVersion) ? { ordinaryDialogueSequenceVersion: plan.ordinaryDialogueSequenceVersion } : {}),
         ...(ordinary ? { ordinarySources: ordinary.sources,
           ...(hasSemanticOrdinaryRuntime(state) ? { ordinarySourceSelection: ordinary.selection } : {}) } : {}),
         ...([4, 5, 6, 7].includes(plan.version) ? { contractVersion: hasIntentAdmissionRuntime(plan) ? 9 : plan.intentContractVersion === 2 ? 8 : [1, 2].includes(plan.intentContractVersion) ? 5 : 4 } : {}),
@@ -2815,6 +3049,8 @@ export class PrologueEngine {
           excerpt: statementReaction.excerpt, communicationText: hostDeliveredText };
         data.guidance += `\n${STATEMENT_REACTION_INSTRUCTIONS}`;
       }
+      if ([1,2].includes(plan.localTravelAttemptVersion)) data.localTravelAttemptVersion=plan.localTravelAttemptVersion;
+      if (plan.localConditionalWaitVersion===1) data.localConditionalWaitVersion=1;
       return prepared([narrative('performance', 'player_performance', data, recall?.manifest)]);
     }
     const performance = result('performance'); const actorId = intent.targetId;
@@ -2997,10 +3233,20 @@ export class PrologueEngine {
       const tasks = this.#agentJobs.tasks(row);
       const playerIntentPlan = this.#resolvedIntentPlan(source, plan, tasks.find(task => task.id === 'intent')?.result);
       if (!playerIntentPlan || playerIntentPlan.route !== 'steps') fail('INVALID_AGENT_JOB');
-      intentData = { playerIntentPlan, playerPerformances: tasks.filter(task => /^performance:[12]$/u.test(task.id) && Number(task.id.at(-1)) < beforePlayerStep && task.result)
+      intentData = { playerIntentPlan, ...dialogueSequenceActionPin(plan, tasks.find(task => task.id === 'performance')), playerPerformances: tasks.filter(task => /^performance:[12]$/u.test(task.id) && Number(task.id.at(-1)) < beforePlayerStep && task.result)
         .sort((a, b) => a.id.localeCompare(b.id)).map(task => ({ index: Number(task.id.at(-1)), performance: task.result })) };
     }
-    return { type: 'scene', ...dialogueContextPin(plan), ...sceneExtensionPin(plan), ...intentData,
+    return { type: 'scene', ...dialogueContextPin(plan), ...sceneExtensionPin(plan), ...narrationParagraphActionPin(plan),
+      ...bareReplyRootActionPin(plan, row.text, intentData.playerIntentPlan?.steps),
+      ...cellDoorAttemptActionPin(plan, row.text, intentData.playerIntentPlan?.steps),
+        ...(plan.localConditionalWaitVersion===1 ? {localConditionalWaitVersion:1} : {}),
+         ...([1,2].includes(plan.localTravelAttemptVersion) ? {localTravelAttemptVersion:plan.localTravelAttemptVersion} : {}),
+       ...ordinaryLocalVisualActionPins(plan,row.text,intentData.playerIntentPlan?.steps),
+       ...([1,2,3,4].includes(plan.ordinaryLocalAmbientSpeechVersion) ? { ordinaryLocalAmbientSpeechVersion: plan.ordinaryLocalAmbientSpeechVersion } : {}),
+       ...(plan.ordinaryLocalSearchConversationVersion === 1 ? { ordinaryLocalSearchConversationVersion: 1 } : {}),
+       ...([1,2,3].includes(plan.ordinaryLocalApproachVersion) ? { ordinaryLocalApproachVersion: plan.ordinaryLocalApproachVersion } : {}),
+      ...([2, 3].includes(plan.ordinaryAddressVersion) ? { ordinaryAddressVersion: plan.ordinaryAddressVersion } : {}),
+      ...(plan.roomGroupSpeechVersion === 1 && intentData.playerIntentPlan?.steps.some(step => step.intent.speechScope === 'room') ? { roomGroupSpeechVersion: 1 } : {}), ...intentData,
        ...(plan.authoredMagicVersion === 1 ? { authoredMagicVersion: 1 } : {}),
         ...(plan.authoredMagicDestinationVersion === 1 ? { authoredMagicDestinationVersion: 1 } : {}),
       ...(plan.rootCaseOptionsVersion === 1 ? { rootCaseOptionsVersion: 1 } : {}),
@@ -3292,7 +3538,12 @@ export class PrologueEngine {
       const cognition = this.#narrativeCognition(row, base, plan, createdPlayerId(base), { query: text.slice(0, 256), recentLimit: 6, recallLimit: 4, includeBackground: true });
       const recall = assemblePlayerTaskRecall(cognition, actorForState(draft, createdPlayerId(draft)).persona, draft.location);
       const perception = playerPerceivedScene(draft, scene);
+      if ([2, 3].includes(plan.ordinaryAddressVersion)) {
+        Object.assign(perception.scene, ordinaryReplyContext(draft, createdPlayerId(draft), perception.scene, perception.targetIds, plan.ordinaryAddressVersion));
+      }
       const data = playerPerformanceTaskData(draft, plan, text, projectPerceivedIntent(nextIntent, perception.targetIds), perception.scene, cognition, recall);
+      if ([1,2].includes(plan.localTravelAttemptVersion)) data.localTravelAttemptVersion=plan.localTravelAttemptVersion;
+      if (plan.localConditionalWaitVersion===1) data.localConditionalWaitVersion=1;
       return prepared([narrative(`performance:${index}`, 'player_performance', data, recall.manifest, undefined, draft)]);
     }
 
@@ -3504,7 +3755,11 @@ export class PrologueEngine {
     if (!result('scene') && !hostReview) {
       // Seal the normal composer/scheduling end first. The optional private
       // sibling cannot reopen NPC selection or change any other task packet.
-      const composer = narrative('scene', 'scene_composer', sceneData, undefined, action.schedulingEnd);
+      const ownerEvents = plan.novelRoundFirstDraftVersion === 3
+        ? new Set(enacted.events.filter(({ entry }) => entry.speakerId === row.actor_id).map(({ id }) => id)) : null;
+      const composer = narrative('scene', 'scene_composer', ownerEvents
+        ? { ...sceneData, narrationOwnerEventIds: enacted.publicEvents.filter(({ id }) => ownerEvents.has(id)).map(({ id }) => id) }
+        : sceneData, undefined, action.schedulingEnd);
       const choice = privateChoiceTask();
       const result = prepared(choice ? [composer, choice] : [composer]);
       // The successful stage already replayed every sealed beat and derived
@@ -3528,12 +3783,16 @@ export class PrologueEngine {
     const choice = privateChoiceTask();
     if (choice) return prepared([choice]);
     const repairDocument = hostReview ? null : mergeHostSceneEvents(result('scene'), customEventIds);
-    if (!hostReview && sceneNeedsRepair(repairDocument, enacted.publicEvents, { style: plan.styleVersion === 1, outputContractVersion: plan.outputContractVersion, antiClicheVersion: plan.antiClicheVersion }) && !result('scene-repair')) {
-      const styleFeedback = plan.styleVersion === 1 ? sceneStyleFeedback(repairDocument, { antiClicheVersion: plan.antiClicheVersion }) : null;
+    // V3 style revisions use the already bounded optional composer attempt.
+    const requireStyleRepair = plan.styleVersion === 1 && plan.novelRoundFirstDraftVersion !== 3;
+    if (!hostReview && sceneNeedsRepair(repairDocument, enacted.publicEvents, { style: requireStyleRepair, outputContractVersion: plan.outputContractVersion, antiClicheVersion: plan.antiClicheVersion, narrationPacingVersion: plan.narrationPacingVersion }) && !result('scene-repair')) {
+      const styleFeedback = requireStyleRepair ? sceneStyleFeedback(repairDocument, { antiClicheVersion: plan.antiClicheVersion }) : null;
       return prepared([
         narrative('scene-repair', 'scene_composer', { ...sceneData, repairSource: repairDocument,
           compositionFeedback: { remainingRepairs: 0, ...(styleFeedback ? { styleRuleIds: styleFeedback.ruleIds } : {}),
-            instruction: plan.outputContractVersion === 1
+            instruction: plan.narrationPacingVersion === 2
+              ? `${styleFeedback?.instruction || '仅按相同已裁决事件编排，保留每个事件。'} 发布的旁白自然段各需 500 个汉字；材料不足如实收束，不增造细节。`
+              : plan.outputContractVersion === 1
               ? `${styleFeedback?.instruction || '仅按相同已裁决事件编排，保留每个事件。'} 没有最少字数，不因短而延长；仅处理已命中文风或超出上限的问题，遇到玩家选择或材料不足立即收束。`
               : styleFeedback ? `${styleFeedback.instruction} 仍须遵守正文篇幅预算，遇到玩家选择或材料不足时立即收束。` : '仅按相同已裁决事件编排，保留每个事件，遇到玩家选择立即收束。' } }),
       ]);
@@ -3764,7 +4023,8 @@ export class PrologueEngine {
       return projectActionOutcome({ version: 1, phase: 'failed', steps, failure: { code } });
     }, { readOnly: true });
   }
-  #completeSceneBeatTurn(row, base, plan, token, { hostScenePresentation = false } = {}) {
+  #completeSceneBeatTurn(row, base, plan, token, { hostScenePresentation = false, recoveryCommitRef, recoveryNarrationVersion } = {}) {
+    const pacing = recoveryNarrationVersion ?? plan.narrationPacingVersion;
     const tasks = this.#agentJobs.tasks(row); const output = id => tasks.find(task => task.id === id)?.result;
     // These reads belong to this one synchronous completion, before publication.
     // Each task still validates against the same sealed values; later Host calls
@@ -3792,7 +4052,8 @@ export class PrologueEngine {
     if (incomplete.length || !output('performance') || (!output('scene') && !hostPresentation)) fail('INVALID_AGENT_OUTPUT', '场景阶段尚未完整完成。');
     for (const task of tasks) if (!task.terminal && !(hostPresentation && task.id === 'scene')) {
       this.#assertMaterialTask(row, base, plan, task, token, completionRead);
-      this.#validateNarrativeTask(task, task.result);
+      this.#validateNarrativeTask(task, task.result, task.id === 'scene' && task.context.data.narrationPacingVersion === 2
+        && recoveryNarrationVersion === 3 ? 3 : undefined);
     }
     const intent = this.#perceivedIntent(base, plan, plan.intentHint.type === 'interpret' ? output('intent') : plan.intentHint);
     const ballots = intent.operation === 'vote' ? Object.fromEntries(tasks.filter(task => task.id.startsWith('ballot:'))
@@ -3816,14 +4077,27 @@ export class PrologueEngine {
     replay ??= this.#sceneBeatReplay(row, base, plan, intent, output('performance'), ballots, tasks, token);
     const hostDocument = hostPresentation ? hostSceneDocument(tasks.find(task => task.id === 'scene').context.data.events) : null;
     const sceneResult = output('scene');
-    const action = { ...replay.action, document: output('scene-repair') || sceneResult || hostDocument };
-    const canonical = finalizeCausalScene(replay.prefix, action);
+    const selectedDocument = output('scene-repair') || sceneResult || hostDocument;
+    const action = { ...replay.action, ...(pacing === 3 ? { narrationPacingVersion: 3 } : {}), document: selectedDocument };
+    const composerData = sceneTask.context.data;
+    const sparseRoundProse = ordinaryRoundProseMode(sceneTask.context) === 'sparse';
+    const publishedParagraphs = pacing === 2
+      ? projectQualifiedSceneDocument(mergeHostSceneEvents(selectedDocument, composerData.customEventIds), composerData.events)
+      : null;
+    const roundFeedback = pacing === 3 && !sparseRoundProse
+      ? sceneRoundFeedback(mergeHostSceneEvents(selectedDocument, composerData.customEventIds), composerData.events) : null;
+    if (publishedParagraphs) {
+      action.document = publishedParagraphs.document;
+      if (publishedParagraphs.omittedParagraphs) action.omittedNarrationParagraphs = publishedParagraphs.omittedParagraphs;
+    }
+    const canonical = finalizeCausalScene(replay.prefix, action, recoveryNarrationVersion === 3 && plan.narrationPacingVersion === 2
+      ? { recoveredNarrationFrom: 2 } : undefined);
     if (withRunBoundary(base, plan.runPolicyConsumersVersion === 1 ? plan.effectiveRunPolicy : undefined, () => initialBoundaryHasUnreviewedCaseChange(base, canonical.draft, canonical.events, canonical.publicEvents)))
       return this.#completeInitialPolicyResolution(row, base, plan, token);
     if (canonical.actionOutcome) action.actionOutcome = structuredClone(canonical.actionOutcome);
     const canonicalCustomIds = canonical.events.filter(({ entry }) => entry.customAbilityEvent).map(({ id }) => id);
-    if (!hostPresentation && sceneNeedsRepair(mergeHostSceneEvents(sceneResult, canonicalCustomIds), canonical.publicEvents,
-      { style: plan.styleVersion === 1, outputContractVersion: plan.outputContractVersion, antiClicheVersion: plan.antiClicheVersion }) && !output('scene-repair'))
+    if (!hostPresentation && recoveryNarrationVersion !== 3 && sceneNeedsRepair(mergeHostSceneEvents(sceneResult, canonicalCustomIds), canonical.publicEvents,
+      { style: plan.styleVersion === 1 && plan.novelRoundFirstDraftVersion !== 3, outputContractVersion: plan.outputContractVersion, antiClicheVersion: plan.antiClicheVersion, narrationPacingVersion: pacing }) && !output('scene-repair'))
       fail('INVALID_AGENT_OUTPUT', '场景正文修订尚未完成。');
     const decisionStates = [...replay.cognition].filter(([_owner, value]) => value.journal.length)
       .map(([ownerId, value]) => ({ ownerId, state: value.state, journal: value.journal }));
@@ -3886,21 +4160,33 @@ export class PrologueEngine {
         .run(saveId, '案件处刑前自动存档', JSON.stringify(next)); this.#bindSlot(saveId, 1, next);
     }
     const published = this.#publishStoryReaction(next, reaction);
+    const omitted = publishedParagraphs?.omittedParagraphs || 0;
     const receipt = this.#agentReceipt({ requestId: row.request_id }, published, true,
       published.generation !== next.generation ? '死亡回溯已实际发生；你在本人清晨醒来的分支继续。'
         : plan.regeneration ? '这一轮已重新生成，原进度已自动备份。' : '行动已展开，等待你的下一次选择。');
+    if (omitted) {
+      receipt.narrationOutcome = { kind: 'paragraph_minimum_not_met', minimumHan: NOVEL_MIN_PARAGRAPH_HAN, omittedParagraphs: omitted };
+      receipt.message += ` 本轮有 ${omitted} 段旁白未达每段 ${NOVEL_MIN_PARAGRAPH_HAN} 汉字，未展示；已发生的事件仍保留。`;
+    } else if (publishedParagraphs) receipt.narrationOutcome = { kind: 'paragraph_minimum_met', minimumHan: NOVEL_MIN_PARAGRAPH_HAN };
+    else if (pacing === 3 && !sparseRoundProse) {
+      receipt.narrationOutcome = roundFeedback ? { kind: 'round_minimum_not_met', ...roundFeedback }
+        : { kind: 'round_minimum_met', minimumHan: NOVEL_MIN_ROUND_HAN };
+      if (roundFeedback) receipt.message += ` 本轮合规旁白为 ${roundFeedback.actualHan} 汉字，未达合计 ${NOVEL_MIN_ROUND_HAN} 汉字；保留已验证的正文和已发生事件。`;
+    }
     this.#rememberAgentReceipt({ requestId: row.request_id, text: row.text }, published, receipt);
     if (published.generation !== next.generation) {
       this.#db.prepare('INSERT INTO prologue_story_request_receipts VALUES(?,?,?,?,?,?,?)').run(row.request_id,
         row.text, row.generation, row.base_revision, reaction.request.source.headCommitRef,
         this.#domain.scope(published).commitRef, JSON.stringify(receipt));
     }
-    this.#agentJobs.commit(row, token, { turnId, receipt, review: { policy: 'scene-owner-journal@1',
+    const settlement = { turnId, receipt, review: { policy: 'scene-owner-journal@1',
       adoptedHostMemories: 0, adoptedSubjective: [...replay.cognition.values()].reduce((sum, value) => sum + value.adopted.length, 0),
       deferredSubjective: [...replay.cognition.values()].reduce((sum, value) => sum + value.deferred.length, 0),
       npcDecisions: tasks.filter(task => task.id.startsWith('npc:')).length, beats: replay.beats.length,
       scene: sceneSummary(next.entries.slice(base.entries.length), action.document.stopReason, action), compositionRepairs: output('scene-repair') ? 1 : 0,
-      ...(hostPresentation ? { presentationOrigin: 'host', hostPresentationVersion: 1 } : {}) } });
+      ...(hostPresentation ? { presentationOrigin: 'host', hostPresentationVersion: 1 } : {}) } };
+    if (recoveryCommitRef === undefined) this.#agentJobs.commit(row, token, settlement);
+    else this.#agentJobs.commitSceneRecovery(row, token, recoveryCommitRef, settlement);
     if (plan.regeneration || published.generation !== next.generation) this.#agentJobs.cancelObsolete(this.#domain.scope(published));
     // An already enabled magic projection does not consult active jobs. Without
     // it, a just-committed job can change upgrade availability; read that view
@@ -3970,21 +4256,135 @@ export class PrologueEngine {
     // that exact historical carrier shape; later steps still use live replay.
     if (index === 0) currentScene.readable = structuredClone(plan.scene.readable);
     const perception = playerPerceivedScene(source, currentScene);
+    if ([2, 3].includes(plan.ordinaryAddressVersion)) {
+      Object.assign(perception.scene, this.#playerReplyContext(source, createdPlayerId(source), perception, plan));
+    }
     const data = task.context.data;
     const expectedIntent = { ...projectPerceivedIntent(intent, perception.targetIds) };
     if (plan.hostCaseChoiceVersion === 1 && data.statementReaction) delete expectedIntent.playerText;
-    if (data.rawInput !== intentPlan.steps[index].text || !isDeepStrictEqual(data.intent, expectedIntent)) fail('INVALID_AGENT_JOB');
+    const raw = intentPlan.steps[index].text;
+    const sequence = index === 0 ? dialogueSequencePerformance(raw, perception.scene, expectedIntent, plan.ordinaryDialogueSequenceVersion) : null;
+    if (data.rawInput !== (sequence?.rawInput ?? raw) || !isDeepStrictEqual(data.intent, expectedIntent)
+      || !isDeepStrictEqual(data.dialogueSequence, sequence?.dialogueSequence)
+      || data.ordinaryDialogueSequenceVersion !== sequence?.ordinaryDialogueSequenceVersion) fail('INVALID_AGENT_JOB');
     const scene = plan.materialProseVersion === 2 || plan.physicalFactsVersion === 2
       ? this.#materialScene(row, source, plan, data.intent) : perception.scene;
     if (!isDeepStrictEqual(data.scene, scene)) fail('INVALID_AGENT_JOB', '玩家演绎不是该授权步骤的真实前缀。');
     const expected = this.#materialTaskData(row, source, plan, 'player_performance', data);
     if (!isDeepStrictEqual(data.materialProseBoundaries, expected.materialProseBoundaries)) fail('INVALID_AGENT_JOB');
   }
+  #openOrientationIntentProof(state,player,text,policy) {
+    if (state.completed || hasCaseOne(state) || activeProcedure(state) || state.guardReaction?.pending || state.guardReaction?.detention
+      || state.caseRuntime?.occupiedBody || !runtimeActive(state,player) || actorForState(state,player)?.communication!=='speech'
+      || requiresInitialBoundaryReview(adjudicationPolicy(policy))
+      || !recentOpenWaitQuestion(state,player,roomGroupSpeechAudience(state))) return null;
+    return ordinaryLocalAmbientSpeechSource(text,this.#observedOrientationScene(state,player).scene,4);
+  }
+  #hostReadinessIntentProof(state,player,text,policy) {
+    if (state.completed || hasCaseOne(state) || activeProcedure(state) || state.guardReaction?.pending || state.guardReaction?.detention
+      || state.caseRuntime?.occupiedBody || !runtimeActive(state,player) || actorForState(state,player)?.communication!=='speech'
+      || requiresInitialBoundaryReview(adjudicationPolicy(policy))) return null;
+    const {scene,targetIds}=this.#observedOrientationScene(state,player);
+    const proof=proveReadinessHostIntent({rawInput:text,scene,viewpointActorId:player});
+    const peer=proof && (targetIds[proof.person.targetId]??proof.person.targetId);
+    return peer && runtimeActive(state,peer) && runtimeRoom(state,peer)===runtimeRoom(state,player)
+      && acquisitionAudience(state,player,{delivery:'speech',targetId:peer}).includes(peer) ? proof : null;
+  }
+  #playerReplyContext(state, player, { scene, targetIds }, plan) {
+    if (plan.ordinaryDialogueSequenceVersion===8) return ordinaryLocalStairReplyContext(state,player,scene,targetIds);
+    return [6,7].includes(plan.ordinaryDialogueSequenceVersion) || plan.localTravelAttemptVersion===2 ? ordinaryLocalPointReplyContext(state, player, scene, targetIds)
+      : ordinaryReplyContext(state, player, scene, targetIds, plan.ordinaryAddressVersion);
+  }
+  #localPointReplySequence(state, player, raw, version=6) {
+    const current = playerPerceivedScene(state, causalPlayerScene(state));
+    const reply=version===8 ? ordinaryLocalStairReplyContext : ordinaryLocalPointReplyContext;
+    Object.assign(current.scene, reply(state, player, current.scene, current.targetIds));
+    return ordinaryDialogueSequence(raw, current.scene, undefined, version);
+  }
+  #observedOrientationScene(state, player) {
+    const current = playerPerceivedScene(state, causalPlayerScene(state));
+    Object.assign(current.scene, ordinaryReplyContext(state, player, current.scene, current.targetIds, 3));
+    return current;
+  }
+  #boundLocalSpeechSequence(state, player, raw) {
+    const scene = causalPlayerScene(state), current = playerPerceivedScene(state, scene);
+    Object.assign(current.scene, ordinaryReplyContext(state, player, current.scene, current.targetIds, 3));
+    if (!runtimeActive(state, player) || actorForState(state, player)?.communication !== 'speech') return null;
+    const proof = ordinaryDialogueSequence(raw, current.scene, undefined, 4), hearers = roomGroupSpeechAudience(state, scene);
+    return proof && hearers.length >= 3 && proof.parts.every(({ targetId, memberId }) => {
+      const id = targetId ?? memberId;
+      return !id || hearers.includes(current.targetIds[id] ?? id);
+    }) ? proof : null;
+  }
+  #roomShiftDialogueSequence(state, player, raw) {
+    const scene = causalPlayerScene(state), current = playerPerceivedScene(state, scene);
+    Object.assign(current.scene, ordinaryReplyContext(state, player, current.scene, current.targetIds, 3));
+    const proof = ordinaryDialogueSequence(raw, current.scene, undefined, 3);
+    if (!proof || !runtimeActive(state, player) || actorForState(state, player)?.communication !== 'speech') return null;
+    const peer = current.targetIds[proof.targetId] ?? proof.targetId;
+    const audible = roomGroupSpeechAudience(state, scene);
+    return audible.includes(peer) && audible.includes(proof.roomMemberId) ? proof : null;
+  }
+  #localDialogueSequence(state, player, raw) {
+    const current = playerPerceivedScene(state, causalPlayerScene(state));
+    Object.assign(current.scene, ordinaryReplyContext(state, player, current.scene, current.targetIds, 3));
+    // Keep already-authenticated V1 inputs on the same byte-for-byte lane.
+    if (ordinaryDialogueSequence(raw, current.scene, current.scene.replyPeer, 1)) return null;
+    const sequence = ordinaryDialogueSequence(raw, current.scene, undefined, 2);
+    if (!sequence || !runtimeActive(state, player) || !runtimeActive(state, sequence.targetId)
+      || runtimeRoom(state, player) !== sequence.roomId || runtimeRoom(state, sequence.targetId) !== sequence.roomId
+      || !acquisitionAudience(state, player, { delivery: 'speech', targetId: sequence.targetId }).includes(sequence.targetId)) return null;
+    return sequence;
+  }
   #assertMaterialTask(row, state, plan, task, token, completionRead) {
     return withRunBoundary(state, plan.runPolicyConsumersVersion === 1 ? plan.effectiveRunPolicy : undefined, () => this.#assertScopedMaterialTask(row, state, plan, task, token, completionRead));
   }
   #assertScopedMaterialTask(row, state, plan, task, token, completionRead) {
     this.#assertInitialPolicyTask(row, state, plan, task, completionRead);
+    if (task.id === 'intent' && task.role === 'world_adjudicator' && [2, 3].includes(plan.ordinaryAddressVersion)) {
+      const source = this.#intentSourceSnapshot(state, plan);
+      const perception = playerPerceivedScene(source, plan.scene);
+      const detail = this.#playerReplyContext(source, row.actor_id, perception, plan);
+      if (task.context.data.scene.replyPeer !== detail.replyPeer || task.context.data.scene.replyAddress !== detail.replyAddress) fail('INVALID_AGENT_JOB');
+      if (plan.ordinaryLocalSearchConversationVersion===1 && (!localSearchConversationDomain(row.text) || !isDeepStrictEqual(
+        ordinaryLocalSearchSource(row.text,this.#observedOrientationScene(source,row.actor_id).scene),
+        ordinaryLocalSearchSource(row.text,task.context.data.scene)))) fail('INVALID_AGENT_JOB');
+       const ambientVersion=plan.ordinaryLocalAmbientSpeechVersion;
+       if ([1,2,3].includes(ambientVersion) && (!localAmbientSpeechDomain(row.text,ambientVersion) || ambientVersion===2
+         && !recentLocalWaitProposal(source,row.actor_id,roomGroupSpeechAudience(source)) || ambientVersion===3
+         && roomGroupSpeechAudience(source).length<3 || !isDeepStrictEqual(
+         ordinaryLocalAmbientSpeechSource(row.text,this.#observedOrientationScene(source,row.actor_id).scene,ambientVersion),
+         ordinaryLocalAmbientSpeechSource(row.text,task.context.data.scene,ambientVersion)))) fail('INVALID_AGENT_JOB');
+       if (ambientVersion===4) {
+          const proof=this.#openOrientationIntentProof(source,row.actor_id,row.text,plan);
+          if (!proof || !isDeepStrictEqual(proof,ordinaryLocalAmbientSpeechSource(row.text,task.context.data.scene,4))) fail('INVALID_AGENT_JOB');
+        }
+        const approachVersion=plan.ordinaryLocalApproachVersion;
+       if ([1,2,3].includes(approachVersion) && (!localApproachDomain(row.text,approachVersion) || !isDeepStrictEqual(
+         ordinaryLocalApproachSource(row.text,this.#observedOrientationScene(source,row.actor_id).scene,approachVersion),
+         ordinaryLocalApproachSource(row.text,task.context.data.scene,approachVersion)))) fail('INVALID_AGENT_JOB');
+      if (plan.localReadinessHostIntentVersion===1) {
+         const proof=this.#hostReadinessIntentProof(source,row.actor_id,row.text,plan);
+         if (!proof || !isDeepStrictEqual(proof,proveReadinessHostIntent(task.context.data))) fail('INVALID_AGENT_JOB');
+       }
+       const sequenceVersion = plan.ordinaryDialogueSequenceVersion;
+      if ([6,7,8].includes(sequenceVersion)) {
+         const proof = this.#localPointReplySequence(source, row.actor_id, row.text, sequenceVersion);
+         if (!proof || !isDeepStrictEqual(proof, ordinaryDialogueSequence(row.text, task.context.data.scene, undefined, sequenceVersion))) fail('INVALID_AGENT_JOB');
+       }
+       if (sequenceVersion === 5) {
+        const { scene } = this.#observedOrientationScene(source, row.actor_id);
+        if (!observedOrientationSequenceDomain(row.text) || actorForState(source, row.actor_id)?.communication !== 'speech'
+          || !isDeepStrictEqual(ordinaryDialogueSequence(row.text, scene, undefined, 5),
+            ordinaryDialogueSequence(row.text, task.context.data.scene, undefined, 5))) fail('INVALID_AGENT_JOB');
+      }
+      if ([2, 3, 4].includes(sequenceVersion)) {
+        const proof = sequenceVersion === 4 ? this.#boundLocalSpeechSequence(source, row.actor_id, row.text)
+          : sequenceVersion === 3 ? this.#roomShiftDialogueSequence(source, row.actor_id, row.text)
+          : this.#localDialogueSequence(source, row.actor_id, row.text);
+        if (!proof || !isDeepStrictEqual(proof, ordinaryDialogueSequence(row.text, task.context.data.scene, undefined, sequenceVersion))) fail('INVALID_AGENT_JOB');
+      }
+    }
     if (task.id === SOFT_SLOT) {
       const tasks = completionRead?.tasks ?? this.#agentJobs.tasks(row), output = id => tasks.find(task => task.id === id)?.result;
       const intent = this.#perceivedIntent(state, plan, output('intent'));
@@ -4082,7 +4482,7 @@ export class PrologueEngine {
       this.#assertMaterialTask(row, state, plan, task, token);
     }, { readOnly: true, reuseVerifiedCommitBytes: true });
   }
-  #validateNarrativeTask(task, output) {
+  #validateNarrativeTask(task, output, sceneRecoveryNarrationVersion) {
     if (task.role === 'roleplay') {
       const decision = validateRoleplayDecision(buildRoleplayContext(task.context, { maxBytes: task.maxBytes }), output, task.context.scope);
       validateNpcHostTextEnvelope(decision, task);
@@ -4094,7 +4494,7 @@ export class PrologueEngine {
     if (task.role === 'director') return validateDirectorOutput(buildDirectorContext(task.context), output, task.context.scope);
     if (task.role === 'character_data') return validateCharacterDataProposal(buildCharacterDataContext(task.context, { maxBytes: task.maxBytes }), output, task.context.scope);
     if (task.role === 'world_adjudicator') return validateServiceTaskOutput(task.context, output);
-    const validated = validateNarrativeOutput(buildNarrativeContext(task.context), output);
+    const validated = validateNarrativeOutput(buildNarrativeContext(task.context), output, task.context.scope, { sceneRecoveryNarrationVersion });
     if (task.context.data.contractVersion === 4) {
       if (task.role === 'player_performance') assertPlayerPerformance({ ...task.context.data, performance: validated });
       if (task.role === 'scene_composer') assertSceneProse({ ...task.context.data, document: validated });
@@ -4222,8 +4622,9 @@ export class PrologueEngine {
       return projectPublicAgentStatus(this.#state(), this.#agentJobs);
     }, { readOnly: true });
   }
-  #agentJobAtHead(jobId, token) {
+  #agentJobAtHead(jobId, token, sceneRecovery = false) {
     const row = this.#agentJobs.get(jobId); const plan = this.#agentJobs.assertLease(row, token);
+    if (!sceneRecovery && this.#agentJobs.hasSceneRecovery(row)) fail('INVALID_SCENE_RECOVERY', '此租约仅可用于旁白恢复。');
     const state = this.#state(); const scope = this.#domain.scope(state);
     if (state.exampleId !== 'agent' || row.generation !== state.generation || row.base_revision !== state.revision || row.branch_id !== scope.branchId) fail('STALE_AGENT_TURN', '角色任务已过期，未提交迟到结果。');
     assertRuntimeJobRevision(plan.regeneration ? plan.regeneration.checkpoint : state, plan);
@@ -4244,16 +4645,32 @@ export class PrologueEngine {
     }
     return validateCharacterDataProposal(buildCharacterDataContext(task.context, { maxBytes: task.maxBytes }), output, task.context.scope);
   }
+  #assertedAgentNarrativeTask(row, state, plan, slot, token, expectedRole) {
+    const task = this.#agentJobs.tasks(row).find(entry => entry.id === slot);
+    if (!task || expectedRole && task.role !== expectedRole) fail('INVALID_AGENT_OUTPUT', '叙事子任务不存在。');
+    this.#assertMaterialTask(row, state, plan, task, token);
+    return task;
+  }
+  #validatedAgentNarrativeTask(row, state, plan, slot, output, token, expectedRole) {
+    const task = this.#assertedAgentNarrativeTask(row, state, plan, slot, token, expectedRole);
+    return { task, validated: this.#validateNarrativeTask(task, output) };
+  }
+  prevalidateAgentSceneCandidate(jobId, output, token) {
+    // A length-only alternate must pass the same sealed-source and prose checks
+    // as the durable write. It may not publish, renew, or choose the outcome.
+    return this.#transaction(() => {
+      const { row, state, plan } = this.#agentJobAtHead(jobId, token);
+      if (![6, 7].includes(plan.version) || ![2, 3].includes(plan.narrationPacingVersion)) fail('INVALID_AGENT_JOB');
+      this.#validatedAgentNarrativeTask(row, state, plan, 'scene', output, token, 'scene_composer');
+    }, { readOnly: true, reuseVerifiedCommitBytes: true, reuseExactPlanReads: true });
+  }
   recordAgentResult(jobId, role, output, token) {
     const startedAt = performance.now();
     try {
     return this.#transaction(() => {
       const { row, state, plan } = this.#agentJobAtHead(jobId, token);
       if ([2, 3, 4, 5, 6, 7].includes(plan.version)) {
-        const task = this.#agentJobs.tasks(row).find(task => task.id === role);
-        if (!task) fail('INVALID_AGENT_OUTPUT', '叙事子任务不存在。');
-        this.#assertMaterialTask(row, state, plan, task, token);
-        const validated = this.#validateNarrativeTask(task, output);
+        const { task, validated } = this.#validatedAgentNarrativeTask(row, state, plan, role, output, token);
         this.#agentJobs.saveTaskResult(row, role, [CASE_BOUNDARY_RUNTIME_REVISION, SOFT_RUNTIME_REVISION, EXPLICIT_INTENT_RUNTIME_REVISION, ORDINARY_PLAN_RUNTIME_REVISION, SEMANTIC_ORDINARY_RUNTIME_REVISION, SEMANTIC_ADMISSION_RUNTIME_REVISION, INTENT_OBJECT_RUNTIME_REVISION, EXPLICIT_STANDARD_RUNTIME_REVISION, PLAN_CARDINALITY_RUNTIME_REVISION, UNIQUE_RECIPIENT_RUNTIME_REVISION, ATOMIC_SOURCE_RUNTIME_REVISION, LOSSLESS_PLAN_RUNTIME_REVISION, ATOMIC_PLAN_RUNTIME_REVISION, SOFT_REFERENCE_RUNTIME_REVISION, SCREEN_BROADCAST_RUNTIME_REVISION, SOURCE_ACQUISITION_RUNTIME_REVISION, TRUSTED_COMMUNICATION_RUNTIME_REVISION, KNOWN_TARGET_RUNTIME_REVISION, CAPACITY_RUNTIME_REVISION, PUBLICATION_RUNTIME_REVISION, ADMISSION_RUNTIME_REVISION, EVENT_DIRECTOR_RUNTIME_REVISION].includes(plan.executionRevision?.revisionId) && task.id === 'intent' ? validated : output, token); return;
       }
       this.#validateAgentOutput(row, plan, role, output);
@@ -4324,6 +4741,50 @@ export class PrologueEngine {
   failAgentTurn(jobId, token, code, diagnostic) {
     return this.#transaction(() => {
       const { row } = this.#agentJobAtHead(jobId, token);
+      this.#agentJobs.fail(row, token, code, { ...traceFailure(diagnostic), ...this.#agentJobs.taskSummary(row) });
+    });
+  }
+  completeAgentSceneRecovery(jobId, token, output) {
+    return this.#transaction(() => {
+      const { row, state, plan } = this.#agentJobAtHead(jobId, token, true);
+      const { commitRef } = this.#domain.scope(state);
+      const recoveryNarrationVersion = this.#agentJobs.assertSceneRecovery(row, token, commitRef);
+      const task = this.#assertedAgentNarrativeTask(row, state, plan, 'scene', token, 'scene_composer');
+      const data = task.context.data;
+      const { events } = data;
+      const { stopReason } = hostSceneDocument(events);
+      const packet = buildNarrativeContext(task.context);
+      const validate = candidate => validateNarrativeOutput(packet, candidate, task.context.scope, {
+        sceneRecoveryNarrationVersion: recoveryNarrationVersion === 3 && data.narrationPacingVersion === 2 ? 3 : undefined,
+      });
+      let validated = validate(output);
+      const final = validated.blocks.at(-1);
+      if (data.contractVersion !== 4 || validated.stopReason !== stopReason
+        || validated.blocks.slice(0, events.length).some(block => block.type !== 'event')
+        || recoveryNarrationVersion === 2 && (validated.blocks.length !== events.length + 1
+          || final?.type !== 'narration' || sceneNarrationParagraphs(final.text).length !== 1 || sceneParagraphFeedback(validated, events)))
+        fail('INVALID_AGENT_OUTPUT', '旁白恢复必须保留每个已裁决事件和宿主停点。');
+      try {
+        assertSceneProse({ ...data, document: validated });
+      } catch (error) {
+        const diagnostic = narrativeGuardDiagnostic(error);
+        if (recoveryNarrationVersion !== 3 || diagnostic?.rule !== 'movement' || diagnostic.eventIndex !== events.length
+          || validated.blocks[diagnostic.blockIndex]?.type !== 'narration') throw error;
+        // Discard every candidate paragraph. The authoritative events and stop
+        // are already sealed; no model retry, invented handoff or new outcome.
+        validated = validate({ blocks: events.map(({ id }) => ({ type: 'event', eventId: id })), stopReason });
+        assertSceneProse({ ...data, document: validated });
+        this.#agentJobs.trace(row, 'rejected', 'scene', { stage: 'validation', phase: 'host_validation',
+          code: 'INVALID_AGENT_OUTPUT', taskRole: 'scene_composer', taskKind: 'scene', ...diagnostic });
+      }
+      this.#agentJobs.saveTaskResult(row, 'scene', validated, token);
+      return this.#completeSceneBeatTurn(row, state, plan, token, { recoveryCommitRef: commitRef, recoveryNarrationVersion });
+    }, { reuseVerifiedCommitBytes: true, reuseExactPlanReads: true });
+  }
+  failAgentSceneRecovery(jobId, token, code, diagnostic) {
+    return this.#transaction(() => {
+      const { row } = this.#agentJobAtHead(jobId, token, true);
+      if (!this.#agentJobs.hasSceneRecovery(row)) fail('INVALID_SCENE_RECOVERY');
       this.#agentJobs.fail(row, token, code, { ...traceFailure(diagnostic), ...this.#agentJobs.taskSummary(row) });
     });
   }
@@ -4872,7 +5333,8 @@ export class PrologueEngine {
       const result = this.#dice.roll(scope, request, character);
       if (!pending) return { accepted: true, result, dice: this.#diceView(state, scope) };
       const next = structuredClone(state);
-      applyAgentAction(next, { type: 'guard_dice_resolution', encounterId: pending.id, narrationVersion: 1,
+      const narrationVersion = guardDiceNarrationVersion(state, result, request.optionId);
+      applyAgentAction(next, { type: 'guard_dice_resolution', encounterId: pending.id, narrationVersion,
         opportunityId: pending.opportunityId, optionId: request.optionId, result });
       next.turnIds.push(turnId);
       this.#insertTurn(turnId, GUARD_RESOLUTION_TEXT, state, next, { diceBound: true });

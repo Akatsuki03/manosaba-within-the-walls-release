@@ -368,7 +368,6 @@ function render(view) {
         floor.classList.add('has-scene');
         const reading = element('div', null, 'scene-reading');
         if (hasScene) {
-          reading.append(element('span', `本场景 ${scene.hanCount} 汉字 · ${scene.blockCount} 段`, 'scene-metadata'));
           for (const [edge, text] of [['start', '跳到开头'], ['end', '跳到结尾']]) {
             const jump = element('button', text); jump.type = 'button'; jump.dataset.sceneNavigation = edge;
             jump.setAttribute('aria-label', `跳到第 ${turn.floor} 层场景${edge === 'start' ? '开头' : '结尾'}（仅滚动正文）`);
@@ -389,8 +388,6 @@ function render(view) {
         }
         floor.append(reading);
       } else floor.append(back);
-      const actionOutcome = typeof finiteActionOutcome === 'function' ? finiteActionOutcome(turn) : undefined;
-      if (actionOutcome?.lines) for (const line of actionOutcome.lines) floor.append(element('p', line));
       log.append(floor);
     }
     const fragments = dialogueFragments(entry);
@@ -619,11 +616,12 @@ function restorePendingAction(view) {
   if (generation !== view.generation || !Number.isSafeInteger(generation) || !Number.isSafeInteger(runtime.expectedRevision) || runtime.expectedRevision < 0
     || typeof runtime.requestId !== 'string' || !runtime.requestId || runtime.requestId.length > 160
     || typeof runtime.text !== 'string' || !runtime.text.trim() || runtime.text.length > 2000) return;
-  const text = runtime.text.trim();
+  const recoveringScene = runtime.sceneRecoveryAvailable === true;
+  const text = recoveringScene ? runtime.text : runtime.text.trim();
   // Public runtime metadata is enough to recover a request after a refresh;
   // never put model settings, prompts or outputs in browser storage.
   const draft = typeof testimonyDraft !== 'undefined' ? testimonyDraft : undefined;
-  const displayText = draft ? draft.recover(runtime, $('action').value)
+  const displayText = recoveringScene ? text : draft ? draft.recover(runtime, $('action').value)
     : typeof testimonyDisplayText === 'function' ? testimonyDisplayText(runtime) : text;
   if (!displayText || ($('action').value.trim() && $('action').value !== displayText)) return;
   pendingAction = { requestId: runtime.requestId, text, expectedGeneration: generation, expectedRevision: runtime.expectedRevision };
@@ -709,21 +707,7 @@ function finiteActionOutcome(source) {
         || (completion.value === 'full' ? done !== steps.length : done === 0 || done === steps.length)) return undefined;
     } else if (completion || done > 0) return undefined;
     if (kind === 'execution_failed' && steps.some(step => step.status !== 'not_executed')) return undefined;
-    const statusText = { completed: '已完成', blocked: '受阻', not_executed: '未执行' };
-    const stopText = { blocked: '行动受阻', clarification: '需要你澄清', boundary_conflict: '与本局边界冲突', unsupported: '缺少支持机制', execution_failed: '结算未完成' };
-    const lines = [kind === 'completed' && completion.value === 'full'
-      ? `行动步骤已完成。已完成${done}/${steps.length}步。`
-      : kind === 'completed' ? `行动步骤部分完成。已完成${done}/${steps.length}步。已完成的部分保留。未完成的后续需要你另作明确选择。`
-        : kind === 'blocked' ? '行动受阻。这不是结算故障。'
-          : kind === 'clarification' ? '需要你澄清。明确选择后再发送。'
-            : kind === 'boundary_conflict' ? '与本局边界冲突。'
-              : kind === 'unsupported' ? '当前缺少支持该效果或保存的机制。这不是永久的世界禁令，也不是结算故障。'
-                : '本次结算未完成。已知步骤尚未执行。'];
-    for (const step of steps) lines.push(step.status === 'completed'
-      ? `第${step.index + 1}步已完成（${codeText[step.code]}）。`
-      : `第${step.index + 1}步：${statusText[step.status]}（${codeText[step.code]}）。`);
-    if (stop) lines.push(`${steps.length ? `停点第${stop.index + 1}步` : `停点位置${stop.index + 1}`}：${stopText[stop.kind]}（${codeText[stop.code]}）。`);
-    return { text: lines.join(''), lines, outcome: { version: 1, kind, ...(kind === 'completed' ? { completion: completion.value } : {}),
+    return { outcome: { version: 1, kind, ...(kind === 'completed' ? { completion: completion.value } : {}),
       steps: steps.map(step => ({ index: step.index, status: step.status, code: step.code })), ...(stop ? { stop } : {}) } };
   } catch { return undefined; }
 }
@@ -895,9 +879,10 @@ function canUseDice() {
     && !$('game-screen').hidden && !document.body.classList.contains('at-title')
     && !document.querySelector?.('dialog[open]:not(#dice-dialog)');
 }
-async function request(path, data) {
-  const explicitHeaders = path === '/api/act' && data?.requestId === (typeof explicitAttempt === 'undefined' ? undefined : explicitAttempt?.requestId)
-    ? { 'X-Manosaba-New-Attempt-Of': explicitAttempt.parentRequestId } : {};
+async function request(path, data, { recoverScene = false } = {}) {
+  const explicitHeaders = path === '/api/act' && recoverScene === true ? { 'X-Manosaba-Scene-Recovery': '1' }
+    : path === '/api/act' && typeof explicitAttempt !== 'undefined' && explicitAttempt && data?.requestId === explicitAttempt.requestId
+      ? { 'X-Manosaba-New-Attempt-Of': explicitAttempt.parentRequestId } : {};
   const response = await fetch(path, data === undefined ? (path === '/api/run-policy' ? { headers: { 'X-Manosaba-Token': csrfToken }, cache: 'no-store' } : {}) : { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Manosaba-Token': csrfToken, ...explicitHeaders }, body: JSON.stringify(data) });
   const result = await response.json();
   if (!response.ok) {
@@ -1053,8 +1038,6 @@ async function operation(action, { retryAction = false, focusAction = retryActio
     const failure = typeof safeFailureSummary === 'function'
       ? safeFailureSummary(Object.getOwnPropertyDescriptor(error, 'failure')?.value) : undefined;
     if (failure) message += ` ${failureSummaryText(failure)}`;
-    const actionOutcome = typeof finiteActionOutcome === 'function' ? finiteActionOutcome(error) : undefined;
-    if (actionOutcome?.outcome.kind === 'execution_failed') message += ` ${actionOutcome.text}`;
     if (retryAction && error.currentView) render(error.currentView);
     if (retryAction && ['ERR_LLM_TURN_FAILED', 'LLM_TURN_FAILED', 'AGENT_TIMEOUT', 'AGENT_BATCH_CANCELLED', 'LLM_NOT_CONFIGURED', 'SETTINGS_UNAVAILABLE'].includes(error.code)) {
       // A failed leased turn may already have advanced the public head. Keep
@@ -1098,11 +1081,21 @@ async function operation(action, { retryAction = false, focusAction = retryActio
 }
 $('action-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  submitAction();
+  const repair = sceneRecoveryRequest(), expired = expiredOrdinaryAttemptParent();
+  // Only the ordinary form submission may explicitly spend the recovery.
+  if (repair) {
+    if (submitSource === 'suggestion') { submitSource = 'button'; return; }
+    submitAction(undefined, { recoverScene: true });
+  } else if (expired) submitAction(undefined, { newAttemptOf: expired.requestId });
+  else submitAction();
 });
 function explicitNewAttemptParent() {
-  const runtime = state?.agentRuntime, text = $('action').value.trim();
-  if (state?.exampleId !== 'agent' || runtime?.supportsExplicitNewAttempt !== true || runtime?.status !== 'failed' || runtime.operation === 'regenerate'
+  const parent = failedComposerRequest($('action').value.trim());
+  return parent?.supportsExplicitNewAttempt === true && parent.sceneRecoveryAvailable !== true ? parent : undefined;
+}
+function failedComposerRequest(text) {
+  const runtime = state?.agentRuntime;
+  if (state?.exampleId !== 'agent' || runtime?.status !== 'failed' || runtime.operation === 'regenerate'
     || runtime.expectedGeneration !== state.generation || runtime.expectedRevision !== state.revision
     || !runtime.requestId || !text || runtime.text !== text || runtime.displayText !== undefined
     || pendingBookAction || pendingRegeneration || saveConfirmation || state.completed || state.guardReaction?.pending
@@ -1110,19 +1103,33 @@ function explicitNewAttemptParent() {
     || phoneBallotChoices(state, supportedProcedure).some(choice => choice.command === text)) return undefined;
   return runtime;
 }
+function expiredOrdinaryAttemptParent() {
+  const parent = explicitNewAttemptParent();
+  // Keep an ambiguous previously sent child; do not create a different child
+  // because polling still shows the parent, including after a network error.
+  return parent?.ordinaryAttemptExpired === true && parent.newAttemptOf === undefined
+    && (typeof explicitAttempt === 'undefined' || !explicitAttempt || explicitAttempt.parentRequestId !== parent.requestId)
+    ? parent : undefined;
+}
+function sceneRecoveryRequest() {
+  const retry = failedComposerRequest($('action').value);
+  return retry?.sceneRecoveryAvailable === true && retry.newAttemptOf === undefined && retry.ordinaryAttemptExpired !== true ? retry : undefined;
+}
 function updateExplicitAttemptButton() {
   const button = $('new-attempt'); if (!button) return;
-  const parent = explicitNewAttemptParent();
-  button.hidden = !parent; button.disabled = busy || $('send').disabled || !parent;
-  $('new-attempt-help').hidden = !parent;
-  const label = $('send').querySelector('span'); if (label) label.textContent = parent ? '续接原请求' : '执行行动';
+  const parent = explicitNewAttemptParent(), expired = expiredOrdinaryAttemptParent();
+  button.hidden = !parent || Boolean(expired); button.disabled = busy || $('send').disabled || !parent || Boolean(expired);
+  $('new-attempt-help').hidden = !parent || Boolean(expired);
+  const send = $('send'), label = send.querySelector('span'), recovery = sceneRecoveryRequest();
+  if (label) label.textContent = recovery ? '用原文续写旁白（一次）' : expired ? '用原文再试一次' : parent ? '续接原请求' : '执行行动';
+  send.title = recovery ? '只补写这一轮旁白，保留此前结算材料。可能产生模型费用。' : '';
 }
 $('new-attempt').addEventListener('click', () => {
   const parent = explicitNewAttemptParent();
   if (!parent || busy || $('new-attempt').disabled) return;
   submitAction(undefined, { newAttemptOf: parent.requestId });
 });
-function submitAction(bookAction, { newAttemptOf } = {}) {
+function submitAction(bookAction, { newAttemptOf, recoverScene = false } = {}) {
   const origin = bookAction?.origin || 'composer';
   const phoneBallot = origin === 'phone-ballot';
   const source = bookAction?.origin || submitSource; submitSource = 'button';
@@ -1141,6 +1148,8 @@ function submitAction(bookAction, { newAttemptOf } = {}) {
   const value = bookAction?.value ?? $('action').value;
   const text = value.trim(); if (!text) return false;
   if (newAttemptOf !== undefined && (bookAction || explicitNewAttemptParent()?.requestId !== newAttemptOf)) return false;
+  const recovery = recoverScene === true ? sceneRecoveryRequest() : undefined;
+  if (recoverScene === true && (!recovery || bookAction || newAttemptOf !== undefined)) return false;
   let runtimeIsVote = false;
   if (phoneBallot) {
     if (pendingBookAction) return false;
@@ -1177,7 +1186,12 @@ function submitAction(bookAction, { newAttemptOf } = {}) {
     // An LLM request owns its pre-turn revision through pending work, network
     // failures and explicit retries. Legacy synchronous scenes still prepare
     // against the current head on a revision change.
-    if (newAttemptOf !== undefined) {
+    if (recovery) {
+      pendingAction = { requestId: recovery.requestId, text: recovery.text,
+        expectedGeneration: recovery.expectedGeneration, expectedRevision: recovery.expectedRevision };
+      explicitAttempt = undefined;
+      draft?.remember(pendingAction, value, state);
+    } else if (newAttemptOf !== undefined) {
       pendingAction = { requestId: crypto.randomUUID(), text: wireText, expectedGeneration: state.generation, expectedRevision: state.revision };
       explicitAttempt = { requestId: pendingAction.requestId, parentRequestId: newAttemptOf };
       draft?.remember(pendingAction, value, state);
@@ -1200,7 +1214,7 @@ function submitAction(bookAction, { newAttemptOf } = {}) {
       draft?.remember(pendingAction, value, state);
     }
     if (typeof agentStatusUI !== 'undefined') agentStatusUI?.start();
-    const result = await request('/api/act', pendingAction);
+    const result = await request('/api/act', pendingAction, { recoverScene: Boolean(recovery) });
     // receipt.view describes the original settlement; currentView is the head
     // observed after replay, including newer actions or newly created save slots.
     const view = result.currentView || result.view || result;
@@ -1222,8 +1236,6 @@ function submitAction(bookAction, { newAttemptOf } = {}) {
         : (typeof testimonyFeedbackText === 'function' ? testimonyFeedbackText(result.message) : result.message) || (inProgress
           ? '本次行动仍在处理中。输入与请求编号已保留；稍后用相同文本再次发送以续接，不会自动重试。'
           : '本次行动未完成。输入与请求编号已保留；请确认后手动重试，模型调用可能产生费用。');
-      const failureOutcome = !inProgress && typeof finiteActionOutcome === 'function' ? finiteActionOutcome(result) : undefined;
-      if (failureOutcome?.outcome.kind === 'execution_failed') $('message').textContent += ` ${failureOutcome.text}`;
       return;
     }
     pendingAction = undefined;
@@ -1231,10 +1243,12 @@ function submitAction(bookAction, { newAttemptOf } = {}) {
     draft?.clear();
     if (typeof agentStatusUI !== 'undefined') agentStatusUI?.finish('idle');
     if (result.accepted === false && sameVersion) $('log').scrollTop = readPosition;
-    const hostMessage = (typeof testimonyFeedbackText === 'function' ? testimonyFeedbackText(result.message) : result.message)
-      || (state.exampleId === 'agent' ? '眼前的动静渐渐落定。下一步，由你决定。' : '');
-    const actionOutcome = typeof finiteActionOutcome === 'function' ? finiteActionOutcome(result) : undefined;
-    $('message').textContent = actionOutcome?.text ? (hostMessage ? `${hostMessage} ${actionOutcome.text}` : actionOutcome.text) : hostMessage;
+    const hostMessage = (typeof testimonyFeedbackText === 'function' ? testimonyFeedbackText(result.message) : result.message) || '';
+    // Keep counts and step outcomes on the receipt, not in the reading interface.
+    $('message').textContent = result.accepted === true && state.exampleId === 'agent'
+      ? hostMessage.replace(/ 本轮(?:合规旁白为 \d+ 汉字，未达合计 \d+ 汉字；保留已验证的正文和已发生事件。|有 \d+ 段旁白未达每段 \d+ 汉字，未展示；已发生的事件仍保留。)$/u, '')
+        .replace(/^行动已展开，等待你的下一次选择。$/u, '')
+      : hostMessage;
     if (result.accepted !== false) $('action').value = bookAction ? bookAction.preserveDraft : '';
   }, { retryAction: true });
 }
@@ -1663,8 +1677,6 @@ async function performRegeneration(target) {
     const failure = typeof safeFailureSummary === 'function'
       ? safeFailureSummary(Object.getOwnPropertyDescriptor(error, 'failure')?.value) : undefined;
     if (failure) message += ` ${failureSummaryText(failure)}`;
-    const actionOutcome = typeof finiteActionOutcome === 'function' ? finiteActionOutcome(error) : undefined;
-    if (actionOutcome?.outcome.kind === 'execution_failed') message += ` ${actionOutcome.text}`;
     if (error.currentView) render(error.currentView);
     if (error.status === 403 || error.status === 409 || (error.status && error.status < 500)) {
       pendingRegeneration = undefined;
@@ -1919,10 +1931,9 @@ function mountAgentStatusUI() {
     const titles = { prepared: '已开始处理', validated: '已核对完成', failed: '暂时停下，请手动重试',
       committed: '已记下这次行动', cancelled: '这次处理已结束' };
     const edgeLabel = progressEdge ? `${progressEdge.role ? `${roleLabels[progressEdge.role]} · ` : ''}${titles[progressEdge.kind]}` : '';
-    const actionOutcome = typeof finiteActionOutcome === 'function' ? finiteActionOutcome(value) : undefined;
-    const outcomeEdge = actionOutcome?.text && progressEdge?.kind === 'committed' ? '请求处理已结束' : edgeLabel;
-    progressNote.textContent = actionOutcome?.text ? `${outcomeEdge}${outcomeEdge ? '。' : ''}${actionOutcome.text}` : edgeLabel;
-    progressNote.hidden = actionOutcome?.text ? false : !progressEdge;
+    // Progress can report activity, but never publishes concluded action diagnostics.
+    progressNote.textContent = progressEdge?.kind === 'committed' ? '' : edgeLabel;
+    progressNote.hidden = !progressNote.textContent;
   }
   async function readProgress(current, signal) {
     if (!progressNote || !current() || signal.aborted) return;

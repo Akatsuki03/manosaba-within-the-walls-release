@@ -6,6 +6,12 @@ import { hasSoftRuntime } from '../content/relationship-context-policy.mjs';
 import { applyCooperativeRephraseResult } from '../agents/cooperative-rephrase.mjs';
 import { INTENT_RUNTIME_REVISION, CASE_BOUNDARY_RUNTIME_REVISION, hasIntentRuntime } from '../content/relationship-context-policy.mjs';
 import { projectActionOutcome } from '../world/action-outcome.mjs';
+import { isParagraphTurnSpeech, paragraphTurnRecipientPresent, paragraphTurnSourceBound, bareReplyRootSource, currentAddressedStepPresent } from '../agents/communication-selection30.mjs';
+import { localConditionalWaitSource, localConditionalWaitStep, localConditionalWaitPlan, LOCAL_CONDITIONAL_WAIT_ACTION } from '../agents/player-address-resolution.mjs';
+import { localTravelAttemptSource, localTravelAttemptStep, localTravelDirectedStep, localTravelAttemptPlan, supportsLocalTravelProposal } from '../agents/player-address-resolution.mjs';
+import { resolvePlayerAddress, ordinaryReplyContext, localPointFocus, roomGroupSpeechLiteral, roomGroupSpeechSource, ordinaryDialogueSequence, localStairOrientationFocus, localApproachDomain, localApproachObservation, localPersonApproach, localReadinessApproach, localReadinessWait, explicitLocalVocative, ordinaryLocalApproachSource, localAmbientSpeech, localAmbientWait, ordinaryLocalAmbientSpeechSource, ordinaryLocalAmbientStepTypes, localAmbientPlanSpans, localAgreementPerformance, localComposedAmbientStep, localOpenOrientationStep, recentLocalWaitProposal, recentOpenWaitQuestion, ordinaryLocalSearchSource, localSearchLook, localSearchProposal, localThresholdLook, localThresholdLookText, localMoveVisualPrelude, ordinaryLocalVisualActionPins, localSpeechObservation, observedOrientationFocus, topLevelPlayerQuotes } from '../agents/player-address-resolution.mjs';
+import { preservesEnactedPlayerSpeech } from '../agents/narrative-boundaries.mjs';
+import { EVENT_DIRECTOR_RUNTIME_REVISION } from '../director/director-event-runtime.mjs';
 import { runtimeItemOfferResult } from '../case-runtime.mjs';
 import { isDeepStrictEqual } from 'node:util';
 import { runtimeCapabilityId } from '../content/runtime-capabilities.mjs';
@@ -20,7 +26,7 @@ import { guardEnabled, guardProtected, assertGuardOrdinaryAction, guardActionSec
 import { actorsForState, actorForState, createdPlayerId, CREATED_ROOMS, ROOM_CODES } from '../creation/player-setup.mjs';
 import { OUTSKIRTS_ROOMS, isCourtyardEntry, activateOutskirts, outskirtsActive } from '../world/outskirts-world.mjs';
 import { runtimeRevisionForState } from '../content/content-revisions.mjs';
-import { acquisitionAudience, readingMaterial } from '../characters/actor-perception.mjs';
+import { actorHandle, acquisitionAudience, playerPerceivedScene, projectPerceivedIntent, resolvePerceivedIntent, readingMaterial } from '../characters/actor-perception.mjs';
 import { enableAutonomy, applyNpcDecisions, persistEnactments, pendingReactionActors,
   receivedEnactmentCount } from '../agents/agent-autonomy.mjs';
 import { enablePrisonWorld, announcePrisonAssembly, prisonClock } from '../world/prison-activity.mjs';
@@ -29,7 +35,7 @@ import { enableCaseRuntime, runtimeActive, runtimeOptions, runtimeRoom, runtimeS
   runtimeObserve, runtimeAcquire, discoverRuntimeIncidents, runtimeApplyItemPolicy, runtimeDiscoverObjects, runtimePoseActions, runtimeSettlePose, runtimeSwapOptions, runtimeSettleSwapStep, runtimeBodyActorId } from '../case-runtime.mjs';
 import { procedureStatementReaction, activeProcedure, settleProcedureIntent, startProcedureTrial,
   validateProcedureIntent, procedureActorScene, inspectionAcquisition, hostCaseChoicePlan } from '../cases/case-procedure.mjs';
-import { causalPlayerScene, resolvePlayerPlanStep, validateCausalIntent, validateCausalSceneAction, advanceCausalTime,
+import { causalPlayerScene, resolvePlayerPlanStep, validateCausalIntent, roomGroupSpeechAudience, cellDoorAttemptRootSource, isCellDoorAttemptStep, cellDoorAttemptState, validateCausalSceneAction, advanceCausalTime,
   causalEnactment, normalizeCausalEvents, nextFreePeriodBoundary, nextScheduleBoundary, parseScheduleWaitIntent, curfewReturnIntent } from './causal-scene.mjs';
 import { validateSceneScheduling, commitSceneScheduling } from './scene-scheduling.mjs';
 import { parseTestimonyCommand } from '../cases/trial-testimony.mjs';
@@ -55,7 +61,7 @@ const list = (value, maximum) => Array.isArray(value) && !isProxy(value) && Obje
 const stage = state => activeProcedure(state)?.stage ?? null;
 const roomLabel = room => room === 'court' ? '审判庭' : room === 'infirmary' ? '医务室' : OUTSKIRTS_ROOMS[room] || CREATED_ROOMS[room];
 const actionFields = ['type', 'jobId', 'rawInput', 'intent', 'performance', 'document', 'questionKey', 'answerKey',
-  'softResult', 'directorEventDue', 'effectiveRunPolicy', 'playerIntentPlan', 'playerPerformances', 'actionOutcome', 'authoredMagicVersion', 'authoredMagicDestinationVersion', 'dialogueContextVersion', 'roomLabelVersion', 'worldVersion', 'ballots', 'decisionVersion', 'decisions', 'causalVersion', 'causalTimingVersion', 'sceneBeatVersion', 'beats',
+  'softResult', 'directorEventDue', 'effectiveRunPolicy', 'narrationPacingVersion', 'omittedNarrationParagraphs', 'bareReplyRootVersion', 'cellDoorAttemptVersion', 'localTravelAttemptVersion', 'localConditionalWaitVersion', 'ordinaryAddressVersion', 'ordinaryLocalApproachVersion', 'ordinaryLocalAmbientSpeechVersion', 'ordinaryLocalSearchConversationVersion', 'ordinaryLocalLookOutcomeVersion', 'ordinaryMoveVisualPreludeVersion', 'roomGroupSpeechVersion', 'ordinaryDialogueSequenceVersion', 'playerIntentPlan', 'playerPerformances', 'actionOutcome', 'authoredMagicVersion', 'authoredMagicDestinationVersion', 'dialogueContextVersion', 'roomLabelVersion', 'worldVersion', 'ballots', 'decisionVersion', 'decisions', 'causalVersion', 'causalTimingVersion', 'sceneBeatVersion', 'beats',
   'performanceVersion', 'schedulingVersion', 'schedulingBeats', 'schedulingEnd', 'decisionAuditVersion', 'itemPolicyVersion', 'caseActionTimingVersion', 'introductionVersion', 'scheduleWaitVersion', 'storyLifeVersion', 'storyArcVersion', 'guardRules', 'npcMagicCastVersion', 'npcVoluntaryFloatVersion', 'npcMedicalContactVersion', 'playerRuntimeCommunicationVersion', 'rootCaseOptionsVersion', ...SCENE_EXTENSION_FIELDS];
 // Text magic is a separate ordinary-act pin. It is never inferred from a
 // keyword: the model may only choose a host-issued grant and target handle
@@ -75,7 +81,7 @@ function serializable(value, depth = 0, ancestors = new Set()) {
   ancestors.delete(value);
 }
 function rootAction(action) {
-  const { beats, document, schedulingBeats, schedulingEnd, playerPerformances, actionOutcome, softResult, ...root } = action;
+  const { beats, document, schedulingBeats, schedulingEnd, playerPerformances, actionOutcome, softResult, omittedNarrationParagraphs, ...root } = action;
   return root;
 }
 function validateBeats(beats, state) {
@@ -101,6 +107,12 @@ function validateBeats(beats, state) {
 }
 function validateAction(action, state) {
   validateSceneExtensions(action);
+  if (Object.hasOwn(action, 'ordinaryAddressVersion') && (![2, 3].includes(action.ordinaryAddressVersion)
+    || state.agentRuntimeRevision !== EVENT_DIRECTOR_RUNTIME_REVISION || action.intentContractVersion !== 2)) fail();
+  if (Object.hasOwn(action, 'narrationPacingVersion') && (![2, 3].includes(action.narrationPacingVersion) || !hasSoftRuntime(state))) fail();
+  if (Object.hasOwn(action, 'omittedNarrationParagraphs') && (action.narrationPacingVersion !== 2 || !action.document
+    || !Number.isSafeInteger(action.omittedNarrationParagraphs) || action.omittedNarrationParagraphs < 1
+    || action.omittedNarrationParagraphs > SCENE_BUDGET.maxNarrationChars)) fail();
   if (Object.hasOwn(action, 'directorEventDue')) assertDirectorAssemblyPermit(action.directorEventDue, state, action.jobId);
   if (action.hostCaseChoiceVersion === 1) {
     const plan = action.playerIntentPlan;
@@ -170,25 +182,446 @@ function validateAction(action, state) {
     && (action.playerRuntimeCommunicationVersion !== 1 || action.swapLifecycleVersion !== 1
       || runtimeCapabilityId(state?.agentRuntimeRevision) !== 'agent-prison-runtime@8')) fail();
   const { sceneBeatVersion, beats, schedulingVersion, schedulingBeats, schedulingEnd, decisionAuditVersion, introductionVersion, scheduleWaitVersion, storyLifeVersion, storyArcVersion, authoredMagicVersion, authoredMagicDestinationVersion,
-    playerIntentPlan, playerPerformances, actionOutcome, softResult, directorEventDue, effectiveRunPolicy, softResultVersion, ordinaryParticipationVersion, intentContractVersion, hostCaseChoiceVersion, dialogueContextVersion, sceneEventTimeVersion, outputContractVersion, ambientContinuityVersion, materialProseVersion, physicalFactsVersion, postureActionVersion, occupiedBodyVersion, swapLifecycleVersion, npcMagicCastVersion, npcVoluntaryFloatVersion, npcMedicalContactVersion, playerTextMagicVersion, playerRuntimeCommunicationVersion, rootCaseOptionsVersion, objectInspectionTimingVersion, selfFloatEndObservationVersion, magicCaseWitnessVersion, customMagicCaseWitnessVersion, npcCurrentSituationVersion, ...legacy } = action;
+    playerIntentPlan, playerPerformances, actionOutcome, softResult, directorEventDue, effectiveRunPolicy, narrationPacingVersion, omittedNarrationParagraphs, bareReplyRootVersion, cellDoorAttemptVersion, localTravelAttemptVersion, localConditionalWaitVersion, ordinaryAddressVersion, ordinaryLocalApproachVersion, ordinaryLocalAmbientSpeechVersion, ordinaryLocalSearchConversationVersion, ordinaryLocalLookOutcomeVersion, ordinaryMoveVisualPreludeVersion, roomGroupSpeechVersion, ordinaryDialogueSequenceVersion, softResultVersion, ordinaryParticipationVersion, intentContractVersion, hostCaseChoiceVersion, dialogueContextVersion, sceneEventTimeVersion, outputContractVersion, ambientContinuityVersion, materialProseVersion, physicalFactsVersion, postureActionVersion, occupiedBodyVersion, swapLifecycleVersion, npcMagicCastVersion, npcVoluntaryFloatVersion, npcMedicalContactVersion, playerTextMagicVersion, playerRuntimeCommunicationVersion, rootCaseOptionsVersion, objectInspectionTimingVersion, selfFloatEndObservationVersion, magicCaseWitnessVersion, customMagicCaseWitnessVersion, npcCurrentSituationVersion, ...legacy } = action;
   if (action.swapLifecycleVersion === 1 && !state?.caseRuntime?.swapLifecycle) fail();
   if (action.occupiedBodyVersion === 1 && !state?.caseRuntime?.occupiedBody) fail();
   if (action.postureActionVersion === 1 && (action.itemPolicyVersion !== 2 || action.physicalFactsVersion !== 2
     || runtimeCapabilityId(state?.agentRuntimeRevision) !== 'agent-prison-runtime@8')) fail();
   if (Object.hasOwn(action, 'performanceVersion') && (action.performanceVersion !== 2
     || runtimeRevisionForState(state).policy.playerPerformanceVersion !== 2)) fail();
-  validateCausalSceneAction(legacy); validateBeats(beats, state);
+  // Root playback owns only the first quoted delivery. Validate the complete
+  // source binding first, then apply the unchanged causal quote guard to its
+  // own step. Later deliveries independently run the same guard at the tail.
+  const quotedRoot = state.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION
+    && paragraphTurnSourceBound(action.rawInput, playerIntentPlan?.steps);
+  if (quotedRoot && !isDeepStrictEqual(legacy.intent, playerIntentPlan.steps[0].intent)) fail();
+  if (Object.hasOwn(action, 'bareReplyRootVersion') && (action.bareReplyRootVersion !== 1 || !quotedRoot
+    || !bareReplyRootSource(action.rawInput, playerIntentPlan.steps))) fail();
+  if (Object.hasOwn(action, 'cellDoorAttemptVersion') && (action.cellDoorAttemptVersion !== 1
+    || action.intentContractVersion !== 2 || state.agentRuntimeRevision !== EVENT_DIRECTOR_RUNTIME_REVISION
+    || !(playerIntentPlan ? cellDoorAttemptRootSource(action.rawInput, playerIntentPlan.steps)
+      : action.jobId?.endsWith(':step:2') && isCellDoorAttemptStep(action.rawInput, action.intent)))) fail();
+  const source = action.ordinaryAddressVersion === 3 ? firstAddressClause(action) : undefined;
+  const itemRoot = ordinaryItemRootStep(action);
+  if (itemRoot) {
+    const item = itemRoot.intent, give = item.operation === 'give';
+    const fields = ['type', 'operation', 'objectId', 'summary', ...(give ? ['targetId'] : [])];
+    if (!record(itemRoot, ['text', 'intent', 'condition']) || itemRoot.condition !== 'always'
+      || !record(item, fields) || Object.keys(item).length !== fields.length
+      || !['take', 'drop', 'give'].includes(item.operation) || typeof item.objectId !== 'string' || !item.objectId.trim()
+      || give && (typeof item.targetId !== 'string' || !item.targetId.trim())
+      || !record(legacy.intent, ['type', 'subjectId', 'summary']) || Object.keys(legacy.intent).length !== 3
+      || legacy.intent.type !== 'runtime' || typeof legacy.intent.subjectId !== 'string' || !legacy.intent.subjectId.trim()
+      || typeof item.summary !== 'string' || legacy.intent.summary !== item.summary) fail();
+  } else if (source && !isDeepStrictEqual(legacy.intent, source.intent)) fail();
+  const grouped = playerIntentPlan?.steps.filter(step => Object.hasOwn(step.intent, 'speechScope'))
+    ?? (Object.hasOwn(action.intent, 'speechScope') && source ? [source] : []);
+  if (ordinaryDialogueSequenceVersion !== 4 && (grouped.length || roomGroupSpeechVersion !== undefined)) {
+    const group = grouped[0];
+    const proof = playerIntentPlan ? (localTravelAttemptVersion===1 ? localTravelAttemptSource(action.rawInput)
+       : roomGroupSpeechSource(action.rawInput)) : roomGroupSpeechLiteral(source?.text);
+    if (roomGroupSpeechVersion !== 1 || action.ordinaryAddressVersion !== 3 || grouped.length !== 1
+      || group.intent.type !== 'conversation' || group.intent.speechScope !== 'room' || !proof
+      || playerIntentPlan && proof.stepText !== group.text || group.intent.playerText !== proof.text
+      || !record(group.intent, ['type', 'summary', 'speechScope', 'playerText'])) fail();
+  }
+  if (Object.hasOwn(action,'localTravelAttemptVersion')) {
+    if (![1,2].includes(localTravelAttemptVersion) || state.agentRuntimeRevision!==EVENT_DIRECTOR_RUNTIME_REVISION
+      || ordinaryAddressVersion!==3 || intentContractVersion!==2 || ordinaryDialogueSequenceVersion!==undefined
+      || ordinaryLocalApproachVersion!==undefined || ordinaryLocalAmbientSpeechVersion!==undefined || ordinaryLocalSearchConversationVersion!==undefined) fail();
+    if (playerIntentPlan) {
+      const proof=localTravelAttemptSource(action.rawInput,undefined,localTravelAttemptVersion);
+      if (!proof || roomGroupSpeechVersion!==(localTravelAttemptVersion===1?1:undefined)
+        || !isDeepStrictEqual(playerIntentPlan.steps,localTravelAttemptPlan({...proof,targetId:action.intent.targetId}).steps)
+        || !isDeepStrictEqual(action.performance,{action:'',utterance:proof.text})) fail();
+    } else if (localTravelAttemptVersion===2) {
+      const index=action.jobId?.endsWith(':step:1') ? 1 : action.jobId?.endsWith(':step:2') ? 2 : 0;
+      const step=localTravelDirectedStep(action.rawInput,undefined,index);
+      if (roomGroupSpeechVersion!==undefined || action.intent.type!=='act' || !record(action.intent,['type','summary'])
+        || !step || !isDeepStrictEqual(action.performance,{action:step.action})) fail();
+    } else if (roomGroupSpeechVersion!==undefined || !action.jobId?.endsWith(':step:1') || action.intent.type!=='act'
+      || !localTravelAttemptStep(action.rawInput) || !isDeepStrictEqual(action.performance,{action:action.rawInput})) fail();
+  }
+  if (Object.hasOwn(action,'localConditionalWaitVersion')) {
+    if (localConditionalWaitVersion!==1 || state.agentRuntimeRevision!==EVENT_DIRECTOR_RUNTIME_REVISION || ordinaryAddressVersion!==3
+      || intentContractVersion!==2 || roomGroupSpeechVersion!==undefined || localTravelAttemptVersion!==undefined
+      || ordinaryDialogueSequenceVersion!==undefined || ordinaryLocalApproachVersion!==undefined
+      || ordinaryLocalAmbientSpeechVersion!==undefined || ordinaryLocalSearchConversationVersion!==undefined) fail();
+    if (playerIntentPlan) {
+      const proof=localConditionalWaitSource(action.rawInput);
+      if (!proof || typeof action.intent.targetId!=='string' || !isDeepStrictEqual(playerIntentPlan.steps,
+        localConditionalWaitPlan({...proof,targetId:action.intent.targetId}).steps)
+        || !isDeepStrictEqual(action.performance,{action:'',utterance:proof.text})) fail();
+    } else if (!action.jobId?.endsWith(':step:1') || action.intent.type!=='wait' || !record(action.intent,['type','summary'])
+      || !localConditionalWaitStep(action.rawInput) || !isDeepStrictEqual(action.performance,{action:LOCAL_CONDITIONAL_WAIT_ACTION})) fail();
+  }
+  const exact = source?.intent.type === 'conversation' ? source.intent.playerText : v2AddressedSpeech(action);
+  if (ordinaryLocalLookOutcomeVersion !== undefined || ordinaryMoveVisualPreludeVersion !== undefined) {
+    const allowed=playerIntentPlan ? ordinaryLocalVisualActionPins(action,action.rawInput,playerIntentPlan.steps)
+      : ordinaryLocalVisualActionPins(action,action.rawInput,[{text:action.rawInput,intent:action.intent}]);
+    if (state.agentRuntimeRevision!==EVENT_DIRECTOR_RUNTIME_REVISION || intentContractVersion!==2
+      || ordinaryLocalLookOutcomeVersion!==allowed.ordinaryLocalLookOutcomeVersion
+      || ordinaryMoveVisualPreludeVersion!==allowed.ordinaryMoveVisualPreludeVersion) fail();
+  }
+  // This carrier is limited to stages proved again against their actual prefix.
+  if (ordinaryLocalAmbientSpeechVersion !== undefined) {
+    const composed=[3,4].includes(ordinaryLocalAmbientSpeechVersion);
+    const stepSource=ordinaryLocalAmbientSpeechVersion===4?localOpenOrientationStep:localComposedAmbientStep;
+    const types=composed ? playerIntentPlan
+      ? ordinaryLocalAmbientSpeechSource(action.rawInput,undefined,ordinaryLocalAmbientSpeechVersion)?.map(row=>row.type) ?? []
+      : [stepSource(action.rawInput)?.type] : ordinaryLocalAmbientStepTypes(ordinaryLocalAmbientSpeechVersion);
+    if (!types.length || ordinaryAddressVersion!==3 || ordinaryDialogueSequenceVersion!==undefined
+      || ordinaryLocalApproachVersion!==undefined || roomGroupSpeechVersion!==undefined || cellDoorAttemptVersion!==undefined
+      || state.agentRuntimeRevision!==EVENT_DIRECTOR_RUNTIME_REVISION || !record(action.intent,['type','summary'])) fail();
+    const raw=playerIntentPlan?.steps[0]?.text ?? action.rawInput;
+    if (playerIntentPlan) {
+      if (playerIntentPlan.steps.length!==types.length || playerIntentPlan.steps.some((step,index)=>step.intent.type!==types[index]
+        || !record(step.intent,['type','summary']) || (index===0 ? step.condition!=='always' : !['always','previous_completed'].includes(step.condition)))) fail();
+      if (ordinaryLocalAmbientSpeechVersion!==1 && !isDeepStrictEqual(action.intent,playerIntentPlan.steps[0].intent)) fail();
+    } else if (composed ? !/:step:[12]$/u.test(action.jobId) || action.intent.type!==types[0]
+      || ordinaryLocalAmbientSpeechVersion===4 && stepSource(action.rawInput)?.kind!==(action.jobId.endsWith(':step:1')?'orientation':'proposal')
+      : !(action.jobId.endsWith(':step:1') && action.intent.type===types[1]
+      || action.jobId.endsWith(':step:2') && action.intent.type==='wait')) fail();
+    if (ordinaryLocalAmbientSpeechVersion===1 && (action.intent.type==='act' ? !record(action.performance,['action','utterance'])
+      || action.performance.action!=='我开口问。' : !record(action.performance,['action']) || action.performance.action!==raw)) fail();
+  }
+  if (ordinaryLocalSearchConversationVersion !== undefined) {
+    if (ordinaryLocalSearchConversationVersion!==1 || ordinaryAddressVersion!==3 || ordinaryDialogueSequenceVersion!==undefined
+      || ordinaryLocalApproachVersion!==undefined || ordinaryLocalAmbientSpeechVersion!==undefined || roomGroupSpeechVersion!==undefined
+      || state.agentRuntimeRevision!==EVENT_DIRECTOR_RUNTIME_REVISION || action.performanceVersion!==2) fail();
+    const speechShape=step=>step?.intent.type==='conversation' && record(step.intent,['type','summary','targetId','playerText']);
+    if (playerIntentPlan) {
+      const [head,look,tail]=playerIntentPlan.steps;
+      if (playerIntentPlan.steps.length!==3 || !speechShape(head) || !speechShape(tail) || head.condition!=='always'
+        || head.intent.targetId!==tail.intent.targetId || look.intent.type!=='look' || !record(look.intent,['type','summary'])
+        || [look,tail].some(step=>!['always','previous_completed'].includes(step.condition))) fail();
+    } else if (action.jobId.endsWith(':step:1') ? action.intent.type!=='look' || !record(action.intent,['type','summary'])
+      : !action.jobId.endsWith(':step:2') || !speechShape(firstAddressClause(action))) fail();
+    if (action.intent.type==='conversation' && (!record(action.performance,['action','utterance'])
+      || action.performance.action!=='' || action.performance.utterance!==exact)) fail();
+  }
+  if (ordinaryLocalApproachVersion===3) {
+    if (ordinaryAddressVersion!==3 || ordinaryDialogueSequenceVersion!==undefined || roomGroupSpeechVersion!==undefined
+      || cellDoorAttemptVersion!==undefined || bareReplyRootVersion!==undefined || ordinaryLocalAmbientSpeechVersion!==undefined
+      || ordinaryLocalSearchConversationVersion!==undefined) fail();
+    if (playerIntentPlan) {
+      const [,near,tail]=playerIntentPlan.steps;
+      if (!localApproachDomain(action.rawInput,3) || playerIntentPlan.steps.length!==3 || source?.condition!=='always'
+        || action.intent.type!=='conversation' || !exact || !isDeepStrictEqual(action.intent,source.intent)
+        || !record(action.intent,['type','summary','targetId','playerText']) || !record(action.performance,['action','utterance'])
+        || action.performance.action!=='' || action.performance.utterance!==exact
+        || near?.condition!=='previous_completed' || near.intent.type!=='act' || !record(near.intent,['type','summary'])
+        || tail?.condition!=='previous_completed' || tail.intent.type!=='wait' || !record(tail.intent,['type','summary'])) fail();
+    } else if (!record(action.intent,['type','summary']) || !record(action.performance,['action'])
+      || !(action.jobId?.endsWith(':step:1') && action.intent.type==='act'
+           || action.jobId?.endsWith(':step:2') && action.intent.type==='wait' && action.performance.action==='我在原地稍等。')) fail();
+  } else if (ordinaryLocalApproachVersion===2) {
+    if (ordinaryAddressVersion!==3 || ordinaryDialogueSequenceVersion!==undefined || roomGroupSpeechVersion!==undefined
+      || cellDoorAttemptVersion!==undefined || bareReplyRootVersion!==undefined || ordinaryLocalAmbientSpeechVersion!==undefined
+      || ordinaryLocalSearchConversationVersion!==undefined) fail();
+    if (playerIntentPlan) {
+      const [,tail]=playerIntentPlan.steps;
+      if (!localApproachDomain(action.rawInput,2) || playerIntentPlan.steps.length!==2 || source?.condition!=='always'
+        || action.intent.type!=='act' || !record(action.intent,['type','summary']) || !isDeepStrictEqual(action.intent,source.intent)
+        || !record(action.performance,['action']) || tail?.condition!=='previous_completed' || tail.intent.type!=='conversation'
+        || !record(tail.intent,['type','summary','targetId','playerText'])) fail();
+    } else if (!action.jobId?.endsWith(':step:1') || action.intent.type!=='conversation' || !exact
+      || !record(action.intent,['type','summary','targetId','playerText']) || !record(action.performance,['action','utterance'])
+      || action.performance.action!=='我轻声开口。' || action.performance.utterance!==exact) fail();
+  } else if (ordinaryLocalApproachVersion !== undefined) {
+    if (ordinaryLocalApproachVersion !== 1 || ordinaryAddressVersion !== 3 || ordinaryDialogueSequenceVersion !== undefined
+      || roomGroupSpeechVersion !== undefined || cellDoorAttemptVersion !== undefined || bareReplyRootVersion !== undefined) fail();
+    if (playerIntentPlan) {
+      const [, tail] = playerIntentPlan.steps;
+      if (!localApproachDomain(action.rawInput) || playerIntentPlan.steps.length !== 2 || source?.condition !== 'always'
+        || action.intent.type !== 'conversation' || !exact || action.performance.utterance !== exact || action.performance.action !== ''
+        || Object.hasOwn(action.performance, 'reflection') || tail?.intent.type !== 'act' || !['always','previous_completed'].includes(tail.condition)
+        || !record(tail.intent, ['type','summary'])) fail();
+    } else if (!action.jobId?.endsWith(':step:1') || action.intent.type !== 'act' || !record(action.intent, ['type','summary'])
+      || !record(action.performance, ['action']) || action.performance.action !== action.rawInput) fail();
+  }
+  if (ordinaryDialogueSequenceVersion !== undefined) {
+    const quotes = topLevelPlayerQuotes(action.rawInput);
+    const groupRoot = ordinaryDialogueSequenceVersion === 4 && action.intent?.speechScope === 'room';
+    if (![1, 2, 3, 4, 5, 6, 7, 8].includes(ordinaryDialogueSequenceVersion) || ordinaryAddressVersion !== 3
+      || roomGroupSpeechVersion !== (groupRoot ? 1 : undefined)
+      || playerIntentPlan?.steps.length !== 1 || source?.text !== action.rawInput || source.condition !== 'always'
+      || ![2, 3].includes(quotes?.length) || [3, 6, 7, 8].includes(ordinaryDialogueSequenceVersion) && quotes.length !== 2 || exact !== action.rawInput.slice(quotes[0].start, quotes[0].end)
+      || !record(action.intent, ['type', 'summary', groupRoot ? 'speechScope' : 'targetId', 'playerText']) || action.performance.action !== ''
+      || action.performance.utterance !== exact || Object.hasOwn(action.performance, 'reflection')) fail();
+  }
+  validateCausalSceneAction(quotedRoot || source ? { ...legacy, rawInput: source?.text ?? playerIntentPlan.steps[0].text } : legacy,
+    exact ? { exactAddressedSpeech: exact, hostDialogueSequence: localConditionalWaitVersion === 1 || [1,2].includes(localTravelAttemptVersion) || ordinaryLocalSearchConversationVersion === 1 || [1,3].includes(ordinaryLocalApproachVersion) || [1, 2, 3, 4, 5, 6, 7, 8].includes(ordinaryDialogueSequenceVersion) } : undefined);
+  validateBeats(beats, state);
   serializable(rootAction(action));
   return action;
 }
+// Only a V2 full single-step action can carry an independently selected
+// report with its own interior quote(s). The actual audience is rechecked at
+// beginScene, not later against a changed room during cached prefix replay.
+function v2AddressedSpeech(action) {
+  const steps = action.playerIntentPlan?.steps;
+  if (action.ordinaryAddressVersion !== 2 || steps?.length !== 1 || steps[0].text !== action.rawInput
+    || steps[0].condition !== 'always' || action.intent.type !== 'conversation'
+    || !isDeepStrictEqual(action.intent, steps[0].intent)) return undefined;
+  return action.intent.playerText;
+}
+function firstAddressClause(action) {
+  return action.playerIntentPlan?.steps?.[0]
+    ?? (/^.+:step:[12]$/u.test(action.jobId) ? { text: action.rawInput, intent: action.intent } : undefined);
+}
+function ordinaryItemRootStep(action) {
+  const step = action.ordinaryAddressVersion === 3 ? action.playerIntentPlan?.steps?.[0] : undefined;
+  return step?.intent?.type === 'item' ? step : undefined;
+}
+function liveAddressPresent(state, scene, text, intent, roomGroupSpeechVersion) {
+  if (intent.speechScope === 'room') return roomGroupSpeechVersion === 1
+    && roomGroupSpeechLiteral(text)?.text === intent.playerText && roomGroupSpeechAudience(state, scene).length >= 3;
+  const perception = playerPerceivedScene(state, scene);
+  Object.assign(perception.scene, ordinaryReplyContext(state, createdPlayerId(state), perception.scene, perception.targetIds, 3));
+  return currentAddressedStepPresent(text, projectPerceivedIntent(intent, perception.targetIds), perception.scene);
+}
+function sequenceAudience(state, player, peer, room) {
+  if (state.completed || state.caseRuntime?.occupiedBody || state.guardReaction?.pending
+    || !runtimeActive(state, player) || !runtimeActive(state, peer)
+    || runtimeRoom(state, player) !== room || runtimeRoom(state, peer) !== room
+    || actorForState(state, player)?.communication !== 'speech') return null;
+  const ids = acquisitionAudience(state, player, { delivery: 'speech', targetId: peer });
+  return ids.includes(peer) ? ids : null;
+}
+
+// V6 only. Prove a live received ask, not a speaker inferred from its wording.
+// Canonical NPC speak is emitted to its same-room audience. For legacy entries
+// without a room stamp, require the latest committed beat and no later arrival.
+export function ordinaryLocalPointReplyContext(state, player, scene, targetIds = {}) {
+  if (typeof scene?.roomId !== 'string' || !Array.isArray(scene.nearby) || !Number.isSafeInteger(state?.worldTime)) return {};
+  const now = state.worldTime, ledger = state.agentAutonomy?.conversation;
+  const requests = ledger?.requests?.filter(row => row.recipientId === player && row.kind === 'ask'
+    && row.status === 'pending' && row.reviewAt <= now && row.expiresAt > now);
+  if (requests?.length !== 1) return {};
+  const [request] = requests, peer = request.senderId;
+  const session = ledger.sessions?.find(row => row.id === request.sessionId);
+  if (peer === player || session?.status !== 'open' || session.expiresAt <= now || session.participantIds?.length !== 2
+    || !session.participantIds.includes(peer) || !session.participantIds.includes(player)
+    || !sequenceAudience(state, player, peer, scene.roomId)) return {};
+  const perceived = scene.nearby.filter(row => (Object.hasOwn(targetIds, row.id) ? targetIds[row.id] : row.id) === peer);
+  if (perceived.length !== 1 || scene.nearby.filter(row => row.id === perceived[0].id).length !== 1) return {};
+
+  // Stop at a newer real exchange or player arrival, not narration or an overheard line.
+  const entry = state.entries?.slice(-24).reverse().find(row =>
+    row.delivery === 'action' && row.speakerId === player && row.observationKey?.endsWith(':arrival')
+    || ['speech', 'writing'].includes(row.delivery) && row.audienceIds?.includes(player)
+      && (row.speakerId === player && row.addresseeIds?.length || row.addresseeIds?.includes(player)));
+  if (!entry || entry.observationKey !== request.eventId || entry.delivery !== 'speech' || entry.communication?.kind !== 'ask'
+    || entry.speakerId !== peer || !entry.audienceIds.includes(peer) || !entry.addresseeIds?.includes(player)
+    || entry.conversationRoomId !== undefined && entry.conversationRoomId !== scene.roomId
+    || entry.occurredAt !== request.createdAt || !Number.isSafeInteger(entry.learnedAt)
+    || entry.learnedAt < entry.occurredAt || entry.learnedAt > now) return {};
+  const sourceId = actorObservationId(state, entry.observationKey, player);
+  const receipt = ledger.journal?.entries?.find(row => row.id === entry.observationKey);
+  if (request.sourceObservationId !== sourceId || receipt?.occurredAt !== entry.occurredAt
+    || !Number.isSafeInteger(receipt.appliedAt) || receipt.appliedAt < entry.occurredAt || receipt.appliedAt > now
+    || !receipt.requestIds?.includes(request.id)
+    || !receipt.observations?.some(row => row.ownerId === player && row.observationId === sourceId)) return {};
+  const latest = state.agentActions?.at(-1);
+  if (!latest?.beats?.some(beat => entry.observationKey === `npc:${latest.jobId}:beat:${beat.beat}:${peer}`
+    && beat.decisions.some(({ actorId, proposal }) => actorId === peer && proposal.decision?.operation?.type === 'speak'
+      && proposal.utterance === entry.text && proposal.communication?.kind === 'ask'
+      && proposal.communication.addresseeHandles?.includes(actorHandle(peer, player))))) return {};
+  return { replyPeer: perceived[0].id };
+}
+
+// A statement can be the second half of an actual local exchange even
+// when the old ask ledger is closed. Require both immediately adjacent
+// directed voices in the latest committed turn, not a guessed recipient.
+export function ordinaryLocalStairReplyContext(state,player,scene,targetIds={}) {
+  const {replyPeer}=ordinaryReplyContext(state,player,scene,targetIds,3);
+  const peer=replyPeer && (targetIds[replyPeer] ?? replyPeer), last=state.agentActions?.at(-1);
+  if (!peer || !sequenceAudience(state,player,peer,scene.roomId)
+    || last?.intent?.type!=='conversation' || last.intent.targetId!==peer) return {};
+  const [heard,said]=state.entries.slice(-24).reverse().filter(row=>
+    row.speakerId===player && row.observationKey?.endsWith(':arrival')
+    || ['speech','writing'].includes(row.delivery) && row.audienceIds?.includes(player)
+      && (row.speakerId===player && row.addresseeIds?.length || row.addresseeIds?.includes(player)));
+  if (heard?.speakerId!==peer || said?.speakerId!==player || said.observationKey!==last.questionKey
+    || said.text!==last.performance?.utterance || said.learnedAt>heard.occurredAt || state.worldTime-heard.occurredAt>360
+    || !['statement','reply'].includes(heard.communication?.kind)) return {};
+  const received=(entry,recipient)=>{
+    const journal=state.agentAutonomy?.conversation?.journal?.entries?.find(row=>row.id===entry.observationKey);
+    const actual=state.caseRuntime?.observations?.find(row=>row.id===entry.observationKey);
+    return entry.delivery==='speech' && entry.conversationRoomId===scene.roomId && isDeepStrictEqual(entry.addresseeIds,[recipient])
+      && Number.isSafeInteger(entry.occurredAt) && Number.isSafeInteger(entry.learnedAt) && entry.learnedAt>=entry.occurredAt
+      && entry.learnedAt<=state.worldTime && journal?.occurredAt===entry.occurredAt && Number.isSafeInteger(journal.appliedAt)
+      && journal.appliedAt>=entry.occurredAt && journal.appliedAt<=entry.learnedAt
+      && actual?.text===entry.text && actual.delivery==='speech' && actual.speakerId===entry.speakerId && actual.occurredAt===entry.occurredAt
+      && actual.audienceIds?.includes(recipient) && entry.audienceIds?.includes(recipient)
+      && journal.observations?.some(row=>row.ownerId===recipient && row.observationId===actorObservationId(state,entry.observationKey,recipient));
+  };
+  if (!received(heard,player) || !received(said,peer)) return {};
+  return last.beats?.some(beat=>heard.observationKey===`npc:${last.jobId}:beat:${beat.beat}:${peer}`
+    && beat.decisions.some(({actorId,proposal})=>actorId===peer && proposal?.decision?.operation?.type==='speak'
+      && proposal.utterance===heard.text && proposal.communication?.kind===heard.communication.kind
+      && proposal.communication.addresseeHandles?.includes(actorHandle(peer,player)))
+    && state.agentAutonomy?.decisions?.some(row=>row.actorId===peer && row.accepted===true && row.operation?.type==='speak'
+      && row.sceneRevision===state.revision && row.sceneBeat===beat.beat && row.at===heard.occurredAt)) ? {replyPeer} : {};
+}
+
+// The preceding committed exchange must contain an actually heard proposal
+// to multiple people. A later overheard warning does not choose a peer.
+export function proveLocalTravelAttempt(state,player,raw,version=1) {
+  if (version===2) {
+    const scene=causalPlayerScene(state), {scene:perceived,targetIds}=playerPerceivedScene(state,scene);
+    Object.assign(perceived,ordinaryLocalPointReplyContext(state,player,perceived,targetIds));
+    return localTravelAttemptSource(raw,perceived,2,player);
+  }
+  if (version!==1) return null;
+  const scene=causalPlayerScene(state), audience=roomGroupSpeechAudience(state,scene);
+  if (state.completed || !runtimeActive(state,player) || audience.length<3) return null;
+  const {scene:perceived,targetIds}=playerPerceivedScene(state,scene);
+  Object.assign(perceived,ordinaryReplyContext(state,player,perceived,targetIds,3));
+  const proof=localTravelAttemptSource(raw,perceived), latest=state.agentActions?.at(-1), now=state.worldTime;
+  const journal=state.agentAutonomy?.conversation?.journal?.entries;
+  if (!proof || !latest?.beats?.length || !journal || !Number.isSafeInteger(now)) return null;
+  for (const source of state.entries.slice(-24).reverse()) {
+    if (source.speakerId===player && (source.observationKey?.endsWith(':arrival') || ['speech','writing'].includes(source.delivery))) break;
+    if (source.delivery!=='speech' || !source.audienceIds?.includes(player) || !supportsLocalTravelProposal(source.text,proof)) continue;
+    const peer=source.speakerId, receipt=journal.find(row=>row.id===source.observationKey);
+    const seen=state.caseRuntime?.observations?.find(row=>row.id===source.observationKey);
+    if (!audience.includes(peer) || !source.audienceIds.includes(peer) || !source.addresseeIds?.includes(player)
+      || !source.addresseeIds.some(id=>id!==player && id!==peer && audience.includes(id) && source.audienceIds.includes(id))
+      || source.conversationRoomId!==undefined && source.conversationRoomId!==scene.roomId
+      || !Number.isSafeInteger(source.occurredAt) || !Number.isSafeInteger(source.learnedAt) || source.learnedAt<source.occurredAt
+      || source.learnedAt>now || now-source.learnedAt>300 || (source.textByActor?.[player] ?? source.text)!==source.text
+      || receipt?.occurredAt!==source.occurredAt || !Number.isSafeInteger(receipt.appliedAt) || receipt.appliedAt<source.occurredAt
+      || receipt.appliedAt>now || !receipt.observations?.some(row=>row.ownerId===player
+        && row.observationId===actorObservationId(state,source.observationKey,player))
+      || seen?.delivery!=='speech' || seen.speakerId!==peer || seen.text!==source.text || seen.occurredAt!==source.occurredAt
+      || !seen.audienceIds?.includes(player)) return null;
+    return latest.beats.some(beat=>source.observationKey===`npc:${latest.jobId}:beat:${beat.beat}:${peer}`
+      && beat.decisions.some(({actorId,proposal})=>actorId===peer && proposal?.decision?.operation?.type==='speak'
+        && proposal.utterance===source.text && proposal.communication?.addresseeHandles?.includes(actorHandle(peer,player)))
+      && state.agentAutonomy?.decisions?.some(row=>row.actorId===peer && row.accepted===true && row.operation?.type==='speak'
+        && row.sceneRevision===state.revision && row.sceneBeat===beat.beat && row.at===source.occurredAt)) ? proof : null;
+  }
+  return null;
+}
+
+// A visible notebook capability or a contemporaneous accepted visible
+// packing action belongs to its actual rules, not this unresolved-wait path.
+const notebookSurface=/(?:素描本|速写本|速寫本)/u;
+function notebookConditionObservable(state,scene,peer,player,since) {
+  if (scene.objects?.some(row=>notebookSurface.test(row.name ?? ''))) return true;
+  const plausible=/(?:收好|收起|收进|收進|合上|放回|放好|装进|裝進)/u;
+  return state.entries.slice(-28).some(row=>row.speakerId===peer && row.delivery==='action' && row.audienceIds?.includes(player)
+    && Number.isSafeInteger(row.learnedAt) && row.learnedAt>=since && row.learnedAt<=state.worldTime
+    && notebookSurface.test(row.text) && plausible.test(row.text));
+}
+const writtenJointProposal = /^(?:吾辈|吾輩|我)(?:也)?(?:想|愿意|願意)(?:和你)?(?:一起|一同)(?:去|上楼|上樓|走)[。！!](?=[^\n]*(?:楼上|樓上|上面))/u;
+export function proveLocalConditionalWait(state,player,raw) {
+  if (state.completed || state.caseRuntime?.occupiedBody || !runtimeActive(state,player)
+    || actorForState(state,player)?.communication!=='speech') return null;
+  const scene=causalPlayerScene(state), {scene:perceived,targetIds}=playerPerceivedScene(state,scene);
+  Object.assign(perceived,ordinaryReplyContext(state,player,perceived,targetIds,3));
+  const proof=localConditionalWaitSource(raw,perceived,player);
+  if (!proof) return null;
+  const peer=targetIds[proof.targetId] ?? proof.targetId;
+  if (!sequenceAudience(state,player,peer,scene.roomId) || actorForState(state,peer)?.communication!=='writing') return null;
+  const recent=state.entries.slice(-24);
+  const source=recent.slice().reverse().find(row=>row.speakerId===player && row.observationKey?.endsWith(':arrival')
+    || ['speech','writing'].includes(row.delivery) && row.audienceIds?.includes(player)
+      && (row.speakerId===player || row.addresseeIds?.includes(player)));
+  const latest=state.agentActions?.at(-1);
+  if (!source || source.delivery!=='writing' || source.speakerId!==peer || !isDeepStrictEqual(source.addresseeIds,[player])
+    || !isDeepStrictEqual([...source.audienceIds].sort(),[peer,player].sort()) || source.conversationRoomId!==scene.roomId
+    || !Number.isSafeInteger(source.occurredAt) || !Number.isSafeInteger(source.learnedAt)
+    || source.learnedAt<source.occurredAt || source.learnedAt>state.worldTime || state.worldTime-source.occurredAt>360
+    || (source.textByActor?.[player] ?? source.text)!==source.text || !writtenJointProposal.test(source.text)
+    || /(?:如果|假如|要是|听说|聽說|转述|轉述|明天|以后|以後|不想|不去|不要|别走|別走)/u.test(source.text)
+    || notebookConditionObservable(state,perceived,peer,player,source.occurredAt)) return null;
+  const receipt=state.agentAutonomy?.conversation?.journal?.entries?.find(row=>row.id===source.observationKey);
+  const seen=state.caseRuntime?.observations?.find(row=>row.id===source.observationKey);
+  if (receipt?.occurredAt!==source.occurredAt || !Number.isSafeInteger(receipt.appliedAt) || receipt.appliedAt<source.occurredAt
+    || receipt.appliedAt>state.worldTime || !receipt.observations?.some(row=>row.ownerId===player
+      && row.observationId===actorObservationId(state,source.observationKey,player))
+    || seen?.delivery!=='writing' || seen.speakerId!==peer || seen.text!==source.text || seen.occurredAt!==source.occurredAt
+    || !seen.audienceIds?.includes(player)) return null;
+  return latest?.beats?.some(beat=>source.observationKey===`npc:${latest.jobId}:beat:${beat.beat}:${peer}`
+    && beat.decisions.some(({actorId,proposal})=>actorId===peer && proposal?.decision?.operation?.type==='write'
+      && proposal.utterance===source.text && proposal.communication?.addresseeHandles?.includes(actorHandle(peer,player))
+      && notebookSurface.test(proposal.action ?? '') && recent.some(row=>row.speakerId===peer && row.delivery==='action'
+        && row.occurredAt===source.occurredAt && row.learnedAt<=state.worldTime && row.audienceIds?.includes(player)
+        && row.observationKey?.startsWith(latest.jobId+':beat:'+beat.beat+':enactment:') && row.text===proposal.action
+        && state.caseRuntime?.observations?.some(obs=>obs.id===row.observationKey && obs.text===row.text
+          && obs.audienceIds?.includes(player))))
+    && state.agentAutonomy?.decisions?.some(row=>row.actorId===peer && row.accepted===true && row.operation?.type==='write'
+      && row.sceneRevision===state.revision && row.sceneBeat===beat.beat && row.at===source.occurredAt)) ? proof : null;
+}
+
+// Match the sealed partner against the live room, identified by the actual
+// approach span, not by a new reply or an NPC offer in a queued packet.
+function readinessEndpoint(state,room,plan) {
+  const scene=causalPlayerScene(state), player=createdPlayerId(state);
+  if (scene.roomId!==room) return null;
+  const perception=playerPerceivedScene(state,scene);
+  const person=localReadinessApproach(plan.steps[1].text,perception.scene);
+  const peer=resolvePerceivedIntent(plan.steps[0].intent,perception.targetIds)?.targetId;
+  const focus=localReadinessWait(plan.steps[2].text,perception.scene);
+  return person && focus && person.targetId===plan.steps[0].intent.targetId && peer
+    && sequenceAudience(state,player,peer,room) ? {person,focus} : null;
+}
+
+function localSpeechPartAudience(state, player, room, part, sequence) {
+  if (runtimeRoom(state, player) !== room || !runtimeActive(state, player) || state.completed
+    || state.caseRuntime?.occupiedBody || state.guardReaction?.pending || actorForState(state, player)?.communication !== 'speech') return null;
+  const scene = causalPlayerScene(state);
+  if (part.kind === 'transition') {
+    const current = playerPerceivedScene(state, scene).scene;
+    const observed = sequence.version === 6 ? localPointFocus(part.action, current)
+      : sequence.version===8 ? localStairOrientationFocus(part.action,current)
+      : [5,7].includes(sequence.version) ? observedOrientationFocus(part.action, current) : localSpeechObservation(part.action, current);
+    if (sequence.version >= 5 && !sequenceAudience(state, player, sequence.targetId, room)) return null;
+    return isDeepStrictEqual(observed, part.focus)
+      && (!part.focus.some(row => row.kind === 'crowd') || roomGroupSpeechAudience(state, scene).length >= 3) ? [] : null;
+  }
+  if (part.speechScope === 'room') {
+    const audience = roomGroupSpeechAudience(state, scene);
+    return audience.length >= 3 && (!part.memberId || audience.includes(part.memberId)) ? audience : null;
+  }
+  return sequenceAudience(state, player, part.targetId, room);
+}
+
+function sequenceEnactments(draft, action, sequence, index, audienceIds) {
+  const player = createdPlayerId(draft), part = sequence.parts[index];
+  const key = `${action.questionKey}:sequence:${index}`;
+  if (part.kind === 'speech') {
+    const directed = part.speechScope !== 'room';
+    const rootKey = sequence.version >= 3 ? index === 0 : index === sequence.parts.length - 1;
+    return [{ ...causalEnactment(draft, part.text, player, rootKey ? action.questionKey : key, { delivery: 'speech', audienceIds }),
+      addresseeIds: directed ? [sequence.version >= 4 ? part.targetId : action.intent.targetId] : [], communication: { kind: communicationKind(part.text) } }];
+  }
+  return [...(part.action ? [causalEnactment(draft, part.action, player, `gesture:${key}`)] : []),
+    ...(part.reflection ? [causalEnactment(draft, part.reflection, player, `reflection:${key}`, { delivery: 'reflection', audienceIds: [player] })] : [])];
+}
+
 function checkPrefix(prefix) {
   if (!record(prefix, ['version', 'action', 'draft', 'events', 'phase', 'boundary', 'interrupted', 'stopReason', 'beats',
     'rootEntryCount', 'rootActionCount', 'rootRevision', 'schedulingBeats', 'conversationEventClockVersion', 'intentSettlement', 'intentProgress']) || prefix.version !== 1
     || (prefix.conversationEventClockVersion !== undefined && prefix.conversationEventClockVersion !== 1)
     || !record(prefix.draft) || !['reaction', 'ready'].includes(prefix.phase)
     || typeof prefix.interrupted !== 'boolean' || !(prefix.stopReason === null || typeof prefix.stopReason === 'string')
-    || !record(prefix.boundary, ['pending', 'completesAt', 'inspectionCompletesAt', 'inspectionIntent', 'inspectionStartedAt', 'stageBefore', 'destination', 'deferredEvents', 'roomBefore', 'localIds'])
+    || !record(prefix.boundary, ['pending', 'completesAt', 'inspectionCompletesAt', 'inspectionIntent', 'inspectionStartedAt', 'stageBefore', 'destination', 'deferredEvents', 'roomBefore', 'localIds', 'localDoorVisible', 'localSearchSubject', 'localThresholdProof', 'dialogueSequence'])
     || typeof prefix.boundary.pending !== 'boolean'
+    || Boolean(prefix.boundary.dialogueSequence) !== [1, 2, 3, 4, 5, 6, 7, 8].includes(prefix.action.ordinaryDialogueSequenceVersion)
+    || Object.hasOwn(prefix.boundary, 'localDoorVisible') && (typeof prefix.boundary.localDoorVisible !== 'boolean'
+      || prefix.action.cellDoorAttemptVersion !== 1 || prefix.action.playerIntentPlan !== undefined)
+    || Object.hasOwn(prefix.boundary,'localSearchSubject') !== (prefix.action.ordinaryLocalSearchConversationVersion===1
+      && (prefix.action.playerIntentPlan!==undefined || prefix.action.intent.type==='look'))
+    || Object.hasOwn(prefix.boundary,'localSearchSubject') && typeof prefix.boundary.localSearchSubject!=='string'
+    || Object.hasOwn(prefix.boundary,'localThresholdProof') && (prefix.action.ordinaryLocalLookOutcomeVersion!==1 || prefix.action.intent.type!=='look'
+      || !record(prefix.boundary.localThresholdProof,['focus','needles']) || !record(prefix.boundary.localThresholdProof.focus,['kind','roomId','edgeId'])
+      || prefix.boundary.localThresholdProof.focus.kind!=='threshold' || prefix.boundary.localThresholdProof.focus.roomId!==prefix.boundary.roomBefore
+      || !list(prefix.boundary.localThresholdProof.needles,3) || !prefix.boundary.localThresholdProof.needles.length
+      || prefix.boundary.localThresholdProof.needles.some(id=>id!==null && typeof id!=='string'))
     || ![prefix.rootEntryCount, prefix.rootActionCount, prefix.rootRevision, prefix.boundary.completesAt]
       .every(value => Number.isSafeInteger(value) && value >= 0)
     || !Array.isArray(prefix.draft.entries) || !Array.isArray(prefix.draft.agentActions)
@@ -211,7 +644,15 @@ function publishStage(prefix, events, key) {
   runtimeObserve(prefix.draft, normalized);
   const visible = persistEnactments(prefix.draft, normalized, { introductionVersion: prefix.action.introductionVersion,
     ...(prefix.conversationEventClockVersion === 1 ? { conversationEventClockVersion: 1 } : {}) });
-  for (const entry of visible) prefix.draft.entries.push({ ...entry, id: `entry-${prefix.draft.entries.length + 1}` });
+  for (const entry of visible) {
+    const { draft } = prefix, player = createdPlayerId(draft);
+    const single = [2, 3].includes(prefix.action.ordinaryAddressVersion) && ['speech', 'writing'].includes(entry.delivery)
+      && entry.occurredAt === draft.worldTime && entry.addresseeIds?.length === 1
+      && entry.audienceIds?.includes(entry.addresseeIds[0]) && (entry.speakerId === player || entry.addresseeIds[0] === player);
+    const room = single && runtimeRoom(draft, player);
+    const recipientRoom = room && runtimeRoom(draft, entry.speakerId === player ? entry.addresseeIds[0] : entry.speakerId);
+    draft.entries.push({ ...entry, id: `entry-${draft.entries.length + 1}`, ...(room && room === recipientRoom ? { conversationRoomId: room } : {}) });
+  }
   refreshEvents(prefix);
 }
 function stop(prefix, reason) {
@@ -416,6 +857,10 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
   if (action.rootCaseOptionsVersion === 1 && draft.rootCaseOptionsVersion !== 1)
     draft.rootCaseOptionsVersion = 1;
   if (!draft.caseRuntime) fail();
+  // Prefix checks may run after custody has changed. Rebind the frozen item
+  // choice only here, against the current menu before any action settlement.
+  const itemRoot = ordinaryItemRootStep(action);
+  if (itemRoot && !isDeepStrictEqual(resolvePlayerPlanStep(draft, itemRoot), action.intent)) fail();
   if (!outskirtsActive(draft) && isCourtyardEntry(action.rawInput) && action.intent?.type === 'move'
     && action.intent.destination === 'courtyard' && runtimeRoom(draft, createdPlayerId(draft)) === 'reception') {
     activateOutskirts(draft);
@@ -446,6 +891,148 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
     && parseScheduleWaitIntent(authorization, action.rawInput, action.scheduleWaitVersion)?.accepted !== true) fail();
   const scene = causalPlayerScene(authorization);
   const { intent } = action; const player = createdPlayerId(draft);
+  const first = action.ordinaryAddressVersion === 3 ? firstAddressClause(action) : undefined;
+  let dialogueSequence;
+  if ([1, 2, 3, 4, 5, 6, 7, 8].includes(action.ordinaryDialogueSequenceVersion)) {
+    const perception = playerPerceivedScene(authorization, scene);
+    const version=action.ordinaryDialogueSequenceVersion;
+    Object.assign(perception.scene, version===8 ? ordinaryLocalStairReplyContext(authorization,player,perception.scene,perception.targetIds)
+      : [6,7].includes(version) ? ordinaryLocalPointReplyContext(authorization, player, perception.scene, perception.targetIds)
+      : ordinaryReplyContext(authorization, player, perception.scene, perception.targetIds, 3));
+    const target = projectPerceivedIntent(intent, perception.targetIds).targetId;
+    const proof = ordinaryDialogueSequence(action.rawInput, perception.scene, target, action.ordinaryDialogueSequenceVersion);
+    if (!proof || proof.parts[0].text !== intent.playerText) fail();
+    if (proof.version >= 4) {
+      if (proof.parts[0].speechScope !== intent.speechScope || proof.parts[0].targetId !== target) fail();
+      const parts = proof.parts.map(part => part.targetId ? { ...part, targetId: perception.targetIds[part.targetId] ?? part.targetId } : part);
+      dialogueSequence = { ...proof, parts, ...([6,7,8].includes(proof.version) ? { targetId: intent.targetId } : {}), startedAt: draft.worldTime };
+      if (!parts.every(part => localSpeechPartAudience(draft, player, scene.roomId, part, dialogueSequence))) fail();
+    } else {
+      if (!sequenceAudience(draft, player, intent.targetId, scene.roomId)
+        || proof.version === 3 && !roomGroupSpeechAudience(draft, scene).includes(proof.roomMemberId)) fail();
+      dialogueSequence = { ...proof, targetId: intent.targetId, startedAt: draft.worldTime };
+    }
+  }
+  if (action.localConditionalWaitVersion===1 && (action.playerIntentPlan
+    ? !proveLocalConditionalWait(authorization,player,action.rawInput)
+    : !localConditionalWaitStep(action.rawInput,playerPerceivedScene(authorization,scene).scene))) fail();
+  const travelVersion=action.localTravelAttemptVersion;
+  const localTravel=[1,2].includes(travelVersion) && !action.playerIntentPlan;
+  const travelStepIndex=localTravel && action.jobId.endsWith(':step:2') ? 2 : 1;
+  if ([1,2].includes(travelVersion)) {
+    if (localTravel) {
+      const perceived=playerPerceivedScene(authorization,scene).scene;
+      if (!(travelVersion===1 ? localTravelAttemptStep(action.rawInput,perceived)
+        : localTravelDirectedStep(action.rawInput,perceived,travelStepIndex))) fail();
+    } else {
+      const proof=proveLocalTravelAttempt(authorization,player,action.rawInput,travelVersion);
+      if (!proof || travelVersion===2 && (playerPerceivedScene(authorization,scene).targetIds[proof.targetId] ?? proof.targetId)!==intent.targetId) fail();
+    }
+  }
+  const ambientVersion=action.ordinaryLocalAmbientSpeechVersion, ambient=[1,2,3,4].includes(ambientVersion);
+  if (ambient) {
+    const perception=playerPerceivedScene(authorization,scene), perceived=perception.scene;
+    if (!runtimeActive(draft,player) || actorForState(draft,player)?.communication !== 'speech') fail();
+    if (ambientVersion===4) {
+      const audience=roomGroupSpeechAudience(authorization,scene);
+      if (action.playerIntentPlan) {
+        Object.assign(perceived,ordinaryReplyContext(authorization,player,perceived,perception.targetIds,3));
+        if (!recentOpenWaitQuestion(authorization,player,audience)
+          || !localAmbientPlanSpans(ordinaryLocalAmbientSpeechSource(action.rawInput,perceived,4),action.playerIntentPlan.steps,4)) fail();
+      }
+      if (intent.type==='act' && audience.length<3) fail();
+      const proof=localOpenOrientationStep(first?.text ?? action.rawInput,perceived);
+      if (proof?.type!==intent.type || !isDeepStrictEqual(proof.performance,action.performance)) fail();
+    } else if (ambientVersion===3) {
+      if (intent.type==='act' || action.playerIntentPlan)
+        Object.assign(perceived,ordinaryReplyContext(authorization,player,perceived,perception.targetIds,3));
+      if ((intent.type==='act' || action.playerIntentPlan) && roomGroupSpeechAudience(authorization,scene).length<3) fail();
+      if (action.playerIntentPlan && !localAmbientPlanSpans(ordinaryLocalAmbientSpeechSource(action.rawInput,perceived,3),action.playerIntentPlan.steps,3)) fail();
+      const source=localComposedAmbientStep(action.playerIntentPlan?.steps[0]?.text ?? action.rawInput,perceived);
+      if (source?.type!==intent.type || !isDeepStrictEqual(source.performance,action.performance)) fail();
+    } else if (ambientVersion===2) {
+      if (action.playerIntentPlan) {
+        Object.assign(perceived,ordinaryReplyContext(authorization,player,perceived,perception.targetIds,3));
+        const proof=ordinaryLocalAmbientSpeechSource(action.rawInput,perceived,2);
+        if (!localAmbientPlanSpans(proof,action.playerIntentPlan.steps,2)
+          || !recentLocalWaitProposal(authorization,player,roomGroupSpeechAudience(authorization,scene))) fail();
+      }
+      const text=action.playerIntentPlan?.steps[0]?.text ?? action.rawInput;
+      const expected=localAgreementPerformance(text,perceived,intent.type);
+      if (!expected || !isDeepStrictEqual(expected,action.performance)) fail();
+    } else if (action.playerIntentPlan) {
+      const proof=ordinaryLocalAmbientSpeechSource(action.rawInput,perceived);
+      if (!localAmbientPlanSpans(proof,action.playerIntentPlan.steps,1)) fail();
+    } else if (intent.type==='act' ? localAmbientSpeech(action.rawInput,perceived)?.text!==action.performance.utterance
+      : !localAmbientWait(action.rawInput,perceived)) fail();
+  }
+  const searchConversation = action.ordinaryLocalSearchConversationVersion === 1;
+  let searchSubject;
+  if (searchConversation) {
+    const perception = playerPerceivedScene(authorization,scene), current=perception.scene;
+    Object.assign(current,ordinaryReplyContext(authorization,player,current,perception.targetIds,3));
+    const target=projectPerceivedIntent(intent,perception.targetIds).targetId;
+    if (!runtimeActive(draft,player) || actorForState(draft,player)?.communication!=='speech') fail();
+    if (action.playerIntentPlan) {
+      const proof=ordinaryLocalSearchSource(action.rawInput,current);
+      if (!proof || !isDeepStrictEqual([proof.first,proof.look,proof.last],action.playerIntentPlan.steps.map(step=>step.text))
+        || proof.start.targetId!==target || proof.start.text!==intent.playerText
+        || proof.proposal.text!==action.playerIntentPlan.steps[2].intent.playerText
+        || !sequenceAudience(draft,player,intent.targetId,scene.roomId)) fail();
+      searchSubject=proof.search.subjectId;
+    } else if (intent.type==='look') {
+      const searchLook=localSearchLook(action.rawInput,current);
+      if (!searchLook || action.performance.action!=='我朝周围看了看。' || action.performance.reflection!==searchLook.reflection
+        || action.performance.utterance!==undefined) fail();
+      searchSubject=searchLook.subjectId;
+    } else if (localSearchProposal(action.rawInput,current,target)?.text!==intent.playerText
+      || !sequenceAudience(draft,player,intent.targetId,scene.roomId)) fail();
+  }
+  const readiness=action.ordinaryLocalApproachVersion===3;
+  if (readiness) {
+    const perception=playerPerceivedScene(authorization,scene), current=perception.scene;
+    if (action.playerIntentPlan) {
+      Object.assign(current,ordinaryReplyContext(authorization,player,current,perception.targetIds,3));
+      const proof=ordinaryLocalApproachSource(action.rawInput,current,3), [,near,tail]=action.playerIntentPlan.steps;
+      if (!proof || proof.quote!==first?.text || proof.approachText!==near.text || proof.waitText!==tail.text
+        || proof.speech.targetId!==projectPerceivedIntent(intent,perception.targetIds).targetId
+        || proof.speech.text!==intent.playerText || !sequenceAudience(draft,player,intent.targetId,scene.roomId)) fail();
+    } else if (intent.type==='act' ? localReadinessApproach(action.rawInput,current)?.action!==action.performance.action
+        : !localReadinessWait(action.rawInput,current)) fail();
+  }
+  const personApproach=action.ordinaryLocalApproachVersion===2;
+  if (personApproach) {
+    const perception=playerPerceivedScene(authorization,scene), current=perception.scene;
+    const tail=action.playerIntentPlan?.steps[1], speechIntent=tail?.intent ?? intent;
+    // The root plan still uses the sealed perceived target; a current tail
+    // action already has its concrete actor ID resolved by prepareIntentTail.
+    const target=tail ? resolvePerceivedIntent(speechIntent,perception.targetIds)?.targetId : intent.targetId;
+    if (!target || !sequenceAudience(draft,player,target,scene.roomId)) fail();
+    if (tail) {
+      const proof=ordinaryLocalApproachSource(action.rawInput,current,2);
+      if (!proof || proof.approachText!==first?.text || proof.quote!==tail.text || proof.speech.targetId!==speechIntent.targetId
+        || proof.speech.text!==speechIntent.playerText || proof.person.action!==action.performance.action) fail();
+    } else if (explicitLocalVocative(action.rawInput,current,projectPerceivedIntent(intent,perception.targetIds).targetId)?.text!==intent.playerText) fail();
+  }
+  const approaches = action.ordinaryLocalApproachVersion === 1;
+  const approachStep = approaches && !action.playerIntentPlan;
+  if (approaches) {
+    if (approachStep) {
+      if (!localApproachObservation(action.rawInput, scene) || !runtimeActive(draft, player)) fail();
+    } else {
+      const perception = playerPerceivedScene(authorization, scene);
+      const proof = ordinaryLocalApproachSource(action.rawInput, perception.scene);
+      const target = projectPerceivedIntent(intent, perception.targetIds).targetId;
+      if (!proof || proof.speech.targetId !== target || proof.speech.text !== intent.playerText || proof.quote !== first?.text
+        || proof.approachText !== action.playerIntentPlan.steps[1].text
+        || !sequenceAudience(draft, player, intent.targetId, scene.roomId)) fail();
+    }
+  }
+  if (first?.intent.type === 'conversation' && !action.bareReplyRootVersion && !dialogueSequence && !approaches && !readiness && !searchConversation
+    && (!liveAddressPresent(draft, scene, first.text, intent, action.roomGroupSpeechVersion) || action.performance.utterance !== intent.playerText)) fail();
+  const singleSpeech = v2AddressedSpeech(action);
+  if (singleSpeech && !preservesEnactedPlayerSpeech(action.rawInput, action.performance.utterance, intent)
+    && resolvePlayerAddress(action.rawInput, scene, intent.targetId)?.text !== singleSpeech) fail();
   if (action.postureActionVersion === 1) scene.postureActions = runtimePoseActions(authorization);
   const offerWorld = swapAct?.prepared ? state : draft;
   const offerMagic = swapAct?.prepared ? (state.magic || draft.magic) : draft.magic;
@@ -461,13 +1048,22 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
   if (!authoredCast) {
     validateCausalIntent(scene, action.intent, { scheduleWaitVersion: action.scheduleWaitVersion,
       postureActionVersion: action.postureActionVersion, rawInput: action.rawInput,
-      playerTextMagicVersion: action.playerTextMagicVersion, magicOffer });
+      playerTextMagicVersion: action.playerTextMagicVersion, magicOffer, roomGroupSpeechVersion: action.roomGroupSpeechVersion });
     // Existing dedicated and native consumers still own their offered choices.
     applyPlayerTextMagic(draft, action, player, customAct, swapAct);
   }
   const stageBefore = stage(draft);
   const selectedReaction = procedureStatementReaction(authorization, parseTestimonyCommand(action.rawInput));
-  const chosenPerformance = statementReactionPerformance(action, selectedReaction);
+  const localDoorAttempt = action.cellDoorAttemptVersion === 1 && !action.playerIntentPlan;
+  const bareReply = action.bareReplyRootVersion === 1
+    ? bareReplyRootSource(action.rawInput, action.playerIntentPlan.steps, scene) : null;
+  if (action.bareReplyRootVersion === 1 && (!bareReply || intent.targetId !== bareReply.targetId || selectedReaction)) fail();
+  // The existing model packet is still validated and sealed byte-for-byte. A
+  // source with only the reply authorizes neither a gesture nor a reflection.
+  const chosenPerformance = bareReply ? { action: '', utterance: bareReply.text }
+    : localDoorAttempt ? { action: '' }
+    : approachStep ? { action: '我在房间内朝门口方向迈步，留意视线所及。' }
+    : statementReactionPerformance(action, selectedReaction);
   // The paired relocation owns its contact and arrival lines; performance
   // is preparation only, never an alternate proof of touching or moving.
   const mechanical = [1, 2].includes(action.intentContractVersion) && (['runtime', 'move'].includes(intent.type)
@@ -475,19 +1071,39 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
   const clause = action.playerIntentPlan?.steps[0]?.text ?? action.rawInput;
   const performance = mechanical ? { ...chosenPerformance, action: '',
     utterance: /(?:说|问|告诉|回应|回答|表示)/u.test(clause) ? chosenPerformance.utterance : '' } : chosenPerformance;
+  // Source-licensed visual preparation is independent of model performance;
+  // the mechanical move still owns every departure and arrival.
+  const visualScene = (intent.type==='look' && action.ordinaryLocalLookOutcomeVersion===1
+    || intent.type==='move' && action.ordinaryMoveVisualPreludeVersion===1) ? playerPerceivedScene(authorization,scene).scene : null;
+  const safeToObserve=visualScene && runtimeActive(authorization,player) && !authorization.completed
+    && !authorization.caseRuntime?.occupiedBody && !pendingReactionActors(authorization).length;
+  const localThresholdProof=safeToObserve && intent.type==='look' && intent.targetId===undefined ? localThresholdLook(clause,visualScene) : null;
+  const visualPrelude=safeToObserve && intent.type==='move' ? localMoveVisualPrelude(clause,visualScene,intent.destination) : null;
   const reactions = intent.operation === 'vote' || guardProtected(draft) ? [] : pendingReactionActors(draft);
   // Root discovery is published after validating against the previous delivery.
   // Restrict it to the acting owner so a private item scan cannot create an
   // unrelated NPC trigger in the same scene admission.
   const events = runtimeDiscoverObjects(draft, `${action.jobId}:objects:root`, { actorIds: [player] }); const deferredEvents = [];
-  if (intent.operation !== 'vote') {
+  if (dialogueSequence) events.push(...sequenceEnactments(draft, action, dialogueSequence, 0,
+    dialogueSequence.version >= 4 ? localSpeechPartAudience(draft, player, scene.roomId, dialogueSequence.parts[0], dialogueSequence)
+      : sequenceAudience(draft, player, intent.targetId, scene.roomId)));
+  else if (intent.operation !== 'vote') {
     if (action.performanceVersion === 2 && performance.reflection) events.push(causalEnactment(draft,
       performance.reflection, player, `reflection:${action.jobId}`, { delivery: 'reflection', audienceIds: [player] }));
-    if (performance.action) events.push(causalEnactment(draft, performance.action, player, `gesture:${action.jobId}`));
+    // The ambient speech slot's causal-validation cue is the act of speaking,
+    // not a separate gesture or a second observation.
+    if (visualPrelude) events.push(causalEnactment(draft,visualPrelude,player,`visual-prelude:${action.jobId}`));
+    if (performance.action && !localTravel && !(ambient && intent.type === 'act'))
+       events.push(causalEnactment(draft, performance.action, player, `gesture:${action.jobId}`));
     if (performance.utterance) {
       const delivery = actorForState(draft, player).communication === 'writing' ? 'writing' : 'speech';
-      const audienceIds = acquisitionAudience(draft, player, { delivery, targetId: intent.targetId });
-      const addresseeIds = intent.targetId ? [intent.targetId]
+      const group = intent.speechScope === 'room';
+      const audienceIds = group || ambientVersion===4 ? roomGroupSpeechAudience(draft, scene)
+        : acquisitionAudience(draft, player, { delivery, targetId: intent.targetId });
+      if (group && (delivery !== 'speech' || audienceIds.length < 3 || performance.utterance !== intent.playerText)) fail();
+      // A room inquiry is one overheard event, not an individual request to
+      // every listener; the existing beat scheduler remains in control.
+      const addresseeIds = group || ambient ? [] : intent.targetId ? [intent.targetId]
         : action.playerRuntimeCommunicationVersion === 1
           ? runtimeSwapAddressee(draft, player, intent, performance.utterance, audienceIds) : [];
       const utterance = { ...causalEnactment(draft, performance.utterance, player, action.questionKey, { delivery,
@@ -568,7 +1184,8 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
     elapsed = result.elapsed;
   }
   if (intent.operation === 'vote' && !/^(?:我(?:把票)?投(?:给|給|向)?|投票给|投票給)[^「」“”"？?]+[。！!]?$/u.test(action.rawInput.trim())) fail();
-  if (action.caseActionTimingVersion !== 2 && intent.operation !== 'vote') elapsed += Math.ceil((performance.utterance || '').length / 6);
+  if (action.caseActionTimingVersion !== 2 && intent.operation !== 'vote') elapsed += Math.ceil((dialogueSequence
+    ? dialogueSequence.parts.reduce((sum, part) => sum + (part.text?.length ?? 0), 0) : (performance.utterance || '').length) / 6);
   if (broadcastDelivered && intent.type === 'broadcast' && draft.agentFormatVersion >= 3 && draft.agentWorld.startSecond + draft.worldTime < 6 * 3600) {
     elapsed = 6 * 3600 - draft.agentWorld.startSecond - draft.worldTime;
   }
@@ -576,8 +1193,13 @@ function beginScene(state, action, { customAct = null, swapAct = null, domainSto
   elapsed = guardActionSeconds(draft, elapsed);
   const prefix = { version: 1, action: structuredClone(rootAction(action)), draft, events: [],
     phase: reactions.length ? 'reaction' : 'ready', boundary: { pending: true, completesAt: draft.worldTime + elapsed,
+      ...(searchSubject ? { localSearchSubject: searchSubject } : {}),
+      ...(localThresholdProof ? {localThresholdProof} : {}),
       inspectionCompletesAt, ...(runtimeInspection || pinnedExplicitInspection ? { inspectionIntent, inspectionStartedAt: draft.worldTime } : {}), stageBefore, destination, deferredEvents, roomBefore: scene.roomId,
-      localIds: scene.nearby.map(row => row.id) }, interrupted: false, stopReason: null, beats: [],
+      localIds: scene.nearby.map(row => row.id),
+       ...(dialogueSequence ? { dialogueSequence } : {}),
+      ...(localDoorAttempt ? { localDoorVisible: cellDoorAttemptState(authorization, scene) !== 'unavailable' } : {}) },
+     interrupted: false, stopReason: null, beats: [],
     // The custom prepared result is a real prefix of this ordinary act. It
     // stays in the event boundary keyed from the original source head, so the
     // public event set carries its typed marker/audience; the Host, not the
@@ -603,9 +1225,33 @@ function settleBoundary(input) {
   const player = createdPlayerId(draft); const { intent } = action;
   const protectedAction = guardProtected(draft); const protectionStart = draft.worldTime;
   const returning = curfewReturnIntent(draft, intent);
+  const clockOptions = { npcReactions: true, storyArcVersion: action.storyArcVersion, curfewReturn: returning,
+    ...(directorAssemblyMayAdvance(action, prefix) && effectiveAssemblyAllowed(action.effectiveRunPolicy, CARD_ASSEMBLY_TEXT) ? { directorAssembly: action.directorEventDue } : {}) };
+  const sequence = boundary.dialogueSequence;
+  let deliveredSequenceParts = sequence ? 1 : 0;
+  if (sequence && !prefix.interrupted) {
+    for (let index = 1; index < sequence.parts.length; index++) {
+      const due = sequence.startedAt + Math.floor((boundary.completesAt - sequence.startedAt) * index / sequence.parts.length);
+      const slice = advanceCausalTime(draft, Math.max(draft.worldTime, due), `${action.jobId}:sequence-clock:${index}`, clockOptions);
+      if (slice.events.length) publishStage(prefix, slice.events, `${action.jobId}:sequence-clock:${index}`);
+      if (slice.interrupted || stage(draft) !== boundary.stageBefore) { stop(prefix, 'world_interrupt'); break; }
+      let audience = sequence.version >= 4 ? localSpeechPartAudience(draft, player, boundary.roomBefore, sequence.parts[index], sequence)
+        : sequenceAudience(draft, player, sequence.targetId, boundary.roomBefore);
+      if (sequence.version === 3) {
+        const current = causalPlayerScene(draft);
+        const group = audience && roomGroupSpeechAudience(draft, current);
+        // Keep the already-spoken prefix when either anchor ceases to be real.
+        if (!group?.includes(sequence.roomMemberId)) { stop(prefix, 'departure'); break; }
+        if (sequence.parts[index].speechScope === 'room') audience = group;
+      }
+      if (!audience) { stop(prefix, 'departure'); break; }
+      const events = sequenceEnactments(draft, action, sequence, index, audience);
+      if (events.length) publishStage(prefix, events, `${action.jobId}:sequence:${index}`);
+      deliveredSequenceParts++;
+    }
+  }
   const advanced = prefix.interrupted ? { events: [], interrupted: true }
-    : advanceCausalTime(draft, Math.max(draft.worldTime, boundary.completesAt), action.jobId, { npcReactions: true, storyArcVersion: action.storyArcVersion, curfewReturn: returning,
-      ...(directorAssemblyMayAdvance(action, prefix) && effectiveAssemblyAllowed(action.effectiveRunPolicy, CARD_ASSEMBLY_TEXT) ? { directorAssembly: action.directorEventDue } : {}) });
+    : advanceCausalTime(draft, Math.max(draft.worldTime, boundary.completesAt), action.jobId, clockOptions);
   const events = [...advanced.events, ...boundary.deferredEvents.filter(event => event.occurredAt <= draft.worldTime)];
   if (intent.type === 'read' && draft.worldTime >= boundary.completesAt && !draft.completed && runtimeActive(draft, player)
     && ((!advanced.interrupted && stage(draft) === boundary.stageBefore)
@@ -685,8 +1331,86 @@ function settleBoundary(input) {
     events.push(runtimeSettlePose(draft, player, intent, action.rawInput, `pose:${action.jobId}:${player}`));
   }
   if (prefix.intentSettlement) {
+    const travelVersion=action.localTravelAttemptVersion;
+    if ([1,2].includes(travelVersion) && !action.playerIntentPlan) {
+      if (prefix.interrupted || advanced.interrupted || draft.completed || draft.worldTime<boundary.completesAt
+        || runtimeRoom(draft,player)!==boundary.roomBefore || !runtimeActive(draft,player)) {
+        Object.assign(prefix.intentSettlement,{status:'blocked',code:'world_interrupt'});
+      } else {
+        const current=playerPerceivedScene(draft,causalPlayerScene(draft)).scene;
+        const near=travelVersion===2 && action.jobId.endsWith(':step:1');
+        const attempt=travelVersion===1 ? localTravelAttemptStep(action.rawInput,current)
+          : localTravelDirectedStep(action.rawInput,current,near?1:2);
+        if (attempt) {
+          const text=travelVersion===2 && !near
+            ? `我试着往上走，在${current.location}这边停了下来，没走到楼上。` : attempt.action;
+          events.push(causalEnactment(draft,text,player,`local-travel-attempt:${action.jobId}`,
+            travelVersion===2 && !near ? {audienceIds:[player]} : undefined));
+        }
+        Object.assign(prefix.intentSettlement,attempt && near ? {status:'completed',code:'completed'}
+          : {status:'blocked',code:attempt?'destination_unavailable':'operation_unavailable'});
+      }
+    }
+    if (Object.hasOwn(boundary, 'localDoorVisible')) {
+      if (prefix.interrupted || advanced.interrupted || draft.completed || draft.worldTime < boundary.completesAt
+        || runtimeRoom(draft, player) !== boundary.roomBefore) {
+        Object.assign(prefix.intentSettlement, { status: 'blocked', code: 'world_interrupt' });
+      } else {
+        const door = boundary.localDoorVisible ? cellDoorAttemptState(draft) : 'unavailable';
+        const text = { locked: '我走到牢门边，伸手轻推。锁还扣着，走廊这条路仍被挡住。',
+          restricted: '我走到牢门边，伸手轻推。锁已解开，但眼下仍不准经这里出去，我留在门内。',
+          passable: '我走到牢门边，伸手轻推。锁已解开，这条通路可前往走廊；我仍在门内。',
+          unavailable: '眼前没有可供这次动作核对的牢房门；我没有试推，也没有跨过门口。' }[door];
+        events.push(causalEnactment(draft, text, player, `cell-door-attempt:${action.jobId}`));
+        Object.assign(prefix.intentSettlement, door === 'passable' ? { status: 'completed', code: 'completed' }
+          : { status: 'blocked', code: door === 'unavailable' ? 'operation_unavailable' : 'destination_unavailable' });
+      }
+    }
+    if (boundary.localThresholdProof && !prefix.interrupted && !advanced.interrupted && !draft.completed
+      && draft.worldTime>=boundary.completesAt && runtimeActive(draft,player) && runtimeRoom(draft,player)===boundary.roomBefore) {
+      // The door end supplies a local orientation, never optical evidence
+      // about the adjacent room or proof of how anyone arrived.
+      const view=playerPerceivedScene(draft,causalPlayerScene(draft)).scene;
+      const current=localThresholdLook(action.playerIntentPlan?.steps[0]?.text ?? action.rawInput,view);
+      if (isDeepStrictEqual(current?.focus,boundary.localThresholdProof.focus)) {
+        const combined={...current,needles:current.needles.map((id,index)=>{
+          const initial=boundary.localThresholdProof.needles[index];
+          return initial===null || initial===id ? id : null;
+        })};
+        events.push(causalEnactment(draft,localThresholdLookText(combined,view),player,
+          `local-look-outcome:${action.jobId}`,{delivery:'action',audienceIds:[player]}));
+      }
+    }
+    if (boundary.localSearchSubject && intent.type==='look') {
+      if (prefix.interrupted || advanced.interrupted || draft.completed || draft.worldTime<boundary.completesAt
+        || runtimeRoom(draft,player)!==boundary.roomBefore || !runtimeActive(draft,player)) {
+        Object.assign(prefix.intentSettlement,{status:'blocked',code:'world_interrupt'});
+      } else {
+        const current=playerPerceivedScene(draft,causalPlayerScene(draft)).scene;
+        const found=localSearchLook(action.rawInput,current);
+        const label=found?.subjectId===boundary.localSearchSubject ? found.label : undefined;
+        events.push(causalEnactment(draft,label ? `我在眼前的人里认出了${label}。` : '在当前能看到的范围内，我还没有认出要找的人。',player,
+          `local-search:${action.jobId}`,{delivery:'action',audienceIds:[player]}));
+      }
+    }
+    if ((action.ordinaryLocalApproachVersion===2 && action.playerIntentPlan || action.ordinaryLocalApproachVersion===3)
+      && (prefix.interrupted || advanced.interrupted || draft.completed || draft.worldTime<boundary.completesAt
+        || runtimeRoom(draft,player)!==boundary.roomBefore || !runtimeActive(draft,player))) {
+      Object.assign(prefix.intentSettlement,{status:'blocked',code:'world_interrupt'});
+    }
+    if (action.ordinaryLocalApproachVersion === 1 && !action.playerIntentPlan) {
+      if (prefix.interrupted || advanced.interrupted || draft.completed || draft.worldTime < boundary.completesAt
+        || runtimeRoom(draft, player) !== boundary.roomBefore || !localApproachObservation(action.rawInput, causalPlayerScene(draft))) {
+        Object.assign(prefix.intentSettlement, { status:'blocked', code:'world_interrupt' });
+      } else {
+        events.push(causalEnactment(draft, '在当前能看到的范围内，所留意的情况仍未确认。', player,
+          `local-approach:${action.jobId}`, { delivery:'action', audienceIds:[player] }));
+      }
+    }
     if (intent.type === 'move') Object.assign(prefix.intentSettlement, runtimeRoom(draft, player) === intent.destination
       ? { status: 'completed', code: 'completed' } : { status: 'blocked', code: advanced.interrupted ? 'world_interrupt' : 'destination_unavailable' });
+    if (sequence && deliveredSequenceParts < sequence.parts.length)
+      Object.assign(prefix.intentSettlement, { status: 'blocked', code: 'world_interrupt' });
     prefix.intentSettlement.entryEnd = draft.entries.length + events.length;
   }
   boundary.pending = false; boundary.deferredEvents = []; prefix.phase = 'ready';
@@ -1077,6 +1801,7 @@ function applyNpcBeat(input, beat, scheduling, { historicalReplay = false, domai
     if (ids.length) signal.reactionActorIds = [...new Set([...(signal.reactionActorIds || []), ...ids])];
   }
   for (const decision of ordered) {
+    const quotedAt = draft.worldTime;
     const before = { stage: stage(draft), signals: draft.caseRuntime.signals.length, reactions: pendingReactionActors(draft),
       rooms: Object.fromEntries(roster.filter(id => runtimeActive(draft, id)).map(id => [id, runtimeRoom(draft, id)])) };
     let clockInterrupted = false; const count = draft.agentAutonomy.decisions.length;
@@ -1102,6 +1827,15 @@ function applyNpcBeat(input, beat, scheduling, { historicalReplay = false, domai
     if (draft.agentAutonomy.decisions.length > count) {
       considered.add(decision.actorId);
       for (const row of draft.agentAutonomy.decisions.slice(count)) row.sceneRevision = prefix.rootRevision + 1;
+    }
+    if (action.ordinaryAddressVersion === 3) {
+      // This exact speech is emitted before its elapsed boundary. The beat is
+      // published after siblings, so use pre-decision rather than final rooms.
+      const player = createdPlayerId(draft), room = before.rooms[player];
+      for (const row of enacted) if (row.observationKey === `npc:${jobKey}:${decision.actorId}`
+        && ['speech', 'writing'].includes(row.delivery) && row.occurredAt === quotedAt
+        && row.speakerId === decision.actorId && row.addresseeIds?.length === 1 && row.addresseeIds[0] === player
+        && row.audienceIds?.includes(player) && room && before.rooms[row.speakerId] === room) row.conversationRoomId = room;
     }
     const discovery = discoverRuntimeIncidents(draft, `${jobKey}:discovery:${decision.actorId}`);
     discovery.push(...runtimeDiscoverObjects(draft, `${jobKey}:objects:${decision.actorId}`));
@@ -1168,6 +1902,104 @@ function prepareIntentTail(input, action, { final = false, domainStore = null, d
       && (step.condition !== 'passage_permitted' || step.intent.type === 'move' && scene.permittedDestinations.includes(step.intent.destination))
       && (step.condition !== 'item_accepted' || prior.offerId && runtimeItemOfferResult(prefix.draft, prior.offerId) === 'completed');
     const intent = condition ? resolvePlayerPlanStep(prefix.draft, step) : null;
+    const ambientVersion=action.ordinaryLocalAmbientSpeechVersion;
+    if (condition && [1,2,3,4].includes(ambientVersion)) {
+      const perception=playerPerceivedScene(prefix.draft,scene), current=perception.scene, player=createdPlayerId(prefix.draft);
+      if (ambientVersion===3 && intent?.type==='act') Object.assign(current,ordinaryReplyContext(prefix.draft,player,current,perception.targetIds,3));
+      if (!intent || scene.roomId!==prefix.boundary.roomBefore || !runtimeActive(prefix.draft,player)
+        || actorForState(prefix.draft,player)?.communication!=='speech'
+        || !(ambientVersion===4 ? localOpenOrientationStep(step.text,current)?.kind===(index===1?'orientation':'proposal')
+            && (intent.type!=='act' || roomGroupSpeechAudience(prefix.draft,scene).length>=3)
+          : ambientVersion===3 ? localComposedAmbientStep(step.text,current)?.type===intent.type
+            && (intent.type!=='act' || roomGroupSpeechAudience(prefix.draft,scene).length>=3)
+          : ambientVersion===2 ? localAgreementPerformance(step.text,current,intent.type)
+          : index===1 ? localAmbientSpeech(step.text,current) : localAmbientWait(step.text,current))) {
+        const edge=prefix.draft.entries.length;
+        progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+        progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+        return finish();
+      }
+    }
+    if (condition && action.ordinaryLocalApproachVersion === 1
+      && (!intent || scene.roomId !== prefix.boundary.roomBefore || !localApproachObservation(step.text, scene))) {
+      const edge = prefix.draft.entries.length;
+      progress.settlements.push({ index, code:'operation_unavailable', start:edge, end:edge });
+      progress.stop = { index, kind:'blocked', code:'operation_unavailable' };
+      return finish();
+    }
+    const searchConversation=action.ordinaryLocalSearchConversationVersion===1;
+    if (condition && searchConversation) {
+      const perception=playerPerceivedScene(prefix.draft,scene), player=createdPlayerId(prefix.draft);
+      const current=perception.scene, target=intent && projectPerceivedIntent(intent,perception.targetIds).targetId;
+      const proof = index===1 ? localSearchLook(step.text,current) : localSearchProposal(step.text,current,target);
+      if (!intent || scene.roomId!==prefix.boundary.roomBefore || !runtimeActive(prefix.draft,player)
+        || actorForState(prefix.draft,player)?.communication!=='speech' || proof?.subjectId!==prefix.boundary.localSearchSubject
+        || (index===1 ? !proof : proof?.text!==step.intent.playerText
+          || !sequenceAudience(prefix.draft,player,intent.targetId,scene.roomId))) {
+        const edge=prefix.draft.entries.length;
+        progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+        progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+        return finish();
+      }
+    }
+    const travelVersion=action.localTravelAttemptVersion;
+    if (condition && [1,2].includes(travelVersion)) {
+      const current=playerPerceivedScene(prefix.draft,scene).scene;
+      const local=travelVersion===1 ? localTravelAttemptStep(step.text,current)
+        : localTravelDirectedStep(step.text,current,index) && (index!==2 || localTravelDirectedStep(plan.steps[1].text,current,1));
+      if (!intent || scene.roomId!==prefix.boundary.roomBefore || !local) {
+        const edge=prefix.draft.entries.length;
+        progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+        progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+        return finish();
+      }
+    }
+    const readiness=action.ordinaryLocalApproachVersion===3;
+    if (condition && readiness && (!intent || !readinessEndpoint(prefix.draft,prefix.boundary.roomBefore,plan))) {
+      const edge=prefix.draft.entries.length;
+      progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+      progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+      return finish();
+    }
+    const personApproach=action.ordinaryLocalApproachVersion===2;
+    if (condition && personApproach) {
+      const player=createdPlayerId(prefix.draft), perception=playerPerceivedScene(prefix.draft,scene);
+      const visible=intent && projectPerceivedIntent(intent,perception.targetIds);
+      if (intent?.type!=='conversation' || scene.roomId!==prefix.boundary.roomBefore
+        || !sequenceAudience(prefix.draft,player,intent.targetId,scene.roomId)
+        || localPersonApproach(action.playerIntentPlan.steps[0].text,perception.scene)?.targetId!==visible?.targetId
+        || explicitLocalVocative(step.text,perception.scene,visible?.targetId)?.text!==intent.playerText) {
+        const edge=prefix.draft.entries.length;
+        progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+        progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+        return finish();
+      }
+    }
+    if (condition && action.localConditionalWaitVersion===1) {
+      const player=createdPlayerId(prefix.draft), peer=plan.steps[0].intent.targetId;
+      const current=playerPerceivedScene(prefix.draft,scene).scene;
+      if (!intent || scene.roomId!==prefix.boundary.roomBefore || !sequenceAudience(prefix.draft,player,peer,scene.roomId)
+        || !localConditionalWaitStep(step.text,current)) {
+        const edge=prefix.draft.entries.length;
+        progress.settlements.push({index,code:'operation_unavailable',start:edge,end:edge});
+        progress.stop={index,kind:'blocked',code:'operation_unavailable'};
+        return finish();
+      }
+    }
+    const addressed = step.intent.type === 'conversation' && typeof step.intent.playerText === 'string';
+    if (!personApproach && !searchConversation && (condition && action.ordinaryAddressVersion === 3 && addressed
+      ? !intent || intent.speechScope === 'room' && scene.roomId !== prefix.boundary.roomBefore
+        || !liveAddressPresent(prefix.draft, scene, step.text, intent, action.roomGroupSpeechVersion)
+      : intent && prefix.draft.agentRuntimeRevision === EVENT_DIRECTOR_RUNTIME_REVISION && isParagraphTurnSpeech(step.text, intent)
+        && !paragraphTurnRecipientPresent(step.text, intent, scene))) {
+      prefix.stopReason = 'quoted_recipient_unavailable';
+      if (action.ordinaryAddressVersion === 3) {
+        const edge = prefix.draft.entries.length;
+        progress.settlements.push({ index, code: 'operation_unavailable', start: edge, end: edge });
+      }
+      progress.stop = { index, kind: 'blocked', code: 'operation_unavailable' };
+      return finish();
+    }
     if (!condition || !intent || prefix.draft.entries.length - prefix.rootEntryCount + 6 >= SCENE_BUDGET.maxBlocks) {
       progress.stop = { index, kind: 'blocked', code: !condition ? prefix.interrupted || prefix.stopReason ? 'world_interrupt' : 'condition_false'
         : !intent ? hasSoftRuntime(prefix.draft) && action.intentContractVersion === 2 && step.intent.type === 'case'
@@ -1180,13 +2012,36 @@ function prepareIntentTail(input, action, { final = false, domainStore = null, d
     const performance = action.playerPerformances?.find(row => row.index === index)?.performance;
     if (!performance) return { ...finish(), next: { index, intent, text: step.text, scene } };
     const start = prefix.draft.entries.length;
-    const { playerIntentPlan, playerPerformances, actionOutcome, directorEventDue, ...single } = action;
+    const { playerIntentPlan, playerPerformances, actionOutcome, directorEventDue, omittedNarrationParagraphs, bareReplyRootVersion, cellDoorAttemptVersion, roomGroupSpeechVersion, ordinaryLocalLookOutcomeVersion, ordinaryMoveVisualPreludeVersion, ...single } = action;
     const stepAction = { ...single, jobId: `${action.jobId}:step:${index}`, rawInput: step.text, intent, performance,
+      ...(intent.speechScope === 'room' ? { roomGroupSpeechVersion } : {}),
+       ...ordinaryLocalVisualActionPins({ordinaryLocalLookOutcomeVersion,ordinaryMoveVisualPreludeVersion},step.text,[{text:step.text,intent}]),
+      ...(cellDoorAttemptVersion === 1 && index === 2 ? { cellDoorAttemptVersion: 1 } : {}),
       beats: [], schedulingBeats: [], questionKey: `${action.questionKey}:step:${index}`, answerKey: `${action.answerKey}:step:${index}` };
     delete stepAction.document; delete stepAction.schedulingEnd;
     const settled = settlePlayerBoundary(beginCausalScene(prefix.draft, stepAction, {
       domainStore: domainStore || sceneDomainStores.get(input.draft), domainSourceState: domainSourceState || sceneDomainSources.get(input.draft),
       conversationEventClockVersion: prefix.conversationEventClockVersion }));
+    if (action.localConditionalWaitVersion===1 && index===1 && settled.intentSettlement.code==='completed') {
+      // Same bounded stop as the existing readiness wait. Elapsed time is
+      // never evidence that the other participant packed their belongings.
+      const player=createdPlayerId(settled.draft), peer=plan.steps[0].intent.targetId;
+      const interrupted=settled.interrupted || settled.stopReason;
+      const local=sequenceAudience(settled.draft,player,peer,prefix.boundary.roomBefore);
+      Object.assign(settled.intentSettlement,{status:'blocked',code:interrupted?'world_interrupt':local?'bounded':'operation_unavailable'});
+    }
+    if (readiness && index===2 && settled.intentSettlement.code==='completed') {
+      const endpoint=readinessEndpoint(settled.draft,prefix.boundary.roomBefore,plan);
+      if (endpoint && !settled.interrupted && !settled.stopReason) {
+        // The short wait happened. Companion readiness and a shared next move
+        // are not equivalent to this timer, a remark, or door permission.
+        const player=createdPlayerId(settled.draft);
+        publishStage(settled,[causalEnactment(settled.draft,
+          '等了一会儿，眼下还没确认能一起往'+endpoint.focus.reference+'走。', player,
+          'readiness:'+stepAction.jobId,{delivery:'action',audienceIds:[player]})], 'readiness:'+stepAction.jobId);
+        Object.assign(settled.intentSettlement,{status:'blocked',code:'bounded'});
+      } else Object.assign(settled.intentSettlement,{status:'blocked',code:settled.interrupted || settled.stopReason?'world_interrupt':'operation_unavailable'});
+    }
     prefix.draft = settled.draft; prefix.interrupted ||= settled.interrupted; prefix.stopReason ||= settled.stopReason;
     progress.settlements.push({ index, ...settled.intentSettlement, start, end: prefix.draft.entries.length }); refreshEvents(prefix);
   }
@@ -1195,9 +2050,16 @@ function prepareIntentTail(input, action, { final = false, domainStore = null, d
 /** Finalize exactly one root action/revision, never one per beat. document may
  * be attached after composition; all other action input must match the replayed
  * root and exact beat journal. The supplied prefix is left untouched. */
-export function finalizeCausalScene(input, action, { historicalReplay = false, domainStore = null, domainSourceState = null } = {}) {
+export function finalizeCausalScene(input, action, { historicalReplay = false, domainStore = null, domainSourceState = null, recoveredNarrationFrom } = {}) {
   checkPrefix(input); validateAction(action, input.draft);
-  if (!isDeepStrictEqual(rootAction(action), input.action) || !isDeepStrictEqual(action.beats, input.beats)) fail();
+  const comparable = rootAction(action);
+  // Only the sealed recovery entry may promote the display policy after a
+  // replay. The old prefix is kept byte-for-byte; all other root fields match.
+  if (recoveredNarrationFrom !== undefined) {
+    if (recoveredNarrationFrom !== 2 || comparable.narrationPacingVersion !== 3 || input.action.narrationPacingVersion !== 2) fail();
+    comparable.narrationPacingVersion = 2;
+  }
+  if (!isDeepStrictEqual(comparable, input.action) || !isDeepStrictEqual(action.beats, input.beats)) fail();
   // A reaction may still own the unsettled player boundary. The terminal
   // admission record belongs to that exact prefix, before final settlement.
   if (action.schedulingVersion === 1) {

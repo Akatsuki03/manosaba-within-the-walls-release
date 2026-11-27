@@ -5,6 +5,7 @@ import { hasInvalidAddress, playerAddressKey } from './character-address-policy.
 import { isProxy } from 'node:util/types';
 import { buildMaterialProseContext, assertMaterialProse, buildMaterialProseContextV2, assertMaterialProseV2, materialProseDiagnostic } from './material-prose-policy.mjs';
 import { selectMagicSources } from '../world/magic/ability-definitions.mjs';
+import { EVENT_DIRECTOR_RUNTIME_REVISION } from '../director/director-event-runtime.mjs';
 
 import { buildBallotInstrumentContext, assertBallotInstrumentAssertions, ballotInstrumentAssertionDiagnostic } from '../cases/ballot-instrument-assertions.mjs';
 const DIAGNOSTICS = new WeakMap();
@@ -15,7 +16,7 @@ export const npcHostPerformanceDiagnostic = error => NPC_HOST_DIAGNOSTICS.get(er
 export const MATERIAL_PROSE_FAILURE_RULES = Object.freeze([
   'material-context', 'material-kind', 'material-event-index', 'material-text',
   'material-trace', 'material-surface', 'material-distance', 'material-carrier', 'material-contact',
-  'material-optics', 'material-closed-container', 'material-speech-residue', 'material-lawful-access', 'material-unlocked-permission',
+  'material-optics', 'material-closed-container', 'material-speech-residue', 'material-lawful-access', 'material-unlocked-permission', 'material-door-leaf',
   'material-absence', 'material-posture', 'ballot-instrument-conflict',
 ]);
 const materialDiagnostic = error => {
@@ -184,10 +185,27 @@ function checkDoorwayMovement(value, evidence, actors, { scene, departed = [], a
     }
   }
 }
-function checkEffects(value, evidence, actors, { doorOpen, departed = [], arrived = [], scene, movementGuardVersion } = {}) {
+// The adjectival result belongs to the observed door, not the player's verb.
+// Require both the selected first-person gaze and current, delivered lock facts.
+// Procedure can replace doorOpen with its own access projection; those phases
+// are not evidence about this lock, and permission alone never proves it.
+const observedUnlockedCellDoor = /^我(?:看了看|看向|望向|望了望|扫了一眼|瞥了一眼|注视着)(?:眼前(?:的)?)?(?:已经|已然|已)解(?:开|锁)的(?:牢门|铁栅栏门|栅栏门)$/u;
+const localDoorResult = rule('unlock', /(?:把|将)(?:眼前(?:的)?)?(?:牢门|铁栅栏门|栅栏门|门锁|铁门|它)(?:已|已经|用力|轻轻|一下子|亲手|给|顺手|随手)*(?:推开|打开|撞开|踢开|撬开|解开|解锁)|(?:牢门|铁栅栏门|栅栏门|铁门|门锁)被[^，。；]{0,10}(?:推开|打开|撞开|踢开|撬开|解开|解锁)|(?:看了看|看向|望向|望了望|扫了一眼|瞥了一眼|注视着)(?:眼前(?:的)?)?(?:已经|已然|已)(?:推开|打开|敞开|开启)的(?:牢门|铁栅栏门|栅栏门)/u, /推开|打开|撞开|踢开|撬开|解开|解锁|敞开|开启/u);
+const contradictedGaze = /(?:看了看|看向|望向|望了望|扫了一眼|瞥了一眼|注视着)(?:眼前(?:的)?)?(?:尚未|还没|并未|未|没有|没)(?:解锁|解开)的(?:牢门|铁栅栏门|栅栏门)/u;
+const assertedDoorPermission = rule('unlock', /(?:获准|被允许|得到许可|有权|准许)(?:了)?(?:从这(?:扇门|里)|经(?:过)?(?:牢门|门口|这里))?(?:通行|出门|出去|去走廊|前往走廊)/u, /获准|被允许|得到许可|有权|准许/u);
+function checkEffects(value, evidence, actors, { doorOpen, departed = [], arrived = [], scene, movementGuardVersion, selectedDoorGaze = false } = {}) {
   if (movementGuardVersion !== undefined && movementGuardVersion !== 1) fail();
   if (movementGuardVersion === 1) checkDoorwayMovement(value, evidence, actors, { scene, departed, arrived });
   for (const clause of clauses(value)) for (const entry of effects) {
+    if (entry.id === 'unlock' && selectedDoorGaze) {
+      if (doorOpen === true && scene.adjacent?.some(edge => edge.id === 'corridor')
+        && /^(?:cell\d*|playercell)$/u.test(scene.roomId) && [undefined, 'daily', 'discovery', 'aftermath'].includes(scene.case?.stage)) {
+        if (observedUnlockedCellDoor.test(clause)) continue;
+        if (contradictedGaze.test(clause)) fail('unlock');
+      }
+      if (hits(clause, localDoorResult).length
+        || !scene?.permittedDestinations?.includes('corridor') && hits(clause, assertedDoorPermission).length) fail('unlock');
+    }
     const matches = hits(clause, entry);
     if (!matches.length) continue;
     if (entry.id === 'movement') {
@@ -308,7 +326,9 @@ export function chosenPlayerSpeech(data) {
   if (contractVersion !== 4 || !supportsPlayerSpeech(intent) || statementReaction
     || typeof rawInput !== 'string' || !Array.isArray(scene?.nearby)) return undefined;
   const bound = chosenCommunicationText(data);
-  if (typeof bound === 'string' && bound.trim() && bound.length <= 1400) return { text: bound, actionSource: '' };
+  if (typeof bound === 'string' && bound.trim() && bound.length <= 1400) return { text: bound,
+    actionSource: data.communicationSelection?.form === 'current-turn-quote@1'
+      ? rawInput.slice(0, data.communicationSelection.start - 1).trimEnd() : '' };
   const raw = rawInput.trim();
   const spans = quoteSpans(raw);
   const last = spans.at(-1);
@@ -694,10 +714,15 @@ export function assertNarrativeMaterialProse(data, output, role) {
 /** Post-schema checks: raw intentions and private recall never certify effects. */
 export function assertPlayerPerformance(input = {}) {
   preflightMaterialV2(input);
-  return assertPlayerPerformanceLegacy(input, chosenPlayerSpeech(input));
+  const selection = chosenPlayerSpeech(input);
+  const selectedDoorGaze = input.initialRunPolicy?.source?.executionRevision?.revisionId === EVENT_DIRECTOR_RUNTIME_REVISION
+    && input.communicationSelection?.form === 'current-turn-quote@1'
+    && observedUnlockedCellDoor.test(clauses(selection?.actionSource)[0] ?? '')
+    && typeof chosenCommunicationText(input) === 'string';
+  return assertPlayerPerformanceLegacy(input, selection, selectedDoorGaze);
 }
 function assertPlayerPerformanceLegacy({ performance, rawInput = '', scene, observations = [], persona, movementGuardVersion, performancePolicy, addressVoice, guardCaptureVersion, ambientContinuityVersion,
-  materialProseVersion, intent, knownMaterials, materialProseFacts, materialProseBoundaries, materialProseEventSnapshots, eventTimeline } = {}, selection) {
+  materialProseVersion, intent, knownMaterials, materialProseFacts, materialProseBoundaries, materialProseEventSnapshots, eventTimeline } = {}, selection, selectedDoorGaze) {
   if (!performance || typeof performance.action !== 'string') fail();
   checkGuardCapture(performance.action, guardCaptureVersion);
   const material = materialContext(materialProseVersion, { scene, intent, knownMaterials, materialProseFacts, materialProseBoundaries, materialProseEventSnapshots, eventTimeline });
@@ -709,7 +734,7 @@ function assertPlayerPerformanceLegacy({ performance, rawInput = '', scene, obse
   checkAmbientContinuity(performance.action, evidence, ambientContinuityVersion);
   checkPrivate(performance.action, participants, { allowPlayerSelf: true });
   checkMinds(performance.action, participants);
-  checkEffects(performance.action, evidence, actors, { doorOpen: scene?.doorOpen, scene, movementGuardVersion });
+  checkEffects(performance.action, evidence, actors, { doorOpen: scene?.doorOpen, scene, movementGuardVersion, selectedDoorGaze });
   checkOtherActions(performance.action, participants, evidence, actors, persona?.name, { player: true });
   checkCommitments(performance.action, performanceActionSource(rawInput, selection));
   // Explicit quotation is the player's choice even when it contains a lie,

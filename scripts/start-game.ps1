@@ -133,9 +133,16 @@ try {
     Write-Host 'Keep this window open. Press Ctrl+C to stop the game.'
     $process = Start-Process -FilePath (Get-Command node.exe).Source -ArgumentList $entryPoint -WorkingDirectory $root -NoNewWindow -PassThru
     try {
+        # Windows PowerShell can lose the native exit status after the child
+        # exits unless the Process object already holds an open handle.
+        [void]$process.Handle
         $ready = $false
         for ($i = 0; $i -lt 40; $i++) {
-            if ($process.HasExited) { throw ('Game service exited with code ' + $process.ExitCode) }
+            if ($process.HasExited) {
+                $exitCode = $process.ExitCode
+                if ($null -eq $exitCode) { throw 'Game service exited before readiness; its exit code could not be read.' }
+                throw ('Game service exited with code ' + $exitCode)
+            }
             try {
                 $view = Invoke-RestMethod -Uri ($url + '/api/view') -TimeoutSec 1
                 if ($view.csrfToken -and ($view.prototypeNotice -or $view.exampleId -eq 'agent')) {
@@ -148,14 +155,18 @@ try {
         if (-not $ready) { throw 'Game service did not become ready. Check the output above.' }
         if (-not $NoBrowser) { Start-Process $url }
         $process.WaitForExit()
-        if ($process.ExitCode -ne 0) { throw ('Game service exited with code ' + $process.ExitCode) }
+        $exitCode = $process.ExitCode
+        if ($null -eq $exitCode) { throw 'Game service exited; its exit code could not be read.' }
+        if ($exitCode -ne 0) { throw ('Game service exited with code ' + $exitCode) }
     } finally {
-        if (-not $process.HasExited) {
-            # The LLM entry owns one server child. Stop only this launch's tree
-            # on a readiness failure; never stop a process discovered by port.
-            if ($llmEdition) { & taskkill.exe /PID $process.Id /T /F | Out-Null }
-            else { Stop-Process -Id $process.Id -ErrorAction SilentlyContinue }
-        }
+        try {
+            if (-not $process.HasExited) {
+                # The LLM entry owns one server child. Stop only this launch's tree
+                # on a readiness failure; never stop a process discovered by port.
+                if ($llmEdition) { & taskkill.exe /PID $process.Id /T /F | Out-Null }
+                else { Stop-Process -Id $process.Id -ErrorAction SilentlyContinue }
+            }
+        } finally { $process.Dispose() }
     }
 } catch {
     Write-Host ('Launch failed: ' + $_.Exception.Message) -ForegroundColor Red

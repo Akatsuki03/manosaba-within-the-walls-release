@@ -6,19 +6,21 @@ import { setImmediate as yieldToLocalIO } from 'node:timers/promises';
 import { requiresInitialBoundaryReview } from '../content/initial-run-policy.mjs';
 import { isProxy } from 'node:util/types';
 import { isPrivateDirectorPacket, isDirectorEventWire, buildDirectorContext, validateDirectorOutput } from '../director/director-effective-private-contract.mjs';
-import { buildServiceTaskContext, validateServiceTaskOutput, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT , serviceTaskOutputDiagnostic } from './service-task-contract.mjs';
+import { buildServiceTaskContext, validateServiceTaskOutput, isHostBoundInitialIntent, hostBoundInitialIntent, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT , serviceTaskOutputDiagnostic } from './service-task-contract.mjs';
 import {
   buildRoleplayContext, buildCharacterDataContext,
   validateRoleplayDecision, validateCharacterDataProposal, roleplayDecisionDiagnostic,
 } from './agent-boundaries.mjs';
-import { modelGatewayDiagnostic, modelGatewayUsage, ordinaryGatewayDispatched } from './model-gateway.mjs';
+import { modelGatewayDiagnostic, modelGatewayUsage, ordinaryGatewayDispatched, INTENT_TARGET_RETRY, isIntentTargetRetryPacket } from './model-gateway.mjs';
 import { chosenPlayerSpeech, renderPlayerSpeech, narrativeGuardDiagnostic, npcHostPerformanceDiagnostic } from './narrative-guards.mjs';
-import { buildNarrativeContext, explicitQuotes, validateNarrativeOutput } from './narrative-boundaries.mjs';
+import { buildNarrativeContext, explicitQuotes, isHostBoundPerformance, hostBoundPerformance, validateNarrativeOutput } from './narrative-boundaries.mjs';
 import { authenticatedFailureClock, failureClockError, traceFailure, traceRequestRef } from './turn-trace.mjs';
 import { validateSystemSeal } from '../cognition/dialogue-context-policy.mjs';
 import { decisionStateDiagnostic } from '../cognition/decision-state.mjs';
-import { analyzeNarrativeStyle, sceneStyleIssues } from './narrative-style.mjs';
-import { HOST_SCENE_HANDOFF, hostSceneDocument } from '../scenes/scene-document.mjs';
+import { analyzeNarrativeStyle, sceneStyleIssues, ordinaryNarrationEditorialIssue } from './narrative-style.mjs';
+import { HOST_SCENE_HANDOFF, hostSceneDocument, sceneParagraphFeedback, sceneRoundFeedback } from '../scenes/scene-document.mjs';
+import { focusedRoundProsePacket, roundProseEditorialIssue, ordinaryRoundProseMode } from '../scenes/scene-event-policy.mjs';
+const NOVEL_PARAGRAPH_REPAIR_MS = 24_000;
 
 const MESSAGES = Object.freeze({
   ERR_LLM_TURN_FAILED: '角色模型调用失败，可重试尚未完成的任务。',
@@ -205,6 +207,7 @@ function receiptCopy(receipt) {
   if (!plain(receipt)) throw new LlmTurnError();
   return freeze(structuredClone(receipt));
 }
+const isHostBoundTask = packet => isHostBoundPerformance(packet) || isHostBoundInitialIntent(packet);
 const taskIdentifier = value => typeof value === 'string' && value.length > 0 && value.length <= 128
   && value.trim() === value && !/[\u0000-\u001f\u007f]/u.test(value);
 function pendingTasks(prepared) {
@@ -363,8 +366,10 @@ export class LlmTurnRunner {
         attempt.jobStartedAt = attempt.startedAt = reserved.firstStartedAt; attempt.deadline = reserved.hardDeadline;
         retryFeedback = reserved.npcResumeFeedback ?? retryFeedback;
         downstreamReserveMs = reserved.downstreamReserveMs ?? 0;
+        timing.reservedSlotOrdinal = reserved.slotOrdinal;
       }
-      output = await this.#call(task.adapter, task.packet, attempt, retryFeedback, timing, downstreamReserveMs); }
+      output = await this.#call(task.adapter, task.packet, attempt, retryFeedback, timing, downstreamReserveMs,
+        task.proseRepairStop === undefined ? Infinity : NOVEL_PARAGRAPH_REPAIR_MS, task.proseRepairStop); }
     catch (error) {
       if (timing.startedAt !== undefined) timing.finishedAt = performance.now();
       const phase = llmTurnDiagnostic(error)?.phase;
@@ -399,7 +404,7 @@ export class LlmTurnRunner {
         const validated = validateNarrativeOutput(task.packet, output, task.scope);
         // A short observation is fine, but returning the old UI handoff in lieu
         // of all scene prose does not fulfill a newly requested novel scene.
-        if (attempt.novelScene && task.role === 'scene_composer' && !validated.blocks.some(block =>
+        if (attempt.novelScene && task.role === 'scene_composer' && ![2, 3].includes(task.packet.data.narrationPacingVersion) && !validated.blocks.some(block =>
           block.type === 'narration' && block.text.trim() !== HOST_SCENE_HANDOFF)) {
           throw Object.assign(new Error('本轮缺少场景描写，仅返回了固定交接语。'), { code: 'INVALID_NARRATIVE_OUTPUT' });
         }
@@ -452,6 +457,65 @@ export class LlmTurnRunner {
         attempt.styleRetried ??= new Set(); attempt.styleRetried.add(task.id);
         throw Object.assign(new Error('旁白需要调整文风。'), { code: 'INVALID_NARRATIVE_OUTPUT' });
       }
+      if (task.id === 'scene' && task.role === 'scene_composer' && [2, 3].includes(task.packet.data.narrationPacingVersion)
+        && attempt.softExecution && timing.styleRetryAvailable && downstreamReserveMs > 0
+        && typeof this.#engine.prevalidateAgentSceneCandidate === 'function'
+        && attempt.deadline - Date.now() > downstreamReserveMs + NOVEL_PARAGRAPH_REPAIR_MS) {
+        const original = validateNarrativeOutput(task.packet, output, task.scope);
+        const round = task.packet.data.narrationPacingVersion === 3;
+        const feedback = round ? sceneRoundFeedback : sceneParagraphFeedback;
+        const mode = ordinaryRoundProseMode(task.packet);
+        const editorialIssue = document => mode !== undefined && (ordinaryNarrationEditorialIssue(document, task.packet.data)
+          || roundProseEditorialIssue(document, task.packet.data));
+        const editorial = Boolean(editorialIssue(original));
+        const shortOfTarget = document => mode !== 'sparse' && feedback(document, task.packet.data.events);
+        if (editorial || shortOfTarget(original)) {
+          // An invalid first draft belongs to normal slot retry, not the
+          // optional length repair or its fallback path.
+          this.#engine.prevalidateAgentSceneCandidate(jobId, output, leaseToken);
+          this.#check(attempt);
+          if (attempt.deadline - Date.now() > downstreamReserveMs + NOVEL_PARAGRAPH_REPAIR_MS) {
+            const repairTiming = {};
+            let validating = false;
+            try {
+              const reserved = this.#engine.reserveAgentModelAttempt(jobId, task.id, leaseToken, task.packet, false);
+              const confirmation = reserved?.hardDeadline === attempt.deadline && reserved?.firstStartedAt === attempt.jobStartedAt;
+              if (!confirmation) throw new LlmTurnError();
+              const focused = focusedRoundProsePacket(task.packet);
+              const candidate = await this.#call(task.adapter, task.packet, attempt, editorial ? 'novel_round_editorial'
+                : round ? 'novel_round_minimum' : 'novel_paragraph_minimum', repairTiming,
+                reserved.downstreamReserveMs ?? downstreamReserveMs, NOVEL_PARAGRAPH_REPAIR_MS, editorial ? undefined : original.stopReason,
+                focused && !editorial ? 1 : undefined, editorial ? original : undefined);
+              validating = true;
+              const validated = validateNarrativeOutput(task.packet, candidate, task.scope);
+              const validTail = !focused || (validated.stopReason === original.stopReason
+                && (editorial || validated.blocks.slice(0, task.packet.data.events.length).every(block => block.type === 'event'))
+                && !roundProseEditorialIssue(validated, task.packet.data));
+              // Cleaning an already-short rich draft need not preserve its
+              // filler. An independently qualifying rich draft must stay so.
+              const keepsLength = !shortOfTarget(validated) || editorial && Boolean(shortOfTarget(original));
+              if (keepsLength && validTail && !editorialIssue(validated)) {
+                this.#engine.prevalidateAgentSceneCandidate(jobId, candidate, leaseToken);
+                output = candidate;
+              }
+            } catch (error) {
+              // Optional prose never displaces a host-valid first draft with
+              // a rejected candidate. The write below still checks the lease,
+              // source and selected output independently.
+              this.#check(attempt);
+              const failure = locateFailure(error, validating ? 'validation' : 'model', {
+                ...taskDiagnostic(task), attempt: 2, retryLimit: 1,
+                ...(repairTiming.startedAt === undefined ? { modelNotDispatched: true } : {}),
+              });
+              if (failure.code === 'STALE_AGENT_TURN') throw failure;
+              if (typeof this.#engine.recordAgentTaskFailure === 'function') {
+                try { this.#engine.recordAgentTaskFailure(jobId, task.id, leaseToken, llmTurnFailure(failure)); }
+                catch { /* Best effort; the durable write remains lease fenced. */ }
+              }
+            }
+          }
+        }
+      }
       this.#check(attempt);
       // Persist structured output, not the review validator's envelope.
       this.#engine.recordAgentResult(jobId, task.id, output, leaseToken);
@@ -470,6 +534,17 @@ export class LlmTurnRunner {
   }
 
   async #runTask(task, attempt, jobId, leaseToken, retries) {
+    if (isHostBoundTask(task.packet)) {
+      if (task.failure) throw task.failure;
+      this.#check(attempt);
+      try {
+        // The canonical value has no adapter, attempt reservation, or usage.
+        // Fencing and validation remain the same as every saved task result.
+        this.#engine.recordAgentResult(jobId, task.id, task.hostResult, leaseToken);
+        attempt.completed.add(task.id);
+        return;
+      } catch (error) { throw locateFailure(error, 'validation', taskDiagnostic(task)); }
+    }
     for (let index = 0; ; index += 1) {
       let attemptStartedAt;
       const timing = { styleRetryAvailable: index < retries };
@@ -532,7 +607,22 @@ export class LlmTurnRunner {
           }
           throw failure;
         }
-        if (timing.antiClicheRepair) {
+        const diagnostic = llmTurnDiagnostic(failure);
+        if (index === 0 && timing.reservedSlotOrdinal === 1 && attempt.softExecution && attempt.novelScene
+          && task.id === 'scene' && task.role === 'scene_composer' && [2, 3].includes(task.packet.data.narrationPacingVersion)
+          && details.stage === 'validation' && details.phase === 'host_validation' && details.rule === 'movement') {
+          // Spend the ordinary second dispatch on the already settled view.
+          // The rejected draft supplies neither movement nor a stop reason.
+          task.retryFeedback = task.packet.data.narrationPacingVersion === 3 ? 'novel_round_minimum' : 'novel_paragraph_minimum';
+          task.proseRepairStop = hostSceneDocument(task.packet.data.events).stopReason;
+        } else if (index === 0 && timing.reservedSlotOrdinal === 1 && attempt.softExecution
+          && task.id === 'intent' && task.role === 'world_adjudicator' && isIntentTargetRetryPacket(task.packet)
+          && details.stage === 'validation' && diagnostic?.code === 'ERR_MODEL_RESPONSE'
+          && diagnostic.phase === 'proposal' && diagnostic.rule === 'intent-plan-target') {
+          // The same live invocation may use its existing second slot. Do
+          // not reconstruct feedback from storage or retain rejected values.
+          task.retryFeedback = INTENT_TARGET_RETRY;
+        } else if (timing.antiClicheRepair) {
           task.retryFeedback = 'anti_cliche_prose';
         } else if (task.outputContractVersion === 1 && llmTurnDiagnostic(failure)?.issue === 'utterance_mixed_content') {
           task.retryFeedback = 'utterance_mixed_content';
@@ -592,10 +682,11 @@ export class LlmTurnRunner {
       startedAt = Date.now(); // Preparation is outside the per-attempt budget.
       this.#check();
       if (prepared.kind === 'immediate' || prepared.kind === 'in_progress') return receiptCopy(prepared.receipt);
-      if (prepared.kind !== 'model' || typeof prepared.jobId !== 'string' || !prepared.jobId
+      if (!['model', 'scene_recovery'].includes(prepared.kind) || typeof prepared.jobId !== 'string' || !prepared.jobId
         || typeof prepared.leaseToken !== 'string' || !prepared.leaseToken) throw new LlmTurnError();
     } catch (error) {
       const code = ownCode(error);
+      if (prepareMethod === 'prepareAgentTurn' && code === 'INVALID_SCENE_RECOVERY') throw error;
       if (prepareMethod === 'prepareAgentTurn' && input?.newAttemptOf !== undefined
         && ['INVALID_NEW_ATTEMPT', 'INVALID_REQUEST_ID', 'INVALID_TEXT', 'INVALID_GENERATION', 'INVALID_REVISION',
           'IDEMPOTENCY_CONFLICT', 'STALE_GENERATION', 'STALE_REVISION', 'STALE_AGENT_TURN', 'LLM_REQUIRED'].includes(code))
@@ -605,6 +696,7 @@ export class LlmTurnRunner {
       }
       throw locateFailure(error, 'prepare');
     }
+    if (prepared.kind === 'scene_recovery') return this.#executeSceneRecovery(prepared);
     let budgetFailure;
     try { budget = sceneExecutionBudget(prepared); }
     catch (error) { budgetFailure = safeFailure(error); }
@@ -631,7 +723,40 @@ export class LlmTurnRunner {
     return attempt.promise;
   }
 
-  async #call(adapter, packet, attempt, retryFeedback, timing, downstreamReserveMs) {
+  #executeSceneRecovery(prepared) {
+    const { jobId, leaseToken, startedAt, deadline, stopReason, narrationVersion } = prepared;
+    const prior = this.#inFlight.get(jobId);
+    if (prior) throw new LlmTurnError('STALE_AGENT_TURN');
+    const attempt = { controller: new AbortController(), leaseToken, jobStartedAt: startedAt, deadline, modelCalls: 0 };
+    attempt.promise = Promise.resolve().then(async () => {
+      let stage = 'configuration';
+      try {
+        this.#check(attempt);
+        const { task } = prepared;
+        if (task.id !== 'scene' || task.role !== 'scene_composer' || ![2, 3].includes(task.context.data.narrationPacingVersion)
+          || narrationVersion !== 3 || stopReason !== 'await_player' || !Number.isSafeInteger(startedAt) || deadline !== startedAt + 30000) throw new LlmTurnError();
+        const packet = buildNarrativeContext(task.context, { maxBytes: task.maxBytes });
+        const adapter = this.#getAdapter(task.role, packet.scope.actorId, { behaviorPrompt: task.behaviorPrompt });
+        if (typeof adapter !== 'function') throw new LlmTurnError('LLM_NOT_CONFIGURED');
+        stage = 'model';
+        const output = await this.#call(adapter, packet, attempt, 'novel_round_minimum', {}, 0, NOVEL_PARAGRAPH_REPAIR_MS, stopReason);
+        this.#check(attempt);
+        stage = 'validation';
+        return receiptCopy(this.#engine.completeAgentSceneRecovery(jobId, leaseToken, output));
+      } catch (error) {
+        const failure = locateFailure(error, stage, { taskRole: 'scene_composer', taskKind: 'scene' });
+        try { this.#engine.failAgentSceneRecovery(jobId, leaseToken, failure.code, llmTurnFailure(failure)); }
+        catch { /* The consumed marker remains; a stale lease may not mutate it. */ }
+        throw failure;
+      }
+    }).finally(() => {
+      if (this.#inFlight.get(jobId) === attempt) this.#inFlight.delete(jobId);
+    });
+    this.#inFlight.set(jobId, attempt);
+    return attempt.promise;
+  }
+
+  async #call(adapter, packet, attempt, retryFeedback, timing, downstreamReserveMs, optionalCapMs = Infinity, proseRepairStop, novelRoundProseRepairVersion, proseEditorialSource) {
     this.#check(attempt);
     const controller = new AbortController();
     let stopped;
@@ -658,7 +783,7 @@ export class LlmTurnRunner {
     const timeoutMs = attempt.ordinaryAdmission && !(attempt.novelScene && packet.role === 'scene_composer')
       ? Math.min(baseTimeout, ordinarySoft ? ORDINARY_ADMISSION32.softCallMs : ORDINARY_ADMISSION32.requiredServiceMs) : baseTimeout;
     const startedAt = Date.now();
-    const deadline = Math.min(startedAt + timeoutMs, (attempt.deadline ?? Infinity) - downstreamReserveMs);
+    const deadline = Math.min(startedAt + Math.min(timeoutMs, optionalCapMs), (attempt.deadline ?? Infinity) - downstreamReserveMs);
     const check = () => {
       this.#check(attempt, false);
       if (!stopped) { const now = Date.now(); if (now >= deadline) stop('AGENT_TIMEOUT', now); }
@@ -672,7 +797,9 @@ export class LlmTurnRunner {
       if (!isPrivateDirectorPacket(packet)) attempt.modelCalls++;
       timing.startedAt = performance.now();
       timing.callStartedAt = Date.now();
-      return adapter(packet, Object.freeze({ signal: controller.signal, ...(retryFeedback ? { retryFeedback } : {}) }));
+      return adapter(packet, Object.freeze({ signal: controller.signal, ...(retryFeedback ? { retryFeedback } : {}), ...(proseRepairStop !== undefined ? { proseRepairStop } : {}),
+        ...(novelRoundProseRepairVersion === 1 ? { novelRoundProseRepairVersion: 1 } : {}),
+        ...(proseEditorialSource !== undefined ? { proseEditorialSource } : {}) }));
     });
     try {
       const output = await Promise.race([called, cancelled]);
@@ -741,10 +868,13 @@ export class LlmTurnRunner {
             this.#check(attempt);
             const foundationTask = task.role === 'world_adjudicator' || task.packet?.data?.initialRunPolicy !== undefined;
             const directorEvent = task.role === 'director' && isDirectorEventWire(task.packet.data.version);
-            if ((directorEvent || foundationTask) && typeof this.#engine.assertAgentTask !== 'function') throw new LlmTurnError();
-            if ((directorEvent || foundationTask || task.packet?.data?.ballotInstrumentVersion === 1 || task.packet?.data?.materialProseVersion === 2 || task.packet?.data?.physicalFactsVersion === 2)
+            const hostTask = isHostBoundTask(task.packet);
+            if ((directorEvent || foundationTask || hostTask) && typeof this.#engine.assertAgentTask !== 'function') throw new LlmTurnError();
+            if ((directorEvent || foundationTask || hostTask || task.packet?.data?.ballotInstrumentVersion === 1 || task.packet?.data?.materialProseVersion === 2 || task.packet?.data?.physicalFactsVersion === 2)
               && typeof this.#engine.assertAgentTask === 'function')
               this.#engine.assertAgentTask(jobId, task.id, leaseToken, task.packet);
+            if (hostTask) return { ...task, hostResult: isHostBoundInitialIntent(task.packet)
+              ? hostBoundInitialIntent(task.packet) : hostBoundPerformance(task.packet, task.id) };
             const adapter = this.#getAdapter(task.role, task.scope.actorId, { behaviorPrompt: task.behaviorPrompt,
               ...(task.role === 'world_adjudicator' ? { servicePrincipal: task.scope.principalId, ...(task.packet.purpose ? { servicePurpose: task.packet.purpose } : {}) } : {}) });
             if (typeof adapter !== 'function') throw new LlmTurnError('LLM_NOT_CONFIGURED');

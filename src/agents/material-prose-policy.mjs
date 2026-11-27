@@ -428,6 +428,23 @@ function physicalContradictionV2(claim, physical) {
 // Tokens in a later emotional/result predicate cannot retroactively modify it.
 // These are the existing checker's predicate families, not a Chinese parser.
 const lockPredicateV2 = /(?:门锁|牢门|铁门|栅栏门).{0,8}(?:解锁|未锁|没锁|打开|开启)/u;
+// Lock, legal passage and the physical position of the leaf are distinct.
+// Detect explicit assertions only, both predicate and attributive forms.
+const doorSubjectV2 = '(?:铁栅栏门|栅栏门|牢门|铁门|门扇|房门|门板|大门|门)';
+const leafPredicateV2 = '(?:打开|推开|拉开|敞开|开着|开了|半开|半掩|虚掩|掩着|开了一[条道]缝)';
+const leafClaimV2 = new RegExp(`(?:${doorSubjectV2}(?:(?:也|却|仍然|仍|还|现在|已经|已然|已|本来|一直|正|早就|真的|果然|确实|被|给|轻轻|慢慢|刚刚|突然|没有|并未|尚未|还没|没|未|似乎|可能|好像|可以|能够|就能|能|是不是|是否|不确定))*${leafPredicateV2}(?:了|着)?(?![锁話话关關键鍵])|${leafPredicateV2}(?:着)?的${doorSubjectV2})`, 'gu');
+const leafNonactualV2 = /(?:并未|没有|尚未|还没|不曾|未曾|不确定|是不是|是否|可以|能够|就能|等到|试着|试图|想要|仿佛|似乎|可能|也许|好像).{0,8}(?:打开|推开|拉开|敞开|开着|开了|半开|半掩|虚掩|掩着)/u;
+function hasUnsupportedDoorLeaf(unit, facts, speech) {
+  for (const match of unit.text.matchAll(leafClaimV2)) {
+    const start = unit.text.slice(0, match.index);
+    if (predicateScopeV2(unit, match).uncertain || leafNonactualV2.test(start.slice(-12) + match[0])) continue;
+    // A visibly delivered speaker can be reported, not used as physical authority.
+    // The canonical quotation and no-paraphrase checks remain in the composer.
+    if (speech.some(row => start === `${row.speaker}说` || start === `${row.speaker}提到`)) continue;
+    if (!v2Supported(unit.text, facts) && !v2Supported(match[0], facts)) return true;
+  }
+  return false;
+}
 const permissionPredicateV2 = /(?:获准|允许|有权|可以随意|可以自由)/u;
 const lawfulAccessPredicateV2 = /(?:手势|抬手|伸手|摆手|目光).{0,12}(?:让我|使我|令我).{0,5}(?:无法|不能|不得|不再获准)/u;
 const placementPredicateV2 = /(?:上|里|中)(?:面)?(?:现在|仍然|还|正)?(?:摆着|放着|躺着|堆着|有(?:一|几|些)|出现).{0,12}(?:纸卡|卡片|纸张|纸条|记录纸|登记卡)/u;
@@ -484,6 +501,7 @@ function checkMaterialProseV2(input) {
       if (carrierConflictV2(claim, context, scene, objects)) failV2('material-carrier', eventIndex);
       if (unsupportedContentsV2(claim, facts)) failV2('material-closed-container', eventIndex);
       if (v2Supported(claim, facts)) continue;
+      if (['narrator', 'narration'].includes(kind) && hasUnsupportedDoorLeaf(unit, facts, speech)) failV2('material-door-leaf', eventIndex);
       if (traceClaimV2.test(claim)) failV2('material-trace', eventIndex);
       if (preciseSurface.test(claim)) failV2('material-surface', eventIndex);
       if (distance.test(claim) && !/(?:并非|不是|不到|超过|不止).{0,4}[一二三四五六七八九十百\d.]+(?:米|公尺|厘米)/u.test(claim)

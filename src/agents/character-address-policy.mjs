@@ -64,6 +64,15 @@ export function cocoHasAffection(relationship) {
     && !/[不没未非别无]|怀疑|或许|大概|好像|是否|如果|假装|[她他]说/u.test(clause));
 }
 
+// Ordinary authored input may address only a person this speaker already
+// recognizes in the offered scene. An opaque handle or appearance cannot
+// acquire a private name from the table. No relationship is inferred here.
+export function ordinaryAddressForms(speakerId, participant) {
+  const targetId = participant?.id;
+  if (!hasCharacterAddressPolicy(targetId) || participant.label !== approvedSpeakerLabel(targetId)) return [];
+  return formsFor(speakerId, targetId, false, 2);
+}
+
 export function projectAddressVoice(actorId, known, version = 1) {
   return { version, rows: known.flatMap(({ id, close }) => {
     const forms = formsFor(actorId, id, close, version);

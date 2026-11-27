@@ -32,7 +32,8 @@
     "development scripts"
   ],
   "rights": "Local packaging only, not a redistribution license. Verify rights for game artwork, character card, music and fonts before sharing. See README.md, data/ost-catalog.json, release-manifest.json vendorSources, the character manifest and public/assets/execution/provenance.json.",
-  "fileCount": 506,
+  "productVersion": "0.1.1-hotfix",
+  "fileCount": 508,
   "files": [
     {
       "path": ".gitattributes",
@@ -76,8 +77,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 208,
-      "sha256": "22052b0b1bc56f13f66e15b72de4eec796eabd8e495fe3d72bccfaca74890387",
+      "bytes": 215,
+      "sha256": "4c6b36c3c9d8c2e0a972e5bcd9253f4552f4407b3f63308de3c390520b7d3c00",
       "generated": true
     },
     {
@@ -87,8 +88,8 @@
     },
     {
       "path": "public/app.js",
-      "bytes": 150048,
-      "sha256": "7fa735134b2372cff4130157e82b7b6ebd78a4d57d3712db74a0abb5d86c6900"
+      "bytes": 149870,
+      "sha256": "967c3d132e6aa6475dfeb0f53f186a2f824ee6378f8e8f0327f0baa2c158a997"
     },
     {
       "path": "public/assets/audio/d1-01.opus",
@@ -1662,8 +1663,8 @@
     },
     {
       "path": "scripts/export-feedback.mjs",
-      "bytes": 7357,
-      "sha256": "63b5d40a7ae5c9361b215b6a8098508444a803c0b7789895b4d15daa7988c208"
+      "bytes": 7369,
+      "sha256": "d5625873da69e0d7e54cc28a7c9382595f008b288a62202e8f975a7eb43b2ae7"
     },
     {
       "path": "scripts/launcher-gui.ps1",
@@ -1677,8 +1678,8 @@
     },
     {
       "path": "scripts/start-game.ps1",
-      "bytes": 10802,
-      "sha256": "d53f26ef9f7aebaaf00ee956fb81841017e96dde76a5dba233e6c78f443974c2"
+      "bytes": 11371,
+      "sha256": "7bd55145b55d14499eb71327e5856ca0a0e4e84faa1cb68edd882706625ba4b7"
     },
     {
       "path": "scripts/start-llm.mjs",
@@ -1687,8 +1688,8 @@
     },
     {
       "path": "src/agent-play.mjs",
-      "bytes": 80859,
-      "sha256": "e3a59fafc928cd784ad7d828d53be730ee338c8b1a5f7fda3e5885b873438e63"
+      "bytes": 84832,
+      "sha256": "1101ff1655b93a477c7c51a9a858349ffa697cacd9990aa558476fbd52a5457c"
     },
     {
       "path": "src/agents/actor-performance-policy.mjs",
@@ -1697,8 +1698,8 @@
     },
     {
       "path": "src/agents/actor-task-packets.mjs",
-      "bytes": 29634,
-      "sha256": "3592e09758929d7ad28f9efae8e849c8f15f9ce350b49d05529914a0e4e155cc"
+      "bytes": 31155,
+      "sha256": "2eb68514437a21f938e32b1d1668a1efa6eba6e0355604d34811fd94c46f4ce4"
     },
     {
       "path": "src/agents/agent-autonomy.mjs",
@@ -1717,8 +1718,8 @@
     },
     {
       "path": "src/agents/agent-turn-store.mjs",
-      "bytes": 111537,
-      "sha256": "e96fe03a82c380c9e6f0ed3a3395fc56da38135a2548748a728a516aabcc26e9"
+      "bytes": 137268,
+      "sha256": "48d169300e673fb218e867e6fcbf8a709708edfa1283687691fa3b07b7c6c790"
     },
     {
       "path": "src/agents/anti-cliche-policy.mjs",
@@ -1742,8 +1743,8 @@
     },
     {
       "path": "src/agents/character-address-policy.mjs",
-      "bytes": 12583,
-      "sha256": "4f7e2d4c68e9f37ef8cdbef2cf1aad3c82a4742c7a97fc2d163a77108138e307"
+      "bytes": 13070,
+      "sha256": "06fd74feaa0bfbc40a372471c7881e175f96831bdadf5fa9bba5fb92736c2dba"
     },
     {
       "path": "src/agents/communication-selection28.mjs",
@@ -1752,8 +1753,8 @@
     },
     {
       "path": "src/agents/communication-selection30.mjs",
-      "bytes": 5990,
-      "sha256": "640ac765f62f090d420b1841777e5b6d6c1e12f5dadde2f76034cf35afa5b4c4"
+      "bytes": 55810,
+      "sha256": "252d43e917a154a091f79d0df49a69cccebf91868cbfeed4c852a9c892b75d86"
     },
     {
       "path": "src/agents/completion-standard19.mjs",
@@ -1767,8 +1768,8 @@
     },
     {
       "path": "src/agents/intent-admission-contract.mjs",
-      "bytes": 12144,
-      "sha256": "aba26fc3e28a59d749669362412e321b7cc392de10342d3a0b63f99eeea3cb3a"
+      "bytes": 12243,
+      "sha256": "7d7e3b0c50b65e35691ea0b69c0ef7676544165eabe07ada09fe7bc38d69a940"
     },
     {
       "path": "src/agents/intent-object-schema18.mjs",
@@ -1792,8 +1793,8 @@
     },
     {
       "path": "src/agents/llm-turn-runner.mjs",
-      "bytes": 51460,
-      "sha256": "be39edf12c837ecab8e949c0869138fdefcc7200ebae5fcfdaefbbe287d25765"
+      "bytes": 61097,
+      "sha256": "98f68159e7626bd415b328dcca4fa2ddd33073ad5957e9d95de8a75c03c8df8d"
     },
     {
       "path": "src/agents/lossless-plan23.mjs",
@@ -1802,8 +1803,8 @@
     },
     {
       "path": "src/agents/material-prose-policy.mjs",
-      "bytes": 37666,
-      "sha256": "addf16c6cb54df9bb39b5f6b17590904ad13a06091ed6f4555ab7edc11aab373"
+      "bytes": 39504,
+      "sha256": "0c097d008034a53f636412174864e064f85a737edc31b8bd6a74111d0d1e11bf"
     },
     {
       "path": "src/agents/model-capabilities.mjs",
@@ -1812,28 +1813,28 @@
     },
     {
       "path": "src/agents/model-gateway.mjs",
-      "bytes": 129957,
-      "sha256": "278cab136d3cea3e6300f00efb385dbb955344464e56151b4ef0f9355efe649f"
+      "bytes": 157375,
+      "sha256": "516f93d193cfacc4b8426d6133fbe02509903e7772713721ca34b6666d605dc7"
     },
     {
       "path": "src/agents/narrative-boundaries.mjs",
-      "bytes": 49402,
-      "sha256": "3023245a31ed6d5582565269c54a94aa215e05da92ddebff8146c25c73def012"
+      "bytes": 73546,
+      "sha256": "84c195bede5b714ef780f45b963dbf1f936ab52754331569c1b1d78a2f96ae2f"
     },
     {
       "path": "src/agents/narrative-guards.mjs",
-      "bytes": 62339,
-      "sha256": "928a57a6615048eaf1abc1dd173d63eb89a435308d076be318f10b6d3d261f28"
+      "bytes": 65229,
+      "sha256": "ef711b72ee9f26b20ea91b2c4eadd28650cf6e6e84a5076785f06f0fbb4927e5"
     },
     {
       "path": "src/agents/narrative-style.mjs",
-      "bytes": 7539,
-      "sha256": "a959145dde2236c2ab1dd6415849fa6250dc14d0da6f65a5847c7f902cbd68c0"
+      "bytes": 9439,
+      "sha256": "8685e28da4edae71d0f658ae59ece302961f7d414234fc1ac6cdea32f002cd77"
     },
     {
       "path": "src/agents/open-player-action.mjs",
-      "bytes": 4451,
-      "sha256": "d6d4b61778fd9971887ea7badc8d65295eea3eebbe910f063223dab60d65e0f9"
+      "bytes": 6245,
+      "sha256": "e758dc0113358b3b6ef68eddad751687542091bb7c32f5d34d124c16c8cba077"
     },
     {
       "path": "src/agents/ordinary-admission32.mjs",
@@ -1846,9 +1847,14 @@
       "sha256": "957ecf42e7858baf6569afbe9a724920e37612cbe358339adc861b2e7aa0094e"
     },
     {
+      "path": "src/agents/player-address-resolution.mjs",
+      "bytes": 113342,
+      "sha256": "ed6fb97238e77a66f7cb3924dc9521240143b05195d56bfc64bbb3f9a30beac4"
+    },
+    {
       "path": "src/agents/player-intent-contract.mjs",
-      "bytes": 30030,
-      "sha256": "735ff81fbf7bd77562c7bf5ab68f416b227a4de794675fcd20dd7b99f719e1d6"
+      "bytes": 35423,
+      "sha256": "9146d241bc798796f64ab61ed9387c907a0152a6ef0a603202721a2affa79d41"
     },
     {
       "path": "src/agents/player-performance-shape.mjs",
@@ -1862,8 +1868,8 @@
     },
     {
       "path": "src/agents/service-task-contract.mjs",
-      "bytes": 22157,
-      "sha256": "1d15fd452beb65fbd4001a67e69b6ec174c026794fc329eb30b20aa3726e5332"
+      "bytes": 32520,
+      "sha256": "b9b74f141fe4f79159d8af3845cc3b564418f39bed82d9db5e5d7441d88db28c"
     },
     {
       "path": "src/agents/source-acquisition27.mjs",
@@ -2311,6 +2317,11 @@
       "sha256": "5d95b796e72cad5792c01ff3af9742eb3f9e1c10ad56841f5671af25c00c58c5"
     },
     {
+      "path": "src/presentation/guard-capture-prose.mjs",
+      "bytes": 2101,
+      "sha256": "4bdf114943db363dc595f47d692943a38755b76981885604e0160e2859d06160"
+    },
+    {
       "path": "src/presentation/player-communication.mjs",
       "bytes": 922,
       "sha256": "99b445bcbde7cfd6c140962b42577a0748b0a6d4f0163e561a8357e6b6eb9a2b"
@@ -2347,8 +2358,8 @@
     },
     {
       "path": "src/prologue.mjs",
-      "bytes": 432116,
-      "sha256": "5d74b752d7c10a145f1cbd66b4a205bca4cbe86deea1ef305a57e66c2506ca98"
+      "bytes": 478751,
+      "sha256": "098a66544d64cedf0b025be85aa394b8d13588a01a28c7fa893bc4ce561422af"
     },
     {
       "path": "src/relationship-context-policy.mjs",
@@ -2367,8 +2378,8 @@
     },
     {
       "path": "src/scenes/causal-scene.mjs",
-      "bytes": 56158,
-      "sha256": "832cacbaa6c5466646386f8685b3366b88ca1dbf78b33bfd5a5e1c9608b7dca6"
+      "bytes": 59585,
+      "sha256": "f0ee50a2c87b4b321c839f2aeca5d5998b0cd73490e1729aea57c1340a91ef47"
     },
     {
       "path": "src/scenes/ordinary-publication31.mjs",
@@ -2377,18 +2388,18 @@
     },
     {
       "path": "src/scenes/scene-beats.mjs",
-      "bytes": 97364,
-      "sha256": "a86860da5df4a358066cdbb4f9161650be4bee3870bd1c4d41e82b2a6b516965"
+      "bytes": 171100,
+      "sha256": "577e9ec98c52e8d7a2c8a1365daf63b1e594438407906fd8a62df8692fd17010"
     },
     {
       "path": "src/scenes/scene-document.mjs",
-      "bytes": 22331,
-      "sha256": "6413cff68854a75c5bde1081815fa94b8cd5644a4af538ab1ba77e0dce459c58"
+      "bytes": 25084,
+      "sha256": "fea7dc027d5bb40fbad65541249913df7e4dc4e5d6dc886c20bc3491c0d27596"
     },
     {
       "path": "src/scenes/scene-event-policy.mjs",
-      "bytes": 12716,
-      "sha256": "a3ded225fbcc32024a3f4ecd96ebdfe840b17193869e2b720c116620a952d49a"
+      "bytes": 39838,
+      "sha256": "75058325e05fcc7c1bac8eb9bd12ad4971e8f2d6ee67363dc61eb10f05cbf044"
     },
     {
       "path": "src/scenes/scene-scheduling.mjs",
@@ -2397,8 +2408,8 @@
     },
     {
       "path": "src/server.mjs",
-      "bytes": 48266,
-      "sha256": "d98251a383a6c4fc43675dfba36d68701d9d1df7c6b4953827b5f017f236c37f"
+      "bytes": 48800,
+      "sha256": "9c3843e5abeefd2bfae1974b723001e8fe764f4d698616eab5c916e4f51fd706"
     },
     {
       "path": "src/world/action-outcome.mjs",
@@ -2432,8 +2443,8 @@
     },
     {
       "path": "src/world/guard-reaction.mjs",
-      "bytes": 23258,
-      "sha256": "29085394e2f058680f4c4151868a37dfd18fec8dd28e483abbcdcb1da243de3e"
+      "bytes": 33731,
+      "sha256": "c6319b244798692ce30034a69a531f2b67087286725b0e1409967c81af24482e"
     },
     {
       "path": "src/world/guard-rules.mjs",
@@ -2566,5 +2577,5 @@
       "sha256": "1c93519bd41a9755dc2dd6fde47b7f9f60d48e1bb1965ed6cf4a09364006601a"
     }
   ],
-  "createdAt": "2026-11-24T22:32:10.811Z"
+  "createdAt": "2026-11-27T12:26:08.227Z"
 }

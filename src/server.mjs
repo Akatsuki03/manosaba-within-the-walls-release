@@ -411,12 +411,17 @@ let ingress;
     if (path === '/api/act') {
       // Explicit public intent is metadata, not a fifth legacy act DTO field.
       const parent = req.headers['x-manosaba-new-attempt-of'];
+      const recovery = req.headers['x-manosaba-scene-recovery'];
       const agentExample = engine.isAgentExample();
+      if (Object.hasOwn(input, 'recoverScene') || (recovery !== undefined && (recovery !== '1' || parent !== undefined
+        || !agentExample || Object.keys(input).some(key => !['requestId', 'text', 'expectedGeneration', 'expectedRevision'].includes(key)))))
+        throw Object.assign(new Error('仅能从普通发送入口明确续写当前原请求的旁白。'), { code: 'INVALID_SCENE_RECOVERY' });
       if (Object.hasOwn(input, 'newAttemptOf') || (parent !== undefined && (typeof parent !== 'string'
         || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/u.test(parent)
         || Object.keys(input).some(key => !['requestId', 'text', 'expectedGeneration', 'expectedRevision'].includes(key))
         || !agentExample))) throw Object.assign(new Error('新尝试必须明确关联当前失败的普通行动。'), { code: 'INVALID_NEW_ATTEMPT' });
-      const actionInput = parent === undefined ? input : { ...input, newAttemptOf: parent };
+      const actionInput = recovery === '1' ? { ...input, recoverScene: true }
+        : parent === undefined ? input : { ...input, newAttemptOf: parent };
       const receipt = agentExample ? await llmRunner.act(actionInput) : engine.act(actionInput);
       return json(200, { ...receipt, currentView: engine.httpPlayerView() });
     }

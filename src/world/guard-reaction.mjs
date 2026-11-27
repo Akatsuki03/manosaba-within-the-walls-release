@@ -3,13 +3,14 @@ import { runtimeCapabilityId } from '../content/runtime-capabilities.mjs';
 import { GUARD_RULES, GUARD_FINGERPRINT } from './guard-rules.mjs';
 export { GUARD_RULES, GUARD_FINGERPRINT } from './guard-rules.mjs';
 import { confinementApplies, lawfulConfinementPlace, unlawfulResidenceBoundary, CURFEW_POLICY } from './curfew-policy.mjs';
-import { createdPlayerId, ROOM_CODES } from '../creation/player-setup.mjs';
+import { actorForState, createdPlayerId, ROOM_CODES } from '../creation/player-setup.mjs';
 import { runtimeRoom, runtimeSetRoom, runtimeActive, runtimeObserve } from '../case-runtime.mjs';
 import { prisonPassage } from './prison-activity.mjs';
 import { validateDiceOpportunity, diceCharacter, checkSpecification, evaluateD20, diceData } from './dice-core.mjs';
 import { startEscapeProtection, advanceEscapeProtection, REACTION_RULES } from './dice-reaction.mjs';
 import { advanceCausalTime } from '../scenes/causal-scene.mjs';
 import { scheduledCaseOneBoundary } from '../cases/case-one.mjs';
+import { GUARD_CAPTURE_PROSE } from '../presentation/guard-capture-prose.mjs';
 import { ABILITY_REFERENCE, isAbilityReference } from './magic/ability-definitions.mjs';
 import { activateAbilityRuntime, spatialGuardOptions, validateSpatialChoice, resolveSpatialGuard, refreshAbilityVisits } from './magic/ability-runtime.mjs';
 
@@ -173,17 +174,26 @@ function publish(state, events) {
 function exactStoryAction(action, keys) {
   return exact(action, keys) || (action.narrationVersion === 1 && exact(action, [...keys, 'narrationVersion']));
 }
-function narrate(state, action, text) {
-  if (action.narrationVersion !== 1) return;
+function ownerNarration(state, text) {
   state.entries.push({ id: `entry-${state.entries.length + 1}`, speaker: '旁白', text, speakerId: null,
     delivery: 'narration', audienceIds: [createdPlayerId(state)], occurredAt: state.worldTime });
+}
+function narrate(state, action, text) {
+  if (action.narrationVersion === 1) ownerNarration(state, text);
 }
 function escort(state, room) {
   if (!runtimeSetRoom(state, createdPlayerId(state), room)) fail();
   if (state.agentWorld) state.agentWorld.routes = state.agentWorld.routes.filter(row => row.actorId !== createdPlayerId(state));
 }
+export function guardDiceNarrationVersion(state, result, optionId) {
+  const choice = state.guardReaction?.pending?.choices?.[optionId];
+  return runtimeCapabilityId(state.agentRuntimeRevision) === 'agent-prison-runtime@8'
+    && result?.success === false && choice && choice.kind !== 'spatial-shift' ? 2 : 1;
+}
 function resolve(state, action) {
-  if (!exactStoryAction(action, ['type', 'encounterId', 'opportunityId', 'optionId', 'result'])) fail();
+  const keys = ['type', 'encounterId', 'opportunityId', 'optionId', 'result'];
+  const captureProse = action.narrationVersion === 2;
+  if (!(captureProse ? exact(action, [...keys, 'narrationVersion']) : exactStoryAction(action, keys))) fail();
   const g = state.guardReaction; const pending = g.pending;
   if (!pending || action.encounterId !== pending.id || action.opportunityId !== pending.opportunity.id
     || !Object.hasOwn(pending.choices, action.optionId) || runtimeRoom(state, createdPlayerId(state)) !== pending.room) fail();
@@ -192,6 +202,7 @@ function resolve(state, action) {
   if (!identifier(expected.id) || !isDeepStrictEqual(expected, action.result)) fail('INVALID_GUARD_DICE_RESULT', '骰果不符合当前封存的看守反应选项，未改变世界。');
   const result = structuredClone(action.result); const choice = pending.choices[action.optionId];
   const spatial = choice.kind === 'spatial-shift';
+  if (captureProse && guardDiceNarrationVersion(state, result, action.optionId) !== 2) fail();
   if (spatial) validateSpatialChoice(state, choice);
   const abilityEvents = spatial ? resolveSpatialGuard(state, choice, result, pending) : [];
   if (result.success) {
@@ -213,11 +224,114 @@ function resolve(state, action) {
     escort(state, GUARD_DETENTION_ROOM);
     publish(state, [event(state, spatial ? '你还未来得及集中精神完成穿梭，看守的抓握便已落下，将你实际控制并沿管理通路押入惩罚室。门在身后锁上，两天禁闭从现在开始；尚未凝成的空间印象散在脑海里。'
       : '你没能及时避开抓握，被看守实际控制并沿管理通路押入惩罚室。门在身后锁上，两天禁闭从现在开始；没有跳过这段故事时间。', `guard:${pending.id}:captured`)]);
-    narrate(state, action, spatial ? '脑海里的落脚处还没成形，我就被攥住了。惩罚室的门在身后落了锁。'
+    if (captureProse) for (const text of GUARD_CAPTURE_PROSE) ownerNarration(state, text);
+    else narrate(state, action, spatial ? '脑海里的落脚处还没成形，我就被攥住了。惩罚室的门在身后落了锁。'
       : '那只手扣住了我。直到身后的门落了锁，我才把那口一直憋着的气吐出来。');
   }
   g.pending = null; g.resolution = { encounterId: pending.id, result, entryIndex: null };
 }
+const LOCAL_DETENTION_SECONDS = 30;
+const detentionLead = /^我(?:慢慢|轻轻)?(?:(?<approach>(?:退|走|挪)到(?:惩罚室的)?门边)|(?:还|仍)?站在门边|(?:望向|看向)(?:眼前的)?门(?:的方向)?)(?<lock>[，,](?:听着锁响|想着刚才的锁响))?(?<cloth>[，,](?:手指发抖地)?攥住衣角)?[。！]$/u;
+const detentionWait = /^我(?:(?:又|仍)?(?:望向|看向)(?:眼前的)?门(?:的方向)?[，,]|(?:侧耳听了听|听了听门那边的动静)[，,])?(?:再|继续|静静地)?(?:等(?:(?:着|待)(?:门外的)?回应|(?:了)?(?:一会儿|一小会儿|片刻|一下))|稍等片刻)[。！]$/u;
+const detentionLook = /^(?:我)?(?<motion>转身|回身|抬眼|抬头)?(?:打量|看看|看了看|环顾)(?:这间|一下|一眼)?(?:惩罚室|四周|屋里|室内|里面)(?:[，,](?:看看|想看看)(?:屋里|里面|四周)有什么)?[。！]$/u;
+const letGoOfHem = /^(?:我)?(?<pace>慢慢|轻轻)?松开(?:了)?(?:攥着衣角的手|攥住衣角的手|手里攥着的衣角|衣角)$/u;
+function localDetentionLookParts(text) {
+  const clauses = text.split(/[，,]/u).map(clause => clause.trim());
+  const wait = clauses.length > 1 && /^我(?:(?:又|再|静静地)?等了?(?:一小?会儿|片刻|一下)|稍等片刻)$/u.test(clauses[0])
+    ? clauses.shift() : null;
+  const hands = letGoOfHem.exec(clauses[0]);
+  if (hands) clauses.shift();
+  const look = detentionLook.exec(clauses.join('，'));
+  return look ? { look: true, motion: look.groups.motion ?? '', ...(wait && { wait }),
+    ...(hands && { hands: hands.groups.pace ?? '' }) } : null;
+}
+function localDetentionParts(rawInput, { localLook = false } = {}) {
+  if (typeof rawInput !== 'string' || rawInput.length > 700 || /[<>\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(rawInput)) return null;
+  const paragraphs = rawInput.trim().split(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/u).map(text => text.trim());
+  if (paragraphs.length === 1) return detentionWait.test(paragraphs[0]) ? { wait: paragraphs[0] }
+    : localLook ? localDetentionLookParts(paragraphs[0]) : null;
+  if (paragraphs.length !== 3 || !detentionWait.test(paragraphs[2])) return null;
+  const start = detentionLead.exec(paragraphs[0]);
+  const speech = /^「([^「」『』“”"\r\n]{1,360})」$/u.exec(paragraphs[1])?.[1];
+  return start && speech?.trim() ? { start: paragraphs[0], ...start.groups, speech, wait: paragraphs[2] } : null;
+}
+function localDetentionSource(state, rawInput, localLook = false) {
+  const parts = localDetentionParts(rawInput, { localLook });
+  if (!parts || !supported(state) || !guardDetained(state) || state.caseRuntime?.occupiedBody) return null;
+  const player = createdPlayerId(state);
+  const { detention, pending, resolution } = state.guardReaction;
+  if (pending || runtimeRoom(state, player) !== GUARD_DETENTION_ROOM || !runtimeActive(state, player)
+    || parts.speech && actorForState(state, player)?.communication !== 'speech'
+    || resolution?.encounterId !== detention.encounterId || resolution.result?.success !== false
+    || state.worldTime >= detention.releaseAt || detention.caseBoundaryAt !== null) return null;
+  const capturedNow = state.worldTime === detention.startedAt && state.entries.some(row =>
+    row.observationKey === `guard:${detention.encounterId}:captured` && row.occurredAt === detention.startedAt
+    && row.audienceIds?.includes(player));
+  if (parts.lock && !capturedNow) return null;
+  const isLookOnly = parts.look && !parts.wait;
+  const end = isLookOnly ? state.worldTime : Math.min(state.worldTime + LOCAL_DETENTION_SECONDS, detention.releaseAt);
+  const boundary = authoredBoundary(state, end);
+  return boundary === null || boundary > state.worldTime ? { parts, player, capturedNow, end, boundary } : null;
+}
+export function localDetentionAction(state, rawInput) {
+  const source = localDetentionSource(state, rawInput, true);
+  return source
+    ? { type: 'guard_detention_local', version: source.parts.look ? 3 : 2,
+      encounterId: state.guardReaction.detention.encounterId, rawInput } : null;
+}
+
+// Kept only to preserve byte-identical version 1 transcript replay.
+const legacyFirstLockedDoorProse = Object.freeze([
+  '刚才那一下落锁声已经过去了，耳朵却仍在等它的下半截，仿佛还能从那短短的一响里分辨出什么。被带进来和被关在这里，本来是前后挨着的两件事；等我听清门锁落下，才知道后面那一件还没有完。我望着门，又把这一声在心里过了一遍。记得它怎么响，和知道为什么响，是两回事。',
+  '手指还在抖。我攥住衣角，注意力一时全被收进掌心，连想好的第一句话都变短了。我原本是想把问题从头问起的，话到嘴边，却先挤出一个等字。后面那句话不必像我在心里排过的那样整齐。只要还说得下去，我就先问下去。不然光是等自己镇定，恐怕就会把最想问的那一句留在喉咙里。',
+  '两个问题说出口，才听出它们原来问的不是同一件事。前一个问我为什么到了这扇门里，后一个才问我做错了什么。刚才被扣住时，我只来得及明白自己没避开；现在我有时间分开想这两件事，却仍旧没有那个把它们接起来的答案。发问并没让事情清楚下来，至少我听见自己到底是在问什么了。',
+  '我望向门的方向，没有再把那句话接着说第二次。门就在眼前；门外有没有人听见，和门是不是关着，并不是凭同一双眼睛就能知道的事。我把自己能确定的留在这边：我到了门边，我问出了那两句话，此刻还在等。至于另一边会不会有一句话接过来，我没有替它想好。我想知道的，正是我开口之前不知道的那一截。',
+  '等待比刚才说话时慢一些。发问时，我的心思全在那些还没说出来的字上；说完了，才发现已经没法靠把同一句话再想一个开头来挨过这片刻。攥着的是自己的衣角，望着的仍是眼前这扇门。没有哪一样能替我解答。我也就不急着把刚才的问句改成别的话，仍朝着门，给那个尚未听见的回答留一点空处。',
+]);
+function shortDetentionLead(parts) {
+  if (parts.approach && parts.cloth) return `我${parts.approach}，攥住衣角。${parts.cloth.includes('发抖') ? '手指还在抖。' : ''}`;
+  // The lock was already narrated at capture. Write only this input's new action.
+  return parts.lock ? parts.start.replace(parts.lock, '') : parts.start;
+}
+function localDetentionActionApply(state, action) {
+  const source = localDetentionSource(state, action.rawInput, action.version === 3);
+  const detention = state.guardReaction.detention;
+  if (!exact(action, ['type', 'version', 'encounterId', 'rawInput']) || ![1, 2, 3].includes(action.version)
+    || !source || (action.version === 3) !== Boolean(source.parts.look) || action.encounterId !== detention.encounterId) fail();
+  const { parts, player, capturedNow, end, boundary } = source;
+  const key = `guard:${detention.encounterId}:local:${state.revision}:${state.worldTime}`;
+  const askedAboutCapture = /^等(?:[、，,]\s*等)?一下[….。\s]+为什么(?:要)?(?:把我关起来|关我|把我关在这里)[？?]\s*我(?:做错了什么|哪里做错了|哪儿做错了)[？?]$/u;
+  const legacyExtended = action.version === 1 && capturedNow && parts.approach && parts.lock && parts.cloth?.includes('发抖')
+    && askedAboutCapture.test(parts.speech ?? '') && /望向门的方向[，,]等着门外的回应/u.test(parts.wait);
+  const narration = text => ownerNarration(state, text);
+  if (legacyExtended) {
+    narration(`我${parts.approach}。${legacyFirstLockedDoorProse[0]}`);
+    narration(legacyFirstLockedDoorProse[1]);
+  } else if (parts.start) narration(action.version === 2 ? shortDetentionLead(parts)
+    : parts.lock ? parts.start.replace(/听着锁响/u, '想着刚才的锁响') : parts.start);
+  if (parts.speech) publish(state, [{ text: parts.speech, speaker: actorForState(state, player).name,
+    speakerId: player, delivery: 'speech', audienceIds: [player], addresseeIds: [], occurredAt: state.worldTime,
+    observationKey: `${key}:speech` }]);
+  const advanced = parts.wait ? advanceCausalTime(state, Math.min(end, boundary ?? end), key, {
+    npcReactions: false, storyArcVersion: state.creation?.storyArcId ? 1 : undefined,
+    guardDetentionWait: true, guardCaseBoundary: boundary,
+  }) : { events: [], interrupted: false };
+  publish(state, advanced.events.map(row => row.speaker ? row : { ...row, speaker: '眼前的动静' }));
+  detention.remainingSeconds = Math.max(0, detention.releaseAt - state.worldTime);
+  if (state.worldTime === boundary) detention.caseBoundaryAt = boundary;
+  if (advanced.interrupted || state.worldTime >= detention.releaseAt) narration('我还在门的这一边。');
+  else if (parts.look) {
+    const wait = parts.wait ? `${parts.wait.replace(/^我/u, '')}。` : '';
+    const hands = parts.hands === undefined ? '' : `${parts.hands}松开衣角，`;
+    narration(`${wait}我${hands}${parts.motion}打量惩罚室。`);
+  }
+  else if (legacyExtended) legacyFirstLockedDoorProse.slice(2).forEach(narration);
+  else if (action.version === 2 && parts.speech && /^我望向门的方向[，,]等着门外的回应[。！]$/u.test(parts.wait)) {
+    const heardVoice = advanced.events.some(row => row.delivery === 'speech' && row.audienceIds.includes(player));
+    narration(heardVoice ? '我望着门等了一会儿。' : '我望着门等了一会儿，没听到回答。');
+  } else narration(parts.wait);
+}
+
 function detentionAction(state, action) {
   if (!exactStoryAction(action, ['type', 'encounterId']) || !state.guardReaction.detention
     || action.encounterId !== state.guardReaction.detention.encounterId) fail();
@@ -283,6 +397,7 @@ export function applyGuardHostAction(state, input) {
     if (!guardEnabled(draft)) fail('GUARD_RULES_DISABLED', '当前存档尚未显式激活看守规则。');
     if (action.type === 'guard_magic_rules_activate') activateAbilityRuntime(draft, action);
     else if (action.type === 'guard_dice_resolution') resolve(draft, action);
+    else if (action.type === 'guard_detention_local') localDetentionActionApply(draft, action);
     else detentionAction(draft, action);
   }
   finalizeGuardEntries(draft, start);

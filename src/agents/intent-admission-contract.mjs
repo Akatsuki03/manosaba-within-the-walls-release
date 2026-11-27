@@ -68,7 +68,8 @@ export function validateIntentAdmission(candidate, data) {
     record(step, ['text', 'intent', 'condition'], undefined, locate('step'));
     // The producer owns one explicit selection, not two inconsistent channels.
     record(step.intent, ['type', 'summary', 'operation', 'objectId', 'subjectId', 'targetId', 'destination', 'playerText',
-      ...(data.authoredMagic?.version === 1 && choice.kind === 'ordinary' ? ['magic'] : [])], ['type', 'summary'], locate('intent'));
+      ...(data.authoredMagic?.version === 1 && choice.kind === 'ordinary' ? ['magic'] : []),
+      ...(data.roomGroupSpeechVersion === 1 && choice.kind === 'ordinary' ? ['speechScope'] : [])], ['type', 'summary'], locate('intent'));
   }
   if (choice.kind === 'ordinary') record(choice, ['kind'], undefined, locate('activity'));
   else if (choice.kind === 'clarification') {

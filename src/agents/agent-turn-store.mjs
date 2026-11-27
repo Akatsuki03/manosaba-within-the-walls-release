@@ -9,8 +9,9 @@ import {SOURCE_ACQUISITION_RUNTIME_REVISION} from '../content/relationship-conte
 import {SCREEN_BROADCAST_RUNTIME_REVISION} from '../content/relationship-context-policy.mjs';
 import { SOFT_EXECUTION_BUDGET, SOFT_SLOT, SOFT_PURPOSE, applyCooperativeRephraseResult, captureCooperativeRephrase } from './cooperative-rephrase.mjs';
 import { projectActionOutcome } from '../world/action-outcome.mjs';
-import { resolvePlayerPlanStep } from '../scenes/causal-scene.mjs';
-import { supportsOpenPlayerAction } from './open-player-action.mjs';
+import { resolvePlayerPlanStep, cellDoorAttemptActionPin } from '../scenes/causal-scene.mjs';
+import { bareReplyRootActionPin } from './communication-selection30.mjs';
+import { currentPrivateReflection, hostPrivateReflectionAction, supportsOpenPlayerAction } from './open-player-action.mjs';
 import { projectIntentAdmissionPlan } from './intent-admission-contract.mjs';
 import { authoredMagicContext } from './authored-magic-intent.mjs';
 import { INTENT_RUNTIME_REVISION, CASE_BOUNDARY_RUNTIME_REVISION, SOFT_RUNTIME_REVISION, EXPLICIT_INTENT_RUNTIME_REVISION, ORDINARY_PLAN_RUNTIME_REVISION, SEMANTIC_ORDINARY_RUNTIME_REVISION, SEMANTIC_ADMISSION_RUNTIME_REVISION, INTENT_OBJECT_RUNTIME_REVISION, EXPLICIT_STANDARD_RUNTIME_REVISION, PLAN_CARDINALITY_RUNTIME_REVISION, UNIQUE_RECIPIENT_RUNTIME_REVISION, ATOMIC_SOURCE_RUNTIME_REVISION, LOSSLESS_PLAN_RUNTIME_REVISION, ATOMIC_PLAN_RUNTIME_REVISION, SOFT_REFERENCE_RUNTIME_REVISION, hasSoftRuntime, hasIntentRuntime, hasIntentAdmissionRuntime } from '../content/relationship-context-policy.mjs';
@@ -19,9 +20,11 @@ import { dialogueContextPin, validateSystemSeal } from '../cognition/dialogue-co
 import { runtimeCapabilityId, RP_FOUNDATION_RUNTIME_REVISION } from '../content/runtime-capabilities.mjs';
 import { composeInitialRunPolicy, assertInitialRunPolicy, requiresInitialBoundaryReview, validateInitialBoundaryAssessments, initialPublicBoundaryConflict } from '../content/initial-run-policy.mjs';
 import { matchesLegacySoft32SystemSeal, modelSystemPolicySeal } from './model-gateway.mjs';
-import { buildNarrativeContext } from './narrative-boundaries.mjs';
-import { buildServiceTaskContext, validateServiceTaskOutput, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT, initialBoundaryReviewProposal } from './service-task-contract.mjs';
-import { ballotInstrumentTaskPin, customAbilityTaskPin, SCENE_EXTENSION_FIELDS, sceneExtensionPin, validateSceneExtensions } from '../scenes/scene-event-policy.mjs';
+import { buildNarrativeContext, hostBoundPerformance, isHostBoundPerformance } from './narrative-boundaries.mjs';
+import { buildServiceTaskContext, validateServiceTaskOutput, WORLD_SERVICE_PRINCIPAL, INITIAL_BOUNDARY_REVIEW_SLOT, initialBoundaryReviewProposal, isHostBoundInitialIntent, hostBoundInitialIntent } from './service-task-contract.mjs';
+import { dialogueSequencePerformance, dialogueSequenceActionPin } from './player-address-resolution.mjs';
+import { ordinaryLocalVisualActionPins, ordinaryLocalVisualPlanPins, localAmbientSpeechDomain, localApproachDomain, localTravelAttemptSource, localConditionalWaitSource } from './player-address-resolution.mjs';
+import { ballotInstrumentTaskPin, customAbilityTaskPin, novelNarrationFocusTaskPin, validRoundProseOwnerProof, SCENE_EXTENSION_FIELDS, sceneExtensionPin, validateSceneExtensions } from '../scenes/scene-event-policy.mjs';
 import { captureEffectiveDirectorEventPin, isDirectorEventWire, isDirectorExtension, isDirectorEventExtension, isSealedDirectorExtension, isPrivateDirectorExtension, isPrivateDirectorPacket, validateDirectorOutput, DIRECTOR_LIFECYCLE_EXTENSION, DIRECTOR_PLANNING_EXTENSION, DIRECTOR_PRINCIPAL } from '../director/director-effective-private-contract.mjs';
 import { directorEventMayReviewIntent } from '../director/director-event-source.mjs';
 import { hasPrivateSupplyObservation } from '../cognition/private-supply-observation.mjs';
@@ -39,7 +42,7 @@ import { relationshipRootForRows } from '../creation/player-setup.mjs';
 import { guardRuleReference, isGuardRuleReference } from '../world/guard-rules.mjs';
 import { TRACE_EVENTS, traceUsage, traceRejection, traceRequestRef, traceReview, projectTaskTrace, traceFailure, failureClockError } from './turn-trace.mjs';
 import { MagicRepository } from '../world/magic/ability-runtime.mjs';
-import { hostSceneDocument } from '../scenes/scene-document.mjs';
+import { hostSceneDocument, mergeHostSceneEvents, projectQualifiedSceneDocument } from '../scenes/scene-document.mjs';
 import { hostCaseChoicePlan } from '../cases/case-procedure.mjs';
 import { withRunBoundary } from '../content/effective-run-boundary.mjs';
 
@@ -120,9 +123,50 @@ export function agentCheckpointCapacity(receipt) {
   return Object.freeze({ bytes: Buffer.byteLength(json, 'utf8'), limit: STAGE_BYTES, sha256: hash(json), stage: receipt.stage });
 }
 function assertTaskSceneExtensions(task, plan, row, authoredMagic) {
+  const expectedFocus = plan.novelNarrationFocusVersion === 1 ? novelNarrationFocusTaskPin(plan, task).novelNarrationFocusVersion : undefined;
+  const focus = Object.getOwnPropertyDescriptor(task.context?.data ?? {}, 'novelNarrationFocusVersion');
+  if (Object.hasOwn(task, 'novelNarrationFocusVersion') || Object.hasOwn(task.context ?? {}, 'novelNarrationFocusVersion')
+    || (expectedFocus === 1 ? !focus?.enumerable || focus.value !== 1 : focus !== undefined)) fail();
+  const proseRepair = Object.getOwnPropertyDescriptor(task.context?.data ?? {}, 'novelRoundProseRepairVersion');
+  const expectedRepair = expectedFocus === 1 && plan.novelRoundProseRepairVersion === 1;
+  if (Object.hasOwn(task, 'novelRoundProseRepairVersion') || Object.hasOwn(task.context ?? {}, 'novelRoundProseRepairVersion')
+    || (expectedRepair ? !proseRepair?.enumerable || proseRepair.value !== 1 : proseRepair !== undefined)) fail();
+  const firstDraft = Object.getOwnPropertyDescriptor(task.context?.data ?? {}, 'novelRoundFirstDraftVersion');
+  const expectedFirstDraft = expectedRepair ? plan.novelRoundFirstDraftVersion : undefined;
+  if (Object.hasOwn(task, 'novelRoundFirstDraftVersion') || Object.hasOwn(task.context ?? {}, 'novelRoundFirstDraftVersion')
+    || (expectedFirstDraft !== undefined ? !firstDraft?.enumerable || firstDraft.value !== expectedFirstDraft : firstDraft !== undefined)
+    || Object.hasOwn(task, 'narrationOwnerEventIds') || !validRoundProseOwnerProof(task.context)) fail();
   const magicOwnerSlot = task.role === 'player_performance' || task.role === 'world_adjudicator' && task.id === 'intent';
   if (Object.hasOwn(task.context || {}, 'authoredMagic')
     || !isDeepStrictEqual(task.context?.data?.authoredMagic, magicOwnerSlot ? authoredMagic : undefined)) fail();
+  if (task.context?.data?.ordinaryAddressVersion !== (magicOwnerSlot ? plan.ordinaryAddressVersion : undefined)) fail();
+  const groupSlot = task.role === 'world_adjudicator' && task.id === 'intent'
+    || task.role === 'player_performance' && task.context?.data?.intent?.speechScope === 'room';
+  if (task.context?.data?.roomGroupSpeechVersion !== (groupSlot ? plan.roomGroupSpeechVersion : undefined)) fail();
+  const sequenceData = task.context?.data;
+  const localOrdinarySlot = task.role === 'world_adjudicator' && task.id === 'intent'
+    || task.role === 'player_performance' && ['performance','performance:1','performance:2'].includes(task.id);
+  if (sequenceData?.ordinaryLocalSearchConversationVersion !== (localOrdinarySlot ? plan.ordinaryLocalSearchConversationVersion : undefined)) fail();
+  if (sequenceData?.ordinaryLocalAmbientSpeechVersion !== (localOrdinarySlot ? plan.ordinaryLocalAmbientSpeechVersion : undefined)) fail();
+  const travelSlot=task.role==='world_adjudicator' && task.id==='intent'
+    || task.role==='player_performance' && ['performance','performance:1'].includes(task.id);
+  if (sequenceData?.localTravelAttemptVersion!==((plan.localTravelAttemptVersion===2?localOrdinarySlot:travelSlot)
+    ?plan.localTravelAttemptVersion:undefined)) fail();
+  if (sequenceData?.localConditionalWaitVersion!==(travelSlot?plan.localConditionalWaitVersion:undefined)) fail();
+  const approachSlot=task.role==='player_performance' && (['performance','performance:1'].includes(task.id)
+    || plan.ordinaryLocalApproachVersion===3 && task.id==='performance:2');
+  if (sequenceData?.ordinaryLocalApproachVersion !== ((task.role==='world_adjudicator' && task.id==='intent' || approachSlot)
+    ? plan.ordinaryLocalApproachVersion : undefined)) fail();
+  const hostPerformance=approachSlot ? plan.localApproachHostPerformanceVersion : undefined;
+  if (sequenceData?.localApproachHostPerformanceVersion !== hostPerformance) fail();
+  if (sequenceData?.localReadinessHostIntentVersion !== (task.id==='intent' && task.role==='world_adjudicator'
+    ? plan.localReadinessHostIntentVersion : undefined)) fail();
+  const sequence = [1, 2, 3, 4, 5, 6, 7, 8].includes(plan.ordinaryDialogueSequenceVersion) && task.role === 'player_performance' && task.id === 'performance'
+    ? dialogueSequencePerformance(row?.text, sequenceData?.scene, sequenceData?.intent, plan.ordinaryDialogueSequenceVersion) : null;
+  const sequenceVersion = task.role === 'world_adjudicator' && task.id === 'intent'
+    ? plan.ordinaryDialogueSequenceVersion : sequence?.ordinaryDialogueSequenceVersion;
+  if (sequenceData?.ordinaryDialogueSequenceVersion !== sequenceVersion || !isDeepStrictEqual(sequenceData?.dialogueSequence, sequence?.dialogueSequence)
+    || sequence && sequenceData.rawInput !== sequence.rawInput) fail();
   const visual = [2, 3].includes(plan.visualPerformanceGuidanceVersion) && task.role === 'player_performance'
     && ['look', 'inspect', 'examine'].includes(task.context?.data?.intent?.type);
   if (task.context?.data?.visualPerformanceSystemVersion !== (visual ? 2 : undefined)) fail();
@@ -177,12 +221,16 @@ function assertTaskSceneExtensions(task, plan, row, authoredMagic) {
       // verifies the same exact base. The legacy rebuild is intentionally
       // skipped once the current seal matches.
       if (!isDeepStrictEqual(sealed, current)) {
+        if (expectedFocus === 1) fail();
         const legacy = task.role === 'scene_composer' && task.context?.data?.outputContractVersion === 1
           ? modelSystemPolicySeal(task.context, task.behaviorPrompt || '', 'legacy')
           : task.role === 'roleplay' && task.context?.decisionPolicy?.version === 2
             && task.context.decisionPolicy.mode === 'act'
             ? modelSystemPolicySeal(task.context, task.behaviorPrompt || '', 'legacy-roleplay') : null;
-        if (!isDeepStrictEqual(sealed, legacy) && !(task.role === 'world_adjudicator' && task.id === SOFT_SLOT
+        const legacyNovel = task.role === 'scene_composer' && task.context?.data?.outputContractVersion === 1
+          && task.context.data.narrationPacingVersion === 2
+          && isDeepStrictEqual(sealed, modelSystemPolicySeal(task.context, task.behaviorPrompt || '', 'legacy-novel-pacing2'));
+        if (!isDeepStrictEqual(sealed, legacy) && !legacyNovel && !(task.role === 'world_adjudicator' && task.id === SOFT_SLOT
           && matchesLegacySoft32SystemSeal(task.context, task.behaviorPrompt || '', sealed))) fail();
       }
     } catch { fail(); }
@@ -447,6 +495,107 @@ export class AgentTurnStore {
     this.#db.prepare('INSERT INTO agent_turn_trace(job_id,slot,kind,details_json,details_hash) VALUES(?,?,?,?,?)')
       .run(row.job_id, slot, kind, json, hash(json));
   }
+  hasSceneRecovery(row) {
+    return !!this.#db.prepare("SELECT 1 FROM agent_turn_trace WHERE job_id=? AND kind='scene_recovery_started' LIMIT 1").get(row.job_id);
+  }
+  sceneRecoveryRunning(row) {
+    if (row.status !== 'running' || row.lease_expires <= this.#clock()) return false;
+    const record = this.#db.prepare("SELECT details_json,details_hash FROM agent_turn_trace WHERE job_id=? AND slot='scene' AND kind='scene_recovery_started'").get(row.job_id);
+    return !!record && decode(record.details_json, record.details_hash).deadline > this.#clock();
+  }
+  #sceneRecoveryScope(row) {
+    const scene = this.#db.prepare("SELECT input_hash FROM agent_turn_tasks WHERE job_id=? AND slot='scene'").get(row.job_id);
+    if (!scene || !digest(scene.input_hash)) fail();
+    const tasks = this.#db.prepare(`SELECT t.slot,t.input_hash,t.result_hash,o.status AS terminal,o.details_hash AS terminal_hash
+      FROM agent_turn_tasks t LEFT JOIN agent_turn_optional_terminals o ON o.job_id=t.job_id AND o.slot=t.slot
+      WHERE t.job_id=? AND t.slot!='scene' ORDER BY t.slot`).all(row.job_id);
+    const stages = this.stages(row);
+    if (!stages.length) fail();
+    return { inputHash: scene.input_hash, prefixHash: hash(JSON.stringify([row.request_id, row.text, row.generation,
+      row.base_revision, row.branch_id, tasks, stages.map(stage => stage.hash)])) };
+  }
+  sceneRecoveryTask(row, plan, commitRef) {
+    if (row.status !== 'failed' || row.lease_owner !== null || row.lease_expires !== null || row.receipt_json !== null
+      || row.turn_id !== null || plan.version !== 7 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION
+      || plan.novelScenePresentationVersion !== 1 || ![2, 3].includes(plan.narrationPacingVersion) || plan.regeneration || plan.explicitNewAttemptOf
+      || plan.privateReflectionVersion || plan.intentHint?.type !== 'interpret' || requiresInitialBoundaryReview(adjudicationPolicy(plan))
+      || this.hasSceneRecovery(row)) return undefined;
+    const tasks = this.tasks(row);
+    const scene = tasks.find(task => task.id === 'scene' && task.role === 'scene_composer');
+    const intent = tasks.find(task => task.id === 'intent')?.result;
+    if (!scene || scene.result !== undefined || scene.terminal !== undefined || scene.context.data.contractVersion !== 4
+      || scene.context.data.narrationPacingVersion !== plan.narrationPacingVersion || intent?.route !== 'steps' || intent.activitySelection?.kind !== 'ordinary'
+      || !tasks.some(task => task.id === 'performance' && task.result !== undefined)
+      || tasks.some(task => task !== scene && (task.result === undefined && task.terminal === undefined
+        || task.id === SOFT_SLOT || task.id === INITIAL_BOUNDARY_REVIEW_SLOT || task.id === 'scene-repair' || task.id.startsWith('ballot:')))) return undefined;
+    if (!isDeepStrictEqual(modelSystemPolicySeal(buildNarrativeContext(scene.context, { maxBytes: scene.maxBytes }), scene.behaviorPrompt),
+      scene.context.systemPolicySeal)) return undefined;
+    if (this.#db.prepare('SELECT 1 FROM prologue_requests WHERE request_id=?').get(row.request_id)) return undefined;
+    const ledger = this.#readModelAttemptLedger(row, plan);
+    if (ledger.slots.scene !== 2) return undefined;
+    const events = this.#db.prepare(`SELECT sequence,slot,kind,details_json,details_hash FROM agent_turn_trace
+      WHERE job_id=? AND ((slot='scene' AND kind IN ('attempt_started','rejected','attempt_failed')) OR kind='failed')
+      ORDER BY sequence DESC LIMIT 8`).all(row.job_id).reverse();
+    const last = events.slice(-7);
+    if (last.length !== 7 || !last.every((entry, index) => entry.kind ===
+      ['attempt_started','rejected','attempt_failed','attempt_started','rejected','attempt_failed','failed'][index]
+      && entry.slot === (index === 6 ? null : 'scene'))) return undefined;
+    const data = last.map(entry => decode(entry.details_json, entry.details_hash));
+    const { inputHash } = this.#sceneRecoveryScope(row);
+    const failure = d => d.stage === 'validation' && d.phase === 'host_validation' && d.rule === 'movement'
+      && d.code === 'INVALID_AGENT_OUTPUT' && d.taskRole === 'scene_composer' && d.taskKind === 'scene'
+      && d.modelNotDispatched !== true && d.hostValidationNotRun !== true;
+    if (![0,3].every((index,n) => data[index].slotOrdinal === n+1 && data[index].inputHash === inputHash
+      && data[index].baseCommitRef === commitRef && data[index].leaseHash === hash(String(row.fencing_token)))
+      || ![1,2,4,5,6].every(index => failure(data[index]))
+      || data[2].attempt !== 1 || data[5].attempt !== 2 || data[6].attempt !== 2 || data[6].hostCommitNotRun !== true) return undefined;
+    return scene;
+  }
+  startSceneRecovery(row, plan, commitRef) {
+    this.#transaction();
+    if (!this.sceneRecoveryTask(row, plan, commitRef)) fail('INVALID_SCENE_RECOVERY');
+    const { inputHash, prefixHash } = this.#sceneRecoveryScope(row);
+    const leaseToken = this.claim(row);
+    const startedAt = this.#clock(); const deadline = startedAt + 30000;
+    const json = JSON.stringify({ version: 2, narrationVersion: 3, inputHash, prefixHash, planHash: row.context_hash, commitRef,
+      leaseHash: hash(leaseToken), startedAt, deadline });
+    this.#db.prepare("INSERT INTO agent_turn_trace(job_id,slot,kind,details_json,details_hash) VALUES(?,'scene','scene_recovery_started',?,?)")
+      .run(row.job_id, json, hash(json));
+    return { leaseToken, startedAt, deadline, narrationVersion: 3 };
+  }
+  #authenticatedSceneRecovery(row, token, commitRef) {
+    const records = this.#db.prepare("SELECT details_json,details_hash FROM agent_turn_trace WHERE job_id=? AND slot='scene' AND kind='scene_recovery_started' LIMIT 2").all(row.job_id);
+    if (records.length !== 1) fail('INVALID_SCENE_RECOVERY');
+    const proof = decode(records[0].details_json, records[0].details_hash);
+    const scope = this.#sceneRecoveryScope(row);
+    const keys = ['version','inputHash','prefixHash','planHash','commitRef','leaseHash','startedAt','deadline'];
+    const validVersion = proof.version === 1 && exact(proof, keys)
+      || proof.version === 2 && proof.narrationVersion === 3 && exact(proof, [...keys, 'narrationVersion']);
+    if (!validVersion || proof.inputHash !== scope.inputHash || proof.prefixHash !== scope.prefixHash || proof.planHash !== row.context_hash
+      || proof.leaseHash !== hash(token) || proof.commitRef !== commitRef
+      || !Number.isSafeInteger(proof.startedAt) || proof.deadline !== proof.startedAt + 30000) fail('INVALID_SCENE_RECOVERY');
+    return proof;
+  }
+  assertSceneRecovery(row, token, commitRef) {
+    this.assertLease(row, token);
+    if (row.turn_id !== null || row.receipt_json !== null) fail('INVALID_SCENE_RECOVERY');
+    const proof = this.#authenticatedSceneRecovery(row, token, commitRef);
+    const now = this.#clock();
+    if (now < proof.startedAt || now >= proof.deadline) fail('AGENT_TIMEOUT');
+    return proof.version === 2 ? proof.narrationVersion : 2;
+  }
+  sceneNarrationVersion(row, plan) {
+    if (this.hasSceneRecovery(row) && ['running', 'committed'].includes(row.status)) {
+      if (![2, 3].includes(plan.narrationPacingVersion)) fail();
+      const base = this.#db.prepare('SELECT commit_ref FROM domain_commits WHERE branch_id=? AND generation=? AND revision=?')
+        .get(row.branch_id, row.generation, row.base_revision);
+      if (!base) fail();
+      const proof = this.#authenticatedSceneRecovery(row, String(row.fencing_token), base.commit_ref);
+      if (proof.version === 1 && plan.narrationPacingVersion !== 2) fail();
+      return proof.version === 2 ? proof.narrationVersion : 2;
+    }
+    return plan.narrationPacingVersion;
+  }
   modelAttemptLedger(row) { return this.#readModelAttemptLedger(row, this.input(row)); }
   #readModelAttemptLedger(row, plan) {
     if (plan.version !== 7) return undefined;
@@ -572,7 +721,7 @@ export class AgentTurnStore {
     const tasks = this.tasks(row); const task = tasks.find(task => task.id === slot);
     verifyTask(task, tasks);
     const plan = this.assertLease(row, token);
-    if (plan.version !== 7 || !task || task.result || task.terminal) fail();
+    if (plan.version !== 7 || !task || task.result || task.terminal || isHostBoundInitialIntent(task.context)) fail();
     const ledger = this.#readModelAttemptLedger(row, plan); const now = this.#clock();
     const firstStartedAt = ledger.firstStartedAt ?? now;
     const hardDeadline = ledger.hardDeadline ?? firstStartedAt + SOFT_EXECUTION_BUDGET.sceneHardDurationMs;
@@ -808,7 +957,12 @@ export class AgentTurnStore {
           : Object.hasOwn(input, 'itemPolicyVersion'))) fail();
       const terminal = task.terminal_status !== null;
       if (terminal && (input.role !== 'director' || task.result_json !== null)) fail();
-      return { ...input, ...(task.result_json === null ? {} : { result: decode(task.result_json, task.result_hash) }),
+      const result = task.result_json === null ? undefined : decode(task.result_json, task.result_hash);
+      if (isHostBoundPerformance(input.context) && result !== undefined
+        && !isDeepStrictEqual(result, hostBoundPerformance(input.context, input.id))) fail();
+      if (result!==undefined && isHostBoundInitialIntent(input.context)
+        && !isDeepStrictEqual(result,hostBoundInitialIntent(input.context))) fail();
+      return { ...input, ...(task.result_json === null ? {} : { result }),
         ...(terminal ? { terminal: { status: task.terminal_status, failure: decode(task.terminal_json, task.terminal_hash) } } : {}) };
     });
     if ([6, 7].includes(plan.version)) assertSceneTasks(tasks, plan);
@@ -867,7 +1021,11 @@ export class AgentTurnStore {
   saveTaskResult(row, slot, output, token) {
     this.#transaction(); const plan = this.assertLease(row, token);
     const task = this.#db.prepare('SELECT * FROM agent_turn_tasks WHERE job_id=? AND slot=?').get(row.job_id, slot);
-    if (!task || this.#db.prepare('SELECT 1 FROM agent_turn_optional_terminals WHERE job_id=? AND slot=?').get(row.job_id, slot)) fail(); decode(task.input_json, task.input_hash);
+    if (!task || this.#db.prepare('SELECT 1 FROM agent_turn_optional_terminals WHERE job_id=? AND slot=?').get(row.job_id, slot)) fail();
+    const input = decode(task.input_json, task.input_hash);
+    if (isHostBoundPerformance(input.context)
+      && !isDeepStrictEqual(output, hostBoundPerformance(input.context, slot))) fail();
+    if (isHostBoundInitialIntent(input.context) && !isDeepStrictEqual(output,hostBoundInitialIntent(input.context))) fail();
     const json = JSON.stringify(output);
     if (slot === SOFT_SLOT && Buffer.byteLength(json, 'utf8') > 4096) fail();
     if (task.result_json !== null) { if (task.result_json !== json || task.result_hash !== hash(json)) fail(); return; }
@@ -896,6 +1054,11 @@ export class AgentTurnStore {
   assertNarrativeAction(action) {
     const row = this.get(action.jobId); const plan = this.input(row);
     const tasks = this.#readTasks(row, plan); const output = id => tasks.find(task => task.id === id)?.result;
+    if (plan.privateReflectionVersion === 1) {
+      if (!['running', 'committed'].includes(row.status) || tasks.length || this.stages(row).length
+        || !isDeepStrictEqual(action, hostPrivateReflectionAction(row, plan))) fail();
+      return;
+    }
     if (requiresInitialBoundaryReview(adjudicationPolicy(plan))) {
       const review = tasks.find(task => task.id === INITIAL_BOUNDARY_REVIEW_SLOT);
       if (!review?.result || !isDeepStrictEqual(review.context.data.proposed, initialBoundaryReviewProposal(tasks))) fail();
@@ -960,7 +1123,7 @@ export class AgentTurnStore {
     if ([1, 2].includes(plan.intentContractVersion) && (!playerIntentPlan || playerIntentPlan.route !== 'steps' || !action.actionOutcome)) fail();
     const intent = hostChoice?.intent || (playerIntentPlan ? resolvePlayerPlanStep(planningBase, playerIntentPlan.steps[0])
       : plan.perceptionVersion === 1 ? resolvePerceivedIntent(rawIntent, targets) : rawIntent);
-    const intentFields = playerIntentPlan ? { playerIntentPlan,
+    const intentFields = playerIntentPlan ? { playerIntentPlan, ...dialogueSequenceActionPin(plan, tasks.find(task => task.id === 'performance')),
       playerPerformances: tasks.filter(task => /^performance:[12]$/u.test(task.id) && task.result)
         .sort((a, b) => a.id.localeCompare(b.id)).map(task => ({ index: Number(task.id.at(-1)), performance: task.result })),
       // The canonical scene reducer independently replays and checks these
@@ -981,7 +1144,28 @@ export class AgentTurnStore {
       if (Buffer.byteLength(JSON.stringify(suffix), 'utf8') > ordinaryCapacityForRevision(revisionId).suffixBytes) fail();
       applyCooperativeRephraseResult(suffix, revisionId); softFields = { softResult: suffix };
     }
+    const selectedDocument = output('scene-repair') || output('scene');
+    const pacing = this.sceneNarrationVersion(row, plan);
+    let qualified = null;
+    if (pacing === 2) {
+      const composerData = tasks.find(task => task.id === 'scene')?.context?.data;
+      if (!Array.isArray(composerData?.events)) fail();
+      qualified = projectQualifiedSceneDocument(mergeHostSceneEvents(selectedDocument, composerData.customEventIds), composerData.events);
+    }
     const expected = [3, 4, 5, 6, 7].includes(plan.version) ? { type: 'scene', ...dialogueContextPin(plan), ...sceneExtensionPin(plan),
+       ...bareReplyRootActionPin(plan, row.text, playerIntentPlan?.steps),
+       ...cellDoorAttemptActionPin(plan, row.text, playerIntentPlan?.steps),
+        ...(plan.localConditionalWaitVersion===1 ? {localConditionalWaitVersion:1} : {}),
+        ...([1,2].includes(plan.localTravelAttemptVersion) ? {localTravelAttemptVersion:plan.localTravelAttemptVersion} : {}),
+       ...ordinaryLocalVisualActionPins(plan,row.text,playerIntentPlan?.steps),
+        ...([1,2,3].includes(plan.ordinaryLocalApproachVersion) ? { ordinaryLocalApproachVersion: plan.ordinaryLocalApproachVersion } : {}),
+        ...([1,2,3,4].includes(plan.ordinaryLocalAmbientSpeechVersion) ? { ordinaryLocalAmbientSpeechVersion: plan.ordinaryLocalAmbientSpeechVersion } : {}),
+         ...(plan.ordinaryLocalSearchConversationVersion === 1 ? { ordinaryLocalSearchConversationVersion: 1 } : {}),
+       ...([2, 3].includes(plan.ordinaryAddressVersion) ? { ordinaryAddressVersion: plan.ordinaryAddressVersion } : {}),
+        ...(plan.roomGroupSpeechVersion === 1 && playerIntentPlan?.steps.some(step => step.intent.speechScope === 'room') ? { roomGroupSpeechVersion: 1 } : {}),
+       ...(qualified ? { narrationPacingVersion: 2,
+         ...(qualified.omittedParagraphs ? { omittedNarrationParagraphs: qualified.omittedParagraphs } : {}) }
+          : pacing === 3 ? { narrationPacingVersion: 3 } : {}),
       ...(plan.authoredMagicVersion === 1 ? { authoredMagicVersion: 1 } : {}),
        ...(plan.authoredMagicDestinationVersion === 1 ? { authoredMagicDestinationVersion: 1 } : {}), ...intentFields, ...softFields, jobId: row.job_id, rawInput: row.text, intent,
       performance: output('performance'), ...(output('npc') ? { response: output('npc') } : {}),
@@ -1011,7 +1195,7 @@ export class AgentTurnStore {
         ...(plan.npcMedicalContactVersion === 1 ? { npcMedicalContactVersion: 1 } : {}),
         ...(plan.playerRuntimeCommunicationVersion === 1 ? { playerRuntimeCommunicationVersion: 1 } : {}),
         ...(plan.storyLifeVersion !== undefined ? { storyLifeVersion: plan.storyLifeVersion } : {}) } : {}),
-      document: hostScene ? action.document : output('scene-repair') || output('scene') }
+      document: hostScene ? action.document : qualified?.document || selectedDocument }
       : { type: 'narrative', jobId: row.job_id, rawInput: row.text, intent,
         performance: output('performance'), ...(output('npc') ? { response: output('npc') } : {}),
         narration: output('narrator')?.text, questionKey: plan.questionKey, answerKey: plan.answerKey };
@@ -1106,7 +1290,68 @@ export class AgentTurnStore {
         || plan.intentContractVersion !== 2 || !isDeepStrictEqual(plan.executionBudget, SOFT_EXECUTION_BUDGET)) fail();
     } else if (plan.version === 7 || ['softResultVersion', 'ordinaryParticipationVersion', 'executionBudget'].some(key => Object.hasOwn(plan, key))) fail();
     if (Object.hasOwn(plan, 'novelScenePresentationVersion') && (plan.novelScenePresentationVersion !== 1 || ![4, 5, 6, 7].includes(plan.version))) fail();
-    if (Object.hasOwn(plan, 'narrationPacingVersion') && (plan.narrationPacingVersion !== 1 || plan.novelScenePresentationVersion !== 1)) fail();
+    if (Object.hasOwn(plan, 'bareReplyRootVersion') && (plan.bareReplyRootVersion !== 1 || plan.version !== 7
+      || plan.intentContractVersion !== 2 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+    if (Object.hasOwn(plan,'localConditionalWaitVersion') && (plan.localConditionalWaitVersion!==1 || plan.version!==7
+      || plan.intentContractVersion!==2 || plan.ordinaryAddressVersion!==3 || plan.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION
+      || plan.intentHint?.type!=='interpret' || plan.regeneration!==undefined || plan.explicitNewAttemptOf!==undefined
+      || plan.roomGroupSpeechVersion!==undefined || plan.localTravelAttemptVersion!==undefined || plan.openActionVersion!==1
+      || plan.ordinaryDialogueSequenceVersion!==undefined || plan.ordinaryLocalApproachVersion!==undefined
+      || plan.ordinaryLocalAmbientSpeechVersion!==undefined || plan.ordinaryLocalSearchConversationVersion!==undefined
+      || !localConditionalWaitSource(row.text))) fail();
+    if (Object.hasOwn(plan,'localTravelAttemptVersion') && (![1,2].includes(plan.localTravelAttemptVersion) || plan.version!==7
+      || plan.regeneration!==undefined || plan.explicitNewAttemptOf!==undefined || plan.roomGroupSpeechVersion!==(plan.localTravelAttemptVersion===1?1:undefined)
+      || plan.localTravelAttemptVersion===2 && (plan.ordinaryAddressVersion!==3 || plan.intentContractVersion!==2
+        || plan.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION || plan.intentHint?.type!=='interpret')
+      || plan.openActionVersion!==1 || plan.ordinaryDialogueSequenceVersion!==undefined
+      || plan.ordinaryLocalApproachVersion!==undefined || plan.ordinaryLocalAmbientSpeechVersion!==undefined
+      || plan.ordinaryLocalSearchConversationVersion!==undefined || !localTravelAttemptSource(row.text,undefined,plan.localTravelAttemptVersion))) fail();
+    if (Object.hasOwn(plan,'localReadinessHostIntentVersion') && (plan.localReadinessHostIntentVersion!==1
+      || plan.version!==7 || plan.regeneration!==undefined || plan.explicitNewAttemptOf!==undefined
+      || plan.ordinaryLocalApproachVersion!==3 || plan.localApproachHostPerformanceVersion!==1)) fail();
+    if (Object.hasOwn(plan, 'localApproachHostPerformanceVersion') && (plan.localApproachHostPerformanceVersion !== 1
+      || ![1,2,3].includes(plan.ordinaryLocalApproachVersion))) fail();
+    if (Object.hasOwn(plan,'ordinaryLocalLookOutcomeVersion') || Object.hasOwn(plan,'ordinaryMoveVisualPreludeVersion')) {
+      const allowed=ordinaryLocalVisualPlanPins(row.text);
+      if (plan.version!==7 || plan.intentContractVersion!==2 || plan.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION
+        || ['ordinaryLocalLookOutcomeVersion','ordinaryMoveVisualPreludeVersion'].some(key=>
+          Object.hasOwn(plan,key) && (plan[key]!==1 || allowed[key]!==1))) fail();
+    }
+    if (Object.hasOwn(plan,'ordinaryLocalSearchConversationVersion') && (plan.ordinaryLocalSearchConversationVersion!==1 || plan.version!==7
+      || plan.ordinaryAddressVersion!==3 || plan.ordinaryDialogueSequenceVersion!==1 || plan.intentHint?.type!=='interpret'
+      || plan.roomGroupSpeechVersion!==undefined || plan.ordinaryLocalApproachVersion!==undefined || plan.ordinaryLocalAmbientSpeechVersion!==undefined)) fail();
+    if (Object.hasOwn(plan, 'ordinaryLocalAmbientSpeechVersion') && (![1,2,3,4].includes(plan.ordinaryLocalAmbientSpeechVersion) || plan.version !== 7
+      || plan.ordinaryLocalAmbientSpeechVersion!==1 && !localAmbientSpeechDomain(row.text,plan.ordinaryLocalAmbientSpeechVersion)
+       || plan.ordinaryLocalAmbientSpeechVersion===4 && (plan.regeneration!==undefined || plan.explicitNewAttemptOf!==undefined)
+      || plan.ordinaryAddressVersion !== 3 || plan.ordinaryDialogueSequenceVersion !== 1 || plan.intentHint?.type !== 'interpret'
+      || plan.roomGroupSpeechVersion !== undefined || plan.ordinaryLocalApproachVersion !== undefined)) fail();
+    if (Object.hasOwn(plan, 'ordinaryLocalApproachVersion') && (![1,2,3].includes(plan.ordinaryLocalApproachVersion) || plan.version !== 7
+      || plan.ordinaryLocalApproachVersion!==1 && (plan.localApproachHostPerformanceVersion!==1 || !localApproachDomain(row.text,plan.ordinaryLocalApproachVersion))
+      || plan.ordinaryAddressVersion !== 3 || plan.ordinaryDialogueSequenceVersion !== 1 || plan.intentHint?.type !== 'interpret'
+      || plan.roomGroupSpeechVersion !== undefined)) fail();
+    if (Object.hasOwn(plan, 'ordinaryAddressVersion') && (![1, 2, 3].includes(plan.ordinaryAddressVersion) || plan.version !== 7
+      || plan.intentContractVersion !== 2 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+    if (Object.hasOwn(plan, 'ordinaryDialogueSequenceVersion') && (![1, 2, 3, 4, 5, 6, 7, 8].includes(plan.ordinaryDialogueSequenceVersion) || plan.version !== 7
+      || plan.intentContractVersion !== 2 || plan.ordinaryAddressVersion !== 3 || plan.intentHint?.type !== 'interpret'
+      || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+    if ([3, 5, 6, 7, 8].includes(plan.ordinaryDialogueSequenceVersion) && Object.hasOwn(plan, 'roomGroupSpeechVersion')
+      || plan.ordinaryDialogueSequenceVersion === 4 && plan.roomGroupSpeechVersion !== 1) fail();
+    if (Object.hasOwn(plan, 'roomGroupSpeechVersion') && (plan.roomGroupSpeechVersion !== 1 || plan.version !== 7
+      || plan.intentContractVersion !== 2 || plan.ordinaryAddressVersion !== 3 || plan.intentHint?.type !== 'interpret'
+      || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+    if (Object.hasOwn(plan, 'cellDoorAttemptVersion') && (plan.cellDoorAttemptVersion !== 1 || plan.version !== 7
+      || plan.intentContractVersion !== 2 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+    if (Object.hasOwn(plan, 'novelNarrationFocusVersion') && (plan.novelNarrationFocusVersion !== 1
+      || plan.version !== 7 || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION
+      || plan.novelScenePresentationVersion !== 1 || plan.narrationPacingVersion !== 3 || plan.outputContractVersion !== 1
+      || plan.sceneEventTimeVersion !== 1 || plan.dialogueContextVersion !== 1 || plan.intentHint?.type !== 'interpret'
+      || plan.regeneration !== undefined || plan.explicitNewAttemptOf !== undefined || plan.hostCaseChoiceVersion !== undefined)) fail();
+    if (Object.hasOwn(plan, 'novelRoundProseRepairVersion') && (plan.novelRoundProseRepairVersion !== 1
+      || plan.novelNarrationFocusVersion !== 1)) fail();
+    if (Object.hasOwn(plan, 'novelRoundFirstDraftVersion') && (![1, 2, 3].includes(plan.novelRoundFirstDraftVersion)
+      || plan.novelNarrationFocusVersion !== 1 || plan.novelRoundProseRepairVersion !== 1)) fail();
+    if (Object.hasOwn(plan, 'narrationPacingVersion') && (![1, 2, 3].includes(plan.narrationPacingVersion)
+      || plan.novelScenePresentationVersion !== 1 || [2, 3].includes(plan.narrationPacingVersion) && (plan.version !== 7 || plan.outputContractVersion !== 1))) fail();
     if (Object.hasOwn(plan, 'npcManualRecoveryVersion') && (![1, 2, 3].includes(plan.npcManualRecoveryVersion) || plan.version !== 7
       || plan.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION || plan.regeneration)) fail();
     if (Object.hasOwn(plan, 'visualPerformanceGuidanceVersion') && (![1, 2, 3].includes(plan.visualPerformanceGuidanceVersion)
@@ -1225,6 +1470,11 @@ export class AgentTurnStore {
     if (Object.hasOwn(plan, 'antiClicheVersion') && (plan.antiClicheVersion !== 1 || ![4, 5, 6, 7].includes(plan.version))) fail();
     if (Object.hasOwn(plan, 'openActionVersion') && (plan.openActionVersion !== 1 || plan.version !== 7
       || !supportsOpenPlayerAction(plan.executionRevision?.revisionId))) fail();
+    if ((Object.hasOwn(plan, 'privateReflectionVersion') || plan.intentHint?.type === 'reflect')
+      && (plan.privateReflectionVersion !== 1 || plan.version !== 7 || plan.openActionVersion !== 1
+        || plan.performanceVersion !== 2 || plan.regeneration || plan.hostCaseChoiceVersion === 1
+        || plan.jobId !== row.job_id || !isDeepStrictEqual(plan.intentHint, { type: 'reflect' })
+        || !currentPrivateReflection(row.text) || requiresInitialBoundaryReview(adjudicationPolicy(plan)))) fail();
     if (Object.hasOwn(plan, 'actorAddressVersion') && (![1, 2].includes(plan.actorAddressVersion) || ![4, 5, 6, 7].includes(plan.version))) fail();
     if (Object.hasOwn(plan, 'storyArcVersion') && (plan.storyArcVersion !== 1 || ![4, 6, 7].includes(plan.version))) fail();
     if (Object.hasOwn(plan, 'decisionAuditVersion') && (plan.decisionAuditVersion !== 1
@@ -1339,9 +1589,21 @@ export class AgentTurnStore {
       .run(safe.has(code) ? code : 'ERR_LLM_TURN_FAILED', row.job_id);
     this.trace(row, 'failed', null, details);
   }
-  commit(row, token, { review, turnId, receipt }) {
+  commit(row, token, settlement) {
     this.#transaction(); this.assertLease(row, token);
+    if (this.hasSceneRecovery(row)) fail('INVALID_SCENE_RECOVERY');
     if (usesOrdinaryAdmission32(this.input(row).executionRevision?.revisionId)) this.assertOrdinaryDeadline(row);
+    this.#publishCommit(row, settlement);
+  }
+  commitSceneRecovery(row, token, commitRef, settlement) {
+    this.#transaction(); const narrationVersion = this.assertSceneRecovery(row, token, commitRef);
+    const outcome = settlement.receipt?.narrationOutcome?.kind;
+    if (!settlement.turnId || settlement.receipt?.requestId !== row.request_id || settlement.receipt.accepted !== true
+      || !(narrationVersion === 3 ? ['round_minimum_met', 'round_minimum_not_met'].includes(outcome) : outcome === 'paragraph_minimum_met'))
+      fail('INVALID_SCENE_RECOVERY');
+    this.#publishCommit(row, settlement);
+  }
+  #publishCommit(row, { review, turnId, receipt }) {
     this.#db.prepare("UPDATE agent_turn_jobs SET status='committed',review_json=?,turn_id=?,receipt_json=?,lease_owner=NULL,lease_expires=NULL WHERE job_id=?")
       .run(JSON.stringify(review), turnId, JSON.stringify(receipt), row.job_id);
     this.trace(row, 'committed');

@@ -127,6 +127,30 @@ export function hasBlockingStyleIssue(value, options) {
   return analyzeNarrativeStyle(value, options).blocking;
 }
 
+const perceptualDistinction = /(?:记得|知道|听见|看见|听清|认得|所见|能确定|看得见|听得见)[^。！？!?\n]{0,50}(?:两回事|不是同一件事|不是凭[^。！？!?\n]{0,24}(?:能知道|能分辨)|并不等于|并不代表)/u;
+const pairedDialogueGloss = /前(?:面)?(?:一个|一句|一问)(?:才|是|在)?(?:问|说)[^。！？!?\n]{1,64}后(?:面)?(?:一个|一句|一问)(?:才|是|在)?(?:问|说)/u;
+const dialogueGloss = /(?:这(?:句|番)话(?:说的是|的意思是|意味着|实际上是)|[她他](?:这时)?(?:的意思是|真正问的是|是在问))/gu;
+
+/** Editorial offer only. Nothing here rejects valid facts, marks original
+ * dialogue, or judges a single useful negative or condition. */
+export function ordinaryNarrationEditorialIssue(document, data) {
+  const events = new Map((data.events || []).map(event => [event.id, event]));
+  let preceding;
+  let distinctions = new Set();
+  for (const block of document.blocks) {
+    if (block.type === 'event') { preceding = events.get(block.eventId); continue; }
+    if (block.type !== 'narration') continue;
+    const mask = quoteMask(block.text, [...QUOTE_PAIRS, ['"', '"']]);
+    const prose = block.text.split('').map((char, index) => mask[index] ? ' ' : char).join('');
+    const sentences = prose.split(/[。！？!?\r\n]+/u).map(text => text.trim()).filter(Boolean);
+    if (['speech', 'writing'].includes(preceding?.delivery) && sentences.length > 1
+      && (sentences.some(sentence => pairedDialogueGloss.test(sentence)) && (preceding.text.match(/[？?]/gu) || []).length > 1
+        || sentences.filter(sentence => [...sentence.matchAll(dialogueGloss)].length).length >= 2)) return 'adjacent-dialogue-gloss';
+    for (const sentence of sentences) if (perceptualDistinction.test(sentence)) distinctions.add(sentence);
+  }
+  return distinctions.size >= 2 ? 'repeated-perceptual-distinction' : null;
+}
+
 export function sceneStyleIssues(document, options) {
   if (!document || !Array.isArray(document.blocks)) return [];
   const blocks = document.blocks.flatMap((block, blockIndex) => block?.type === 'narration' && typeof block.text === 'string'

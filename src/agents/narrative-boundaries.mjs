@@ -1,6 +1,10 @@
+import { localConditionalWaitStep, localConditionalWaitSpeech, LOCAL_CONDITIONAL_WAIT_ACTION } from './player-address-resolution.mjs';
+import { localTravelAttemptStep, localTravelDirectedSpeech, localTravelDirectedStep } from './player-address-resolution.mjs';
+import { LOCAL_POINT_REPLY_ANCHOR, explicitLocalVocative, localAmbientLook, localAmbientSpeech, localAmbientWait, localAgreementPerformance, localComposedAmbientStep, localOpenOrientationStep, ordinaryLocalAmbientStepTypes, localApproachObservation, localPersonApproach, localReadinessApproach, localReadinessWait, localReadinessSpeech, localSearchThanks, localSearchLook, localSearchProposal } from './player-address-resolution.mjs';
 import { supportsOpenPlayerAction } from './open-player-action.mjs';
 import { PLAYER_PERFORMANCE_SHAPE } from './player-performance-shape.mjs';
-import { assertCommunicationSelection, isCommunicationRuntime } from './communication-selection30.mjs';
+import { assertCommunicationSelection, isCommunicationRuntime, ordinaryAddressRequiresVerbatim } from './communication-selection30.mjs';
+import { EVENT_DIRECTOR_RUNTIME_REVISION } from '../director/director-event-runtime.mjs';
 import { initialPublicBoundaryConflict } from '../content/initial-run-policy.mjs';
 import { isProxy } from 'node:util/types';
 import { relationshipPacketPolicy } from '../content/content-revisions.mjs';
@@ -100,6 +104,214 @@ export function preservesEnactedPlayerSpeech(raw, utterance, intent) {
   const quotes = explicitQuotes(raw);
   return supportsPlayerSpeech(intent) && quotes.length === 1 && playerSpeechFits(quotes[0], utterance);
 }
+// Only a sealed local-approach packet can request a HOST result. The slot,
+// current projected facts, and verbatim source must agree independently.
+export function localApproachHostPerformance(packet, slot) {
+  if (packet?.data?.localApproachHostPerformanceVersion === undefined) return undefined;
+  if (!packets.has(packet)) packet = buildNarrativeContext(packet);
+  const { data } = packet;
+  if (data.localApproachHostPerformanceVersion !== 1 || packet.role !== 'player_performance'
+    || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION || data.ordinaryAddressVersion !== 3
+    || ![1,2,3].includes(data.ordinaryLocalApproachVersion) || data.communication !== 'speech' || data.dialogueSequence !== undefined
+    || data.roomGroupSpeechVersion !== undefined || data.statementReaction !== undefined) fail();
+  if (data.ordinaryLocalApproachVersion===3) {
+    if (slot!==({conversation:'performance',act:'performance:1',wait:'performance:2'})[data.intent.type]) fail();
+    return validateNarrativeOutput(packet,readinessPerformance(data));
+  }
+  if (data.ordinaryLocalApproachVersion===2) {
+    if (slot!==(data.intent.type==='act'?'performance':'performance:1')) fail();
+    return validateNarrativeOutput(packet,personApproachPerformance(data));
+  }
+  if (slot === 'performance') {
+    exact(data.intent, ['type','summary','targetId','playerText']);
+    if (data.intent.type !== 'conversation' || typeof data.intent.targetId !== 'string') fail();
+    const source = explicitLocalVocative(data.rawInput, data.scene, data.intent.targetId);
+    if (!source || source.text !== data.intent.playerText || data.communicationSelection?.text !== source.text) fail();
+    return validateNarrativeOutput(packet, { action:'', utterance:source.text });
+  }
+  if (slot !== 'performance:1') fail();
+  exact(data.intent, ['type','summary']);
+  if (data.intent.type !== 'act' || data.openActionVersion !== 1 || data.communicationSelection !== null
+    || !localApproachObservation(data.rawInput, data.scene)) fail();
+  return validateNarrativeOutput(packet, { action:data.rawInput });
+}
+
+function readinessPerformance(data) {
+  if (data.localApproachHostPerformanceVersion!==1 || data.communication!=='speech' || data.dialogueSequence!==undefined
+    || data.roomGroupSpeechVersion!==undefined || data.statementReaction!==undefined || data.ordinaryLocalAmbientSpeechVersion!==undefined
+    || data.ordinaryLocalSearchConversationVersion!==undefined) fail();
+  if (data.intent.type==='conversation') {
+    exact(data.intent,['type','summary','targetId','playerText']);
+    const source=localReadinessSpeech(data.rawInput,data.scene,data.intent.targetId);
+    if (!source || source.text!==data.intent.playerText || data.communicationSelection?.text!==source.text
+      || data.communicationSelection.targetId!==source.targetId) fail();
+    return {action:'',utterance:source.text};
+  }
+  exact(data.intent,['type','summary']);
+  if (data.communicationSelection!==null) fail();
+  if (data.intent.type==='act') {
+    const proof=data.openActionVersion===1 && localReadinessApproach(data.rawInput,data.scene);
+    if (proof) return {action:proof.action};
+  } else if (data.intent.type==='wait' && localReadinessWait(data.rawInput,data.scene)) return {action:'我在原地稍等。'};
+  fail('player-performance-player-choice');
+}
+
+function personApproachPerformance(data) {
+  if (data.localApproachHostPerformanceVersion!==1 || data.communication!=='speech' || data.dialogueSequence!==undefined
+    || data.roomGroupSpeechVersion!==undefined || data.statementReaction!==undefined || data.ordinaryLocalAmbientSpeechVersion!==undefined
+    || data.ordinaryLocalSearchConversationVersion!==undefined) fail();
+  if (data.intent.type==='act') {
+    if (data.openActionVersion!==1) fail();
+    exact(data.intent,['type','summary']);
+    const source=data.communicationSelection===null && localPersonApproach(data.rawInput,data.scene);
+    if (!source) fail('player-performance-player-choice');
+    return {action:source.action};
+  }
+  if (data.intent.type!=='conversation') fail();
+  exact(data.intent,['type','summary','targetId','playerText']);
+  const source=explicitLocalVocative(data.rawInput,data.scene,data.intent.targetId);
+  if (!source || data.intent.targetId!==source.targetId || data.intent.playerText!==source.text
+    || data.communicationSelection?.text!==source.text || data.communicationSelection?.targetId!==source.targetId) fail();
+  return {action:'我轻声开口。',utterance:source.text};
+}
+
+function localConditionalWaitPerformance(data,player,slot) {
+  if (data.localConditionalWaitVersion!==1 || data.ordinaryAddressVersion!==3 || data.communication!=='speech'
+    || data.dialogueSequence!==undefined || data.statementReaction!==undefined || data.roomGroupSpeechVersion!==undefined
+    || data.localTravelAttemptVersion!==undefined || data.ordinaryLocalApproachVersion!==undefined
+    || data.ordinaryLocalAmbientSpeechVersion!==undefined || data.ordinaryLocalSearchConversationVersion!==undefined) fail();
+  if (data.intent.type==='conversation') {
+    exact(data.intent,['type','summary','targetId','playerText']);
+    const text=localConditionalWaitSpeech(data.rawInput,data.scene,player,data.intent.targetId);
+    if (slot!==undefined && slot!=='performance' || !text || data.intent.playerText!==text
+      || data.communicationSelection?.text!==text || data.communicationSelection.targetId!==data.intent.targetId) fail();
+    return {action:'',utterance:text};
+  }
+  if (slot!==undefined && slot!=='performance:1' || data.intent.type!=='wait' || data.communicationSelection!==null
+    || !localConditionalWaitStep(data.rawInput,data.scene)) fail();
+  exact(data.intent,['type','summary']);
+  return {action:LOCAL_CONDITIONAL_WAIT_ACTION};
+}
+
+function localTravelPerformance(data,slot,player) {
+  const version=data.localTravelAttemptVersion;
+  if (![1,2].includes(version) || data.ordinaryAddressVersion!==3 || data.communication!=='speech'
+    || data.dialogueSequence!==undefined || data.statementReaction!==undefined
+    || data.ordinaryLocalApproachVersion!==undefined || data.ordinaryLocalAmbientSpeechVersion!==undefined
+    || data.ordinaryLocalSearchConversationVersion!==undefined) fail();
+  if (data.intent.type==='conversation') {
+    const selection=data.communicationSelection;
+    if (version===2) {
+      exact(data.intent,['type','summary','targetId','playerText']);
+      const speech=localTravelDirectedSpeech(data.rawInput,data.scene,player);
+      if (slot!==undefined && slot!=='performance' || data.roomGroupSpeechVersion!==undefined
+        || !speech || speech.targetId!==data.intent.targetId || speech.text!==data.intent.playerText
+        || selection?.targetId!==speech.targetId || selection.text!==speech.text) fail();
+      return {action:'',utterance:speech.text};
+    }
+    if (slot!==undefined && slot!=='performance' || data.intent.speechScope!=='room' || data.roomGroupSpeechVersion!==1
+      || selection?.form!=='current-room-group@1' || selection.text!==data.intent.playerText) fail();
+    return {action:'',utterance:selection.text};
+  }
+  if (version===2) {
+    if (data.intent.type!=='act' || data.openActionVersion!==1 || data.roomGroupSpeechVersion!==undefined
+      || data.communicationSelection!==null) fail();
+    exact(data.intent,['type','summary']);
+    const step=(slot===undefined || slot==='performance:1') && localTravelDirectedStep(data.rawInput,data.scene,1)
+      || (slot===undefined || slot==='performance:2') && localTravelDirectedStep(data.rawInput,data.scene,2);
+    if (!step) fail();
+    return {action:step.action};
+  }
+  if (slot!==undefined && slot!=='performance:1' || data.intent.type!=='act' || data.openActionVersion!==1
+    || data.roomGroupSpeechVersion!==undefined || data.communicationSelection!==null) fail();
+  exact(data.intent,['type','summary']);
+  const step=localTravelAttemptStep(data.rawInput,data.scene);
+  if (!step) fail();
+  return {action:step.action};
+}
+
+export const isHostBoundPerformance = packet => packet?.data?.localApproachHostPerformanceVersion === 1
+  || packet?.role === 'player_performance' && ([7,8].includes(packet.data?.ordinaryDialogueSequenceVersion) || packet.data?.localConditionalWaitVersion===1 || [1,2].includes(packet.data?.localTravelAttemptVersion) || [1,2,3,4].includes(packet.data?.ordinaryLocalAmbientSpeechVersion) || packet.data?.ordinaryLocalSearchConversationVersion === 1);
+export function hostBoundPerformance(packet, slot) {
+  if ([7,8].includes(packet?.data?.ordinaryDialogueSequenceVersion)) {
+    if (slot!=='performance') fail();
+    if (!packets.has(packet)) packet=buildNarrativeContext(packet);
+    return validateNarrativeOutput(packet,{action:'',utterance:packet.data.intent.playerText});
+  }
+  if (packet?.data?.localConditionalWaitVersion===1) {
+    if (!packets.has(packet)) packet=buildNarrativeContext(packet);
+    return validateNarrativeOutput(packet,localConditionalWaitPerformance(packet.data,packet.scope.actorId,slot));
+  }
+  if ([1,2].includes(packet?.data?.localTravelAttemptVersion)) {
+    if (!packets.has(packet)) packet=buildNarrativeContext(packet);
+    return validateNarrativeOutput(packet,localTravelPerformance(packet.data,slot,packet.scope.actorId));
+  }
+  if (packet?.data?.ordinaryLocalSearchConversationVersion === 1) {
+    if (!packets.has(packet)) packet=buildNarrativeContext(packet);
+    const output=searchPerformance(packet.data,slot);
+    return validateNarrativeOutput(packet,output);
+  }
+  if (![1,2,3,4].includes(packet?.data?.ordinaryLocalAmbientSpeechVersion)) return localApproachHostPerformance(packet, slot);
+  if (!packets.has(packet)) packet = buildNarrativeContext(packet);
+  const { data } = packet;
+  const index=['performance','performance:1','performance:2'].indexOf(slot);
+  const type=ordinaryLocalAmbientStepTypes(data.ordinaryLocalAmbientSpeechVersion)[index];
+  if (data.ordinaryLocalAmbientSpeechVersion===4) {
+    const row=localOpenOrientationStep(data.rawInput,data.scene);
+    if (!row || ['answer','orientation','proposal'][index]!==row.kind) fail();
+  } else if (index<0 || data.ordinaryLocalAmbientSpeechVersion!==3 && (!type || data.intent.type!==type)) fail();
+  const output = ambientPerformance(data);
+  return validateNarrativeOutput(packet, output);
+}
+function searchPerformance(data,slot) {
+  if (data.ordinaryLocalSearchConversationVersion!==1 || data.ordinaryAddressVersion!==3 || data.communication!=='speech'
+    || data.roomGroupSpeechVersion!==undefined || data.statementReaction!==undefined || data.dialogueSequence!==undefined
+    || data.ordinaryLocalAmbientSpeechVersion!==undefined || data.ordinaryLocalApproachVersion!==undefined) fail();
+  if (data.intent.type==='look') {
+    if (slot!==undefined && slot!=='performance:1' || data.communicationSelection!==null) fail();
+    exact(data.intent,['type','summary']);
+    const look=localSearchLook(data.rawInput,data.scene);
+    if (!look || look.reflection && data.performanceVersion!==2) fail();
+    return {action:'我朝周围看了看。',...(look.reflection?{reflection:look.reflection}:{})};
+  }
+  exact(data.intent,['type','summary','targetId','playerText']);
+  if (data.intent.type!=='conversation' || typeof data.intent.targetId!=='string') fail();
+  const start=slot!=='performance:2' && localSearchThanks(data.rawInput,data.scene,data.intent.targetId);
+  const proposal=slot!=='performance' && localSearchProposal(data.rawInput,data.scene,data.intent.targetId);
+  const source=start||proposal;
+  if (!(slot===undefined || slot==='performance' || slot==='performance:2') || !source || data.intent.playerText!==source.text
+    || data.communicationSelection?.text!==source.text || data.communicationSelection?.targetId!==source.targetId) fail();
+  return {action:'',utterance:source.text};
+}
+function ambientPerformance(data) {
+  if (![1,2,3,4].includes(data.ordinaryLocalAmbientSpeechVersion) || data.ordinaryAddressVersion !== 3 || data.communication !== 'speech'
+    || data.roomGroupSpeechVersion !== undefined || data.statementReaction !== undefined || data.dialogueSequence !== undefined
+    || data.localApproachHostPerformanceVersion !== undefined || data.communicationSelection !== null) fail();
+  exact(data.intent, ['type','summary']);
+  if (data.ordinaryLocalAmbientSpeechVersion===4) {
+    const proof=localOpenOrientationStep(data.rawInput,data.scene);
+    if (proof?.type!==data.intent.type || proof.type==='act' && data.openActionVersion!==1) fail('player-performance-player-choice');
+    return proof.performance;
+  }
+  if (data.ordinaryLocalAmbientSpeechVersion===3) {
+    const proof=localComposedAmbientStep(data.rawInput,data.scene);
+    if (proof?.type!==data.intent.type || proof.type==='act' && data.openActionVersion!==1) fail('player-performance-player-choice');
+    return proof.performance;
+  }
+  if (data.ordinaryLocalAmbientSpeechVersion===2) {
+    const expected=(data.intent.type!=='act' || data.openActionVersion===1) && localAgreementPerformance(data.rawInput,data.scene,data.intent.type);
+    if (!expected) fail('player-performance-player-choice');
+    return expected;
+  }
+  if (data.intent.type === 'look' && localAmbientLook(data.rawInput,data.scene)
+    || data.intent.type === 'wait' && localAmbientWait(data.rawInput,data.scene)) return {action:data.rawInput};
+  if (data.intent.type === 'act' && data.openActionVersion === 1) {
+    const quote = localAmbientSpeech(data.rawInput,data.scene);
+    if (quote) return {action:'我开口问。',utterance:quote.text};
+  }
+  fail('player-performance-player-choice');
+}
+
 export function buildNarrativeContext(input) {
   exact(input, ['role', 'scope', 'data', 'systemPolicySeal', 'relationshipContextVersion', 'executionRevision'], ['role', 'scope', 'data']);
   if (!plain(input.data)) fail();
@@ -120,6 +332,68 @@ export function buildNarrativeContext(input) {
     ? (input.role === 'player_performance' ? RELATIONSHIP_CONTEXT_BUDGETS.player_performance : RELATIONSHIP_CONTEXT_BUDGETS.narrative)
     : input.role === 'scene_composer' ? 64000 : 48000;
   const packet = freeze(clone(input, maximum));
+  if (Object.hasOwn(packet.data, 'ordinaryAddressVersion') && (packet.role !== 'player_performance'
+    || ![1, 2, 3].includes(packet.data.ordinaryAddressVersion) || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+  if (Object.hasOwn(packet.data,'localConditionalWaitVersion')) {
+    if (packet.role!=='player_performance' || packet.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION) fail();
+    localConditionalWaitPerformance(packet.data,packet.scope.actorId);
+  }
+  if (packet.role==='player_performance' && Object.hasOwn(packet.data,'localTravelAttemptVersion')) {
+    if (packet.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION) fail();
+    localTravelPerformance(packet.data,undefined,packet.scope.actorId);
+  }
+  if (Object.hasOwn(packet.data,'ordinaryLocalSearchConversationVersion')) {
+    if (packet.role!=='player_performance' || packet.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION) fail();
+    searchPerformance(packet.data);
+  }
+  if (Object.hasOwn(packet.data, 'ordinaryLocalAmbientSpeechVersion')) {
+    if (packet.role !== 'player_performance' || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION) fail();
+    ambientPerformance(packet.data);
+  }
+  if (Object.hasOwn(packet.data, 'localApproachHostPerformanceVersion') && (packet.role !== 'player_performance'
+    || packet.data.localApproachHostPerformanceVersion !== 1 || ![1,2,3].includes(packet.data.ordinaryLocalApproachVersion))) fail();
+  if (Object.hasOwn(packet.data, 'ordinaryLocalApproachVersion')) {
+    const data = packet.data;
+    if (packet.role !== 'player_performance' || ![1,2,3].includes(data.ordinaryLocalApproachVersion) || data.ordinaryAddressVersion !== 3
+      || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION || data.ordinaryDialogueSequenceVersion !== undefined
+      || (data.intent?.type === 'conversation' ? data.communicationSelection?.text !== data.intent.playerText || !data.intent.playerText
+        : data.ordinaryLocalApproachVersion!==3 && (data.intent?.type !== 'act' || data.openActionVersion !== 1 || data.communicationSelection !== null))) fail();
+    if (data.ordinaryLocalApproachVersion===2) personApproachPerformance(data);
+    if (data.ordinaryLocalApproachVersion===3) readinessPerformance(data);
+  }
+  if (Object.hasOwn(packet.data, 'roomGroupSpeechVersion') || packet.data.intent?.speechScope === 'room') {
+    if (packet.role !== 'player_performance' || packet.data.roomGroupSpeechVersion !== 1
+      || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION || packet.data.ordinaryAddressVersion !== 3
+      || packet.data.intent?.type !== 'conversation' || packet.data.intent.speechScope !== 'room'
+      || packet.data.intent.targetId !== undefined || packet.data.communication === 'writing'
+      || packet.data.communicationSelection?.form !== 'current-room-group@1') fail();
+  }
+  if (Object.hasOwn(packet.data, 'ordinaryDialogueSequenceVersion') || Object.hasOwn(packet.data, 'dialogueSequence')) {
+    const data = packet.data;
+    if (packet.role !== 'player_performance' || ![1, 2, 3, 4, 5, 6, 7, 8].includes(data.ordinaryDialogueSequenceVersion) || data.ordinaryAddressVersion !== 3
+      || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION || data.communication !== 'speech'
+      || data.intent?.type !== 'conversation' || data.ordinaryDialogueSequenceVersion !== 4 && data.intent.speechScope !== undefined) fail();
+    const version = data.ordinaryDialogueSequenceVersion;
+    const group = version === 4 && data.intent.speechScope === 'room';
+    const proof = exact(data.dialogueSequence, [group ? 'speechScope' : 'targetId', 'roomId', 'spans', ...(version >= 2 ? ['anchor'] : [])]);
+    if (proof.targetId !== data.intent.targetId || proof.roomId !== data.scene?.roomId
+      || (version === 4 ? proof.anchor !== 'local-speech-spans' || group && proof.speechScope !== 'room'
+        : version === 2 ? proof.anchor !== 'local-gaze-name' : data.scene?.replyPeer !== proof.targetId)
+      || [5,7,8].includes(version) && proof.anchor !== 'same-peer-observed-orientation'
+       || [7,8].includes(version) && proof.spans?.length!==3
+      || version === 6 && (proof.anchor !== LOCAL_POINT_REPLY_ANCHOR || proof.spans?.length !== 3)
+       || version === 3 && (proof.anchor !== 'reply-to-current-room' || proof.spans?.length !== 3)
+      || !Array.isArray(proof.spans) || ![3, 5].includes(proof.spans.length)) fail();
+    let end = -1;
+    for (const [index, part] of proof.spans.entries()) {
+      exact(part, ['kind', 'start', 'end']);
+      if (part.kind !== (index % 2 === 0 ? 'speech' : 'transition') || !Number.isSafeInteger(part.start) || !Number.isSafeInteger(part.end)
+        || part.start <= end || part.end <= part.start || part.end > 1400) fail();
+      end = part.end;
+    }
+    if (proof.spans[0].end - proof.spans[0].start !== data.intent.playerText?.length
+      || data.communicationSelection?.text !== data.intent.playerText) fail();
+  }
   if (packet.role === 'player_performance') assertCommunicationSelection(packet.data, packet.scope);
   if (Object.hasOwn(packet.data, 'antiClicheVersion') && (packet.data.antiClicheVersion !== 1
     || !['player_performance', 'narrator', 'scene_composer'].includes(packet.role))) fail();
@@ -128,7 +402,8 @@ export function buildNarrativeContext(input) {
     validateAddressVoice(packet.data.addressVoice, packet.scope.actorId);
   }
   if (Object.hasOwn(packet.data, 'playerSpeechVoiceVersion') && (packet.role !== 'player_performance'
-    || packet.data.playerSpeechVoiceVersion !== 1 || !chosenPlayerSpeech(packet.data))) fail();
+    || packet.data.playerSpeechVoiceVersion !== 1 || !chosenPlayerSpeech(packet.data)
+    || ordinaryAddressRequiresVerbatim(packet.data, packet.scope))) fail();
   if (Object.hasOwn(packet.data, 'performanceVersion') && (packet.role !== 'player_performance' || packet.data.performanceVersion !== 2)) fail();
   if (Object.hasOwn(packet.data, 'visualPerformanceSystemVersion') && (packet.role !== 'player_performance'
     || packet.data.visualPerformanceSystemVersion !== 2 || packet.data.materialProseVersion !== 2
@@ -179,7 +454,12 @@ export function buildNarrativeContext(input) {
       || !['standing', 'sitting', 'lying'].includes(packet.data.postureSettlement.posture)) fail();
   }
   if (Object.hasOwn(packet.data, 'narrationPacingVersion') && (packet.role !== 'scene_composer'
-    || packet.data.narrationPacingVersion !== 1 || packet.data.outputContractVersion !== 1)) fail();
+    || ![1, 2, 3].includes(packet.data.narrationPacingVersion) || packet.data.outputContractVersion !== 1)) fail();
+  if (Object.hasOwn(packet.data, 'novelNarrationFocusVersion') && (packet.data.novelNarrationFocusVersion !== 1
+    || packet.role !== 'scene_composer' || packet.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION
+    || packet.relationshipContextVersion !== 1 || packet.data.narrationPacingVersion !== 3
+    || packet.data.outputContractVersion !== 1 || packet.data.sceneEventTimeVersion !== 1
+    || Object.hasOwn(packet.data, 'repairSource') || Object.hasOwn(packet.data, 'compositionFeedback'))) fail();
   if (packet.role === 'scene_composer') {
     validateSceneEvents(packet.data.events);
     if (packet.data.sceneEventTimeVersion === 1) validateSceneEventTimeline(packet.data.eventTimeline, packet.data.events);
@@ -270,10 +550,12 @@ function assertsUnsettledPosture(value, { posture, uncertainty = false } = {}) {
   return false;
 }
 const sceneTypes = new Set(['look', 'move', 'broadcast', 'conversation', 'wait', 'follow', 'act']);
-export function validateNarrativeOutput(packet, output, scope = packet.scope) {
+export function validateNarrativeOutput(packet, output, scope = packet.scope, { sceneRecoveryNarrationVersion } = {}) {
   narrativePacketForTransport(packet);
   if (['actorId', 'branchId', 'generation', 'revision'].some(key => packet.scope[key] !== scope[key])) fail();
   const data = packet.data;
+  if (sceneRecoveryNarrationVersion !== undefined && (sceneRecoveryNarrationVersion !== 3
+    || packet.role !== 'scene_composer' || data.narrationPacingVersion !== 2)) fail();
   const structureRule = packet.role === 'player_performance' ? performanceStructureRule : undefined;
   output = structureRule ? performanceShape(() => clone(output, 24000, structureRule), PLAYER_PERFORMANCE_SHAPE.json)
     : clone(output, packet.role === 'scene_composer' ? 36000 : 24000);
@@ -288,7 +570,8 @@ export function validateNarrativeOutput(packet, output, scope = packet.scope) {
         || data.customEventIds.some((id, index) => data.events[index]?.id !== id)) fail();
       output = mergeHostSceneEvents(output, data.customEventIds);
     }
-    const document = validateSceneDocument(output, data.events);
+    const document = validateSceneDocument(output, data.events, data.narrationPacingVersion === 3 || sceneRecoveryNarrationVersion === 3
+      ? { narrationPacingVersion: 3 } : undefined);
     if (data.postureActionVersion === 1 && data.postureSettlement) {
       let settled = false;
       for (const block of document.blocks) {
@@ -353,6 +636,54 @@ export function validateNarrativeOutput(packet, output, scope = packet.scope) {
     return freeze(clone(output, 6000));
   }
   if (packet.role === 'player_performance') {
+    if (data.localConditionalWaitVersion===1) {
+      const expected=localConditionalWaitPerformance(data,packet.scope.actorId), keys=Object.keys(expected);
+      exact(output,keys,keys,structureRule);
+      if (keys.some(key=>output[key]!==expected[key])) fail('player-performance-player-choice');
+      return freeze(clone(expected,12000));
+    }
+    if ([1,2].includes(data.localTravelAttemptVersion)) {
+      const expected=localTravelPerformance(data,undefined,packet.scope.actorId), keys=Object.keys(expected);
+      exact(output,keys,keys,structureRule);
+      if (keys.some(key=>output[key]!==expected[key])) fail('player-performance-player-choice');
+      return freeze(clone(expected,12000));
+    }
+    if (data.ordinaryLocalSearchConversationVersion === 1) {
+      const expected=searchPerformance(data),keys=Object.keys(expected);
+      exact(output,keys,keys,structureRule);
+      if (keys.some(key=>output[key]!==expected[key])) fail('player-performance-player-choice');
+      return freeze(clone(expected,12000));
+    }
+    if ([1,2,3,4].includes(data.ordinaryLocalAmbientSpeechVersion)) {
+      const expected = ambientPerformance(data), keys = Object.keys(expected);
+      exact(output, keys, keys, structureRule);
+      if (keys.some(key => output[key] !== expected[key])) fail('player-performance-player-choice');
+      return freeze(clone(expected,12000));
+    }
+    if ([2,3].includes(data.ordinaryLocalApproachVersion)) {
+      const expected=data.ordinaryLocalApproachVersion===2?personApproachPerformance(data):readinessPerformance(data), keys=Object.keys(expected);
+      exact(output,keys,keys,structureRule);
+      if (keys.some(key=>expected[key]!==output[key])) fail('player-performance-player-choice');
+      return freeze(clone(expected,12000));
+    }
+    if (data.ordinaryLocalApproachVersion === 1) {
+      if (data.intent.type === 'conversation') {
+        exact(output, ['action', 'utterance'], ['utterance'], structureRule);
+        if (Object.hasOwn(output, 'action') && output.action !== '' || output.utterance !== data.intent.playerText)
+          fail('player-performance-literal-quote');
+        return freeze(clone({ action:'', utterance:output.utterance },12000));
+      }
+      exact(output, ['action'], ['action'], structureRule);
+      if (output.action !== data.rawInput) fail('player-performance-player-choice');
+      return freeze(clone(output,12000));
+    }
+    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(data.ordinaryDialogueSequenceVersion)) {
+      const v2 = data.ordinaryDialogueSequenceVersion >= 2;
+      exact(output, ['action', 'utterance'], v2 ? ['utterance'] : ['action', 'utterance'], structureRule);
+      if ((!v2 || Object.hasOwn(output, 'action')) && output.action !== '' || output.utterance !== data.intent.playerText)
+        fail('player-performance-literal-quote');
+      return freeze(clone(v2 ? { action: '', utterance: output.utterance } : output, 12000));
+    }
     if (data.postureActionVersion === 1 && data.intent?.operation === 'pose') {
       validatePoseIntent(data.postureActions || [], data.intent, data.rawInput);
       if (assertsUnsettledPosture(output.action)) fail('player-performance-posture');

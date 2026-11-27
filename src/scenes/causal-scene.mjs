@@ -14,6 +14,8 @@ import { enableAutonomy, applyNpcDecisions, persistEnactments, pendingReactionAc
 import { enablePrisonWorld, announcePrisonAssembly, advancePrisonActivities, prisonClock, prisonPublicRules, nextPrisonActivityBoundary } from '../world/prison-activity.mjs';
 import { CARD_ASSEMBLY_TEXT, prisonRulebook } from '../content/card-world.mjs';
 import { preservesEnactedPlayerSpeech } from '../agents/narrative-boundaries.mjs';
+import { bareReplyRootSource } from '../agents/communication-selection30.mjs';
+import { localRoomSpeechScene } from '../agents/player-address-resolution.mjs';
 import { enableCaseRuntime, runtimeRoom, runtimeSetRoom, runtimeActive, runtimeLocalIds, runtimeOptions,
   runtimeOperation, runtimeObserve, runtimeNextBoundary, advanceCaseRuntime, discoverRuntimeIncidents, runtimeAcquire,
   runtimeApplyItemPolicy, runtimeDiscoverObjects, validatePoseIntent, runtimePhysicalFacts, runtimeBodyIsIdentity } from '../case-runtime.mjs';
@@ -129,6 +131,32 @@ export function causalPlayerScene(state) {
     clock: prisonClock(state),
     actionLimits: '只能执行本人当前交付的有限步骤。首版不支持玩家主动致命攻击或共犯、任意毁证、未建模能力、多人共谋或多案合并；其他自由描述只是尝试，不会用旁白补成实际结果。' };
 }
+// Only a positive, finite approach-and-test of the local door. No inferred
+// passage, no condition, no request for somebody else's act, and no alias from
+// a candidate's summary. This classifier never changes the wire intent kind.
+const cellDoorAttemptSource = /^我(?:走到|走近|来到)(?:(?:眼前的)?(?:牢门|铁栅栏门|铁门|门))(?:边|前|旁)?[，,](?:(?:伸手|用手))?(?:试着|尝试)(?:伸手)?(?:轻轻|轻)推(?:开|动)?(?:眼前的)?(?:牢门|铁栅栏门|铁门|门)(?:一下)?[。！]$/u;
+export const isCellDoorAttemptStep = (source, intent) => typeof source === 'string' && intent?.type === 'act'
+  && !Object.hasOwn(intent, 'operation') && !Object.hasOwn(intent, 'targetId') && !Object.hasOwn(intent, 'playerText')
+  && cellDoorAttemptSource.test(source);
+
+export function cellDoorAttemptRootSource(source, steps) {
+  return Boolean(bareReplyRootSource(source, steps) && isCellDoorAttemptStep(steps[2].text, steps[2].intent));
+}
+
+export function cellDoorAttemptActionPin(plan, source, steps) {
+  return plan.cellDoorAttemptVersion === 1 && cellDoorAttemptRootSource(source, steps) ? { cellDoorAttemptVersion: 1 } : {};
+}
+
+/** Only the authored cell exit is a valid target. The schedule's native lock
+ * fact and the current player-specific exit permission are independent. */
+export function cellDoorAttemptState(state, scene = causalPlayerScene(state)) {
+  const code = ROOM_CODES[scene.roomId];
+  if (!/^(?:CELL(?:_\d+)?|PLAYER_CELL)$/u.test(code ?? '') || runtimeRoom(state, createdPlayerId(state)) !== scene.roomId
+    || !runtimeActive(state, createdPlayerId(state)) || guardDetained(state) || typeof state.agentDoorOpen !== 'boolean') return 'unavailable';
+  if (!state.agentDoorOpen) return 'locked';
+  return scene.permittedDestinations.includes('corridor') ? 'passable' : 'restricted';
+}
+
 /** HOST only: join current private menu metadata to IDs actually projected to
  * this player. No metadata is added to the historical/model scene shape. */
 export function resolvePlayerPlanStep(state, step) {
@@ -305,8 +333,23 @@ export function parseCausalIntent(state, raw) {
   }
   return null;
 }
+export function roomGroupSpeechAudience(state, scene = causalPlayerScene(state)) {
+  const playerId = createdPlayerId(state);
+  if (!localRoomSpeechScene(scene) || state.caseRuntime?.occupiedBody || !actorForState(state, playerId)
+    || actorForState(state, playerId).communication === 'writing') return [];
+  const nearby = new Set(scene.nearby.map(row => row.id));
+  const audible = acquisitionAudience(state, playerId, { delivery: 'speech' }).filter(id => id === playerId || nearby.has(id));
+  return audible.includes(playerId) && audible.length >= 3 ? audible : [];
+}
+
 export function validateCausalIntent(scene, intent, { scheduleWaitVersion, postureActionVersion, rawInput,
-  playerTextMagicVersion, magicOffer } = {}) {
+  playerTextMagicVersion, magicOffer, roomGroupSpeechVersion } = {}) {
+  if (Object.hasOwn(intent ?? {}, 'speechScope')) {
+    if (roomGroupSpeechVersion !== 1 || !exact(intent, ['type', 'summary', 'speechScope', 'playerText'])
+      || intent.type !== 'conversation' || intent.speechScope !== 'room' || !safe(intent.summary, 800)
+      || !safe(intent.playerText, 1400) || !localRoomSpeechScene(scene)) fail();
+    return intent;
+  }
   if (intent?.operation === 'pose') {
     if (postureActionVersion !== 1 || scene.guard?.pending || scene.guard?.detention?.status === 'detained'
       || scene.confinement?.returnRequired || ![undefined, 'daily', 'aftermath', 'investigation'].includes(scene.case?.stage)) fail();
@@ -491,17 +534,22 @@ export function curfewReturnIntent(state, intent) {
 // These helpers are shared with the resumable scene-beat executor. The legacy
 // reducer below retains its original observation, acquisition and clock order.
 export { enactment as causalEnactment, normalizeEvents as normalizeCausalEvents };
-export function validateCausalSceneAction(action) {
+export function validateCausalSceneAction(action, { exactAddressedSpeech, hostDialogueSequence = false } = {}) {
   if (!exact(action, ['type', 'jobId', 'rawInput', 'intent', 'performance', 'document', 'questionKey', 'answerKey', 'roomLabelVersion',
     'worldVersion', 'ballots', 'decisionVersion', 'decisions', 'causalVersion', 'causalTimingVersion', 'itemPolicyVersion', 'caseActionTimingVersion', 'guardRules', 'performanceVersion']) || action.type !== 'scene' || action.causalVersion !== 1
     || action.decisionVersion !== 1 || !Array.isArray(action.decisions) || action.decisions.length > 3
     || !safe(action.rawInput, 2000) || ![action.jobId, action.questionKey, action.answerKey].every(id => safe(id, 128))
-    || !exact(action.performance, ['action', 'utterance', ...(action.performanceVersion === 2 ? ['reflection'] : [])]) || !safe(action.performance.action, 1200)
+    || !exact(action.performance, ['action', 'utterance', ...(action.performanceVersion === 2 ? ['reflection'] : [])])
+    || !safe(action.performance.action, 1200) && !(hostDialogueSequence && exactAddressedSpeech && action.performance.action === ''
+      && !Object.hasOwn(action.performance, 'reflection'))
     || (Object.hasOwn(action.performance, 'reflection') && (typeof action.performance.reflection !== 'string'
       || action.performance.reflection !== '' && !safe(action.performance.reflection, 1200)))
     || (Object.hasOwn(action, 'performanceVersion') && action.performanceVersion !== 2)
     || (action.performance.utterance && !safe(action.performance.utterance, 1400))
-    || !preservesEnactedPlayerSpeech(action.rawInput, action.performance.utterance, action.intent)
+    || !(typeof exactAddressedSpeech === 'string' && action.intent.type === 'conversation'
+      && action.intent.playerText === exactAddressedSpeech && action.performance.utterance === exactAddressedSpeech
+      && action.rawInput.includes(exactAddressedSpeech))
+      && !preservesEnactedPlayerSpeech(action.rawInput, action.performance.utterance, action.intent)
     || (action.intent?.operation === 'testimony' && parseTestimonyCommand(action.rawInput) !== action.intent.subjectId)
     || (action.roomLabelVersion !== undefined && action.roomLabelVersion !== 2)
     || (action.worldVersion !== undefined && action.worldVersion !== 1)

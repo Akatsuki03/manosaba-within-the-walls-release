@@ -5,7 +5,10 @@ import { PUBLICATION_RUNTIME_REVISION } from '../scenes/ordinary-publication31.m
 import { CAPACITY_RUNTIME_REVISION } from '../content/ordinary-capacity30.mjs';
 import { KNOWN_TARGET_RUNTIME_REVISION } from '../content/relationship-context-policy.mjs';
 import { supportsOpenPlayerAction } from './open-player-action.mjs';
-import { validateCommunicationPlan } from './communication-selection30.mjs';
+import { projectLocalSpeechCandidate, projectObservedOrientationCandidate, projectOrdinaryRoomShiftCandidate, validateCommunicationPlan, proveReadinessHostIntent, readinessApproachPlan, openOrientationHostPlan } from './communication-selection30.mjs';
+import { localConditionalWaitSource, localConditionalWaitPlan } from './player-address-resolution.mjs';
+import { localTravelAttemptSource, localTravelAttemptPlan } from './player-address-resolution.mjs';
+import { localSearchConversationDomain, localAmbientSpeechDomain, ordinaryLocalAmbientSpeechSource, localApproachDomain, ordinaryLocalApproachSource, observedOrientationSequenceDomain, localPointReplySequenceDomain, ordinaryDialogueSequence, ordinaryLocalSpeechSource, ordinaryRoomShiftSource } from './player-address-resolution.mjs';
 import { TRUSTED_COMMUNICATION_RUNTIME_REVISION } from '../content/relationship-context-policy.mjs';
 import {SOURCE_ACQUISITION_RUNTIME_REVISION} from '../content/relationship-context-policy.mjs';
 import {SCREEN_BROADCAST_RUNTIME_REVISION} from '../content/relationship-context-policy.mjs';
@@ -73,7 +76,7 @@ export function buildServiceTaskContext(input) {
   if (input.version === 5 || input.slot === SOFT_SLOT) return buildCooperativeRephraseContext(input);
   if (input.version === 4 || input.slot === INITIAL_BOUNDARY_REVIEW_SLOT) return buildInitialBoundaryReviewContext(input);
   record(input.data, [...dataFields, ...([6, 7].includes(input.version) ? ['ordinarySources', 'ordinarySourceSelection', 'acquisitionGuidance'] : []),
-    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
+    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion', 'ordinaryAddressVersion', 'roomGroupSpeechVersion', 'ordinaryDialogueSequenceVersion', 'ordinaryLocalApproachVersion', 'localReadinessHostIntentVersion', 'localTravelAttemptVersion', 'localConditionalWaitVersion', 'ordinaryLocalAmbientSpeechVersion', 'ordinaryLocalSearchConversationVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
   const relationship = relationshipContextPin(input).relationshipContextVersion === 1
     ? relationshipPacketPolicy(input, input.data.initialRunPolicy) : {};
   const soft = hasSoftRuntime(relationship.executionRevision?.revisionId);
@@ -85,10 +88,40 @@ export function buildServiceTaskContext(input) {
   record(input.scope, ['principalId', 'branchId', 'generation', 'revision']);
   if (input.scope.principalId !== WORLD_SERVICE_PRINCIPAL) fail();
   record(input.data, [...dataFields, ...([6, 7].includes(input.version) ? ['ordinarySources', 'ordinarySourceSelection', 'acquisitionGuidance'] : []),
-    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
+    ...(input.version === 7 ? ['authoredMagic', 'openActionVersion', 'ordinaryAddressVersion', 'roomGroupSpeechVersion', 'ordinaryDialogueSequenceVersion', 'ordinaryLocalApproachVersion', 'localReadinessHostIntentVersion', 'localTravelAttemptVersion', 'localConditionalWaitVersion', 'ordinaryLocalAmbientSpeechVersion', 'ordinaryLocalSearchConversationVersion'] : [])], ['viewpointActorId', 'rawInput', 'scene', 'contractVersion', 'dialogueContextVersion', 'initialRunPolicy']);
   if (input.data.contractVersion !== (admission ? 9 : soft ? 8 : intentPlan ? 5 : 4) || input.data.dialogueContextVersion !== 1) fail();
+  if (Object.hasOwn(input.data, 'ordinaryAddressVersion') && (![1, 2, 3].includes(input.data.ordinaryAddressVersion)
+    || relationship.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
   if (Object.hasOwn(input.data, 'openActionVersion') && (input.data.openActionVersion !== 1
     || !supportsOpenPlayerAction(relationship.executionRevision?.revisionId))) fail();
+  if (Object.hasOwn(input.data, 'roomGroupSpeechVersion') && (input.data.roomGroupSpeechVersion !== 1
+    || input.data.ordinaryAddressVersion !== 3 || relationship.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+  if (Object.hasOwn(input.data, 'ordinaryDialogueSequenceVersion') && (![1, 2, 3, 4, 5, 6, 7, 8].includes(input.data.ordinaryDialogueSequenceVersion)
+    || input.data.ordinaryAddressVersion !== 3 || relationship.executionRevision?.revisionId !== EVENT_DIRECTOR_RUNTIME_REVISION)) fail();
+  if (input.data.ordinaryDialogueSequenceVersion === 3 && (Object.hasOwn(input.data, 'roomGroupSpeechVersion')
+    || !ordinaryRoomShiftSource(input.data.rawInput, input.data.scene))) fail();
+  if (input.data.ordinaryDialogueSequenceVersion === 4 && (input.data.roomGroupSpeechVersion !== 1
+    || !ordinaryLocalSpeechSource(input.data.rawInput, input.data.scene))) fail();
+  if (input.data.ordinaryDialogueSequenceVersion === 5 && (Object.hasOwn(input.data, 'roomGroupSpeechVersion')
+    || !observedOrientationSequenceDomain(input.data.rawInput))) fail();
+  if (input.data.ordinaryDialogueSequenceVersion === 6 && (Object.hasOwn(input.data, 'roomGroupSpeechVersion')
+    || !localPointReplySequenceDomain(input.data.rawInput) || !ordinaryDialogueSequence(input.data.rawInput, input.data.scene, undefined, 6))) fail();
+  if ([7,8].includes(input.data.ordinaryDialogueSequenceVersion) && (input.version!==7 || input.data.roomGroupSpeechVersion!==undefined
+    || input.data.authoredMagic!==undefined || requiresInitialBoundaryReview(adjudicationPolicy(input.data))
+    || !ordinaryDialogueSequence(input.data.rawInput,input.data.scene,undefined,input.data.ordinaryDialogueSequenceVersion))) fail();
+  if (Object.hasOwn(input.data, 'ordinaryLocalApproachVersion') && (![1,2,3].includes(input.data.ordinaryLocalApproachVersion)
+    || input.data.ordinaryAddressVersion !== 3 || input.data.openActionVersion !== 1 || input.data.roomGroupSpeechVersion !== undefined
+    || input.data.ordinaryDialogueSequenceVersion !== 1 || !localApproachDomain(input.data.rawInput,input.data.ordinaryLocalApproachVersion)
+     || input.data.ordinaryLocalApproachVersion!==1 && !ordinaryLocalApproachSource(input.data.rawInput,input.data.scene,input.data.ordinaryLocalApproachVersion))) fail();
+  if (Object.hasOwn(input.data, 'ordinaryLocalSearchConversationVersion') && (input.data.ordinaryLocalSearchConversationVersion !== 1
+    || input.data.ordinaryAddressVersion !== 3 || input.data.openActionVersion !== 1 || input.data.roomGroupSpeechVersion !== undefined
+    || input.data.ordinaryLocalApproachVersion !== undefined || input.data.ordinaryLocalAmbientSpeechVersion !== undefined
+    || input.data.ordinaryDialogueSequenceVersion !== 1 || !localSearchConversationDomain(input.data.rawInput))) fail();
+  if (Object.hasOwn(input.data, 'ordinaryLocalAmbientSpeechVersion') && (![1,2,3,4].includes(input.data.ordinaryLocalAmbientSpeechVersion)
+    || input.data.ordinaryAddressVersion !== 3 || input.data.openActionVersion !== 1 || input.data.roomGroupSpeechVersion !== undefined
+    || input.data.ordinaryLocalApproachVersion !== undefined || input.data.ordinaryDialogueSequenceVersion !== 1
+    || !localAmbientSpeechDomain(input.data.rawInput,input.data.ordinaryLocalAmbientSpeechVersion)
+    || input.data.ordinaryLocalAmbientSpeechVersion!==1 && !ordinaryLocalAmbientSpeechSource(input.data.rawInput,input.data.scene,input.data.ordinaryLocalAmbientSpeechVersion))) fail();
   if (Object.hasOwn(input.data, 'authoredMagic') && !isAuthoredMagicContext(input.data.authoredMagic)) fail();
   if (typeof input.data.viewpointActorId !== 'string' || !input.data.viewpointActorId
     || typeof input.scope.branchId !== 'string' || !input.scope.branchId
@@ -99,6 +132,24 @@ export function buildServiceTaskContext(input) {
     || !Array.isArray(input.data.scene.nearby) || !Array.isArray(input.data.scene.adjacent))) fail();
   const policy = assertInitialRunPolicy(input.data.initialRunPolicy);
   validateRunBoundary(input.data, relationship.executionRevision?.revisionId);
+  if (input.data.ordinaryLocalAmbientSpeechVersion===4 && (!isHostBoundInitialIntent(input)
+    || input.data.authoredMagic!==undefined || requiresInitialBoundaryReview(adjudicationPolicy(input.data)))) fail();
+  if (Object.hasOwn(input.data,'localReadinessHostIntentVersion') && (!isHostBoundReadinessIntent(input)
+    || input.data.ordinaryLocalApproachVersion!==3 || requiresInitialBoundaryReview(adjudicationPolicy(input.data))
+    || !proveReadinessHostIntent(input.data))) fail();
+  if (Object.hasOwn(input.data,'localTravelAttemptVersion') && (input.version!==7 || ![1,2].includes(input.data.localTravelAttemptVersion)
+    || relationship.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION || input.data.ordinaryAddressVersion!==3
+    || input.data.openActionVersion!==1 || input.data.roomGroupSpeechVersion!==(input.data.localTravelAttemptVersion===1?1:undefined)
+    || input.data.ordinaryDialogueSequenceVersion!==undefined || input.data.ordinaryLocalApproachVersion!==undefined || input.data.ordinaryLocalAmbientSpeechVersion!==undefined
+    || input.data.ordinaryLocalSearchConversationVersion!==undefined || input.data.authoredMagic!==undefined
+    || requiresInitialBoundaryReview(adjudicationPolicy(input.data)) || !localTravelAttemptSource(input.data.rawInput,input.data.scene,input.data.localTravelAttemptVersion,input.data.viewpointActorId))) fail();
+  if (Object.hasOwn(input.data,'localConditionalWaitVersion') && (input.version!==7 || input.data.localConditionalWaitVersion!==1
+    || relationship.executionRevision?.revisionId!==EVENT_DIRECTOR_RUNTIME_REVISION || input.data.ordinaryAddressVersion!==3
+    || input.data.openActionVersion!==1 || input.data.roomGroupSpeechVersion!==undefined || input.data.ordinaryDialogueSequenceVersion!==undefined
+    || input.data.localTravelAttemptVersion!==undefined || input.data.ordinaryLocalApproachVersion!==undefined
+    || input.data.ordinaryLocalAmbientSpeechVersion!==undefined || input.data.ordinaryLocalSearchConversationVersion!==undefined
+    || input.data.authoredMagic!==undefined || requiresInitialBoundaryReview(adjudicationPolicy(input.data))
+    || !localConditionalWaitSource(input.data.rawInput,input.data.scene,input.data.viewpointActorId))) fail();
   if (policy === undefined || policy.version !== (relationship.relationshipContextVersion === 1 ? 2 : 1)) fail();
   if (soft) validateOrdinarySources(input.data.ordinarySources, relationship.executionRevision?.revisionId);
   if (hasSemanticOrdinaryRuntime(relationship.executionRevision))
@@ -124,9 +175,41 @@ export function buildServiceTaskContext(input) {
   return packet;
 }
 
+export const isHostBoundReadinessIntent = packet => packet?.version===7 && packet.role==='world_adjudicator'
+  && packet.slot==='intent' && packet.data?.localReadinessHostIntentVersion===1;
+export function hostBoundReadinessIntent(context) {
+  const packet=buildServiceTaskContext(context);
+  if (!isHostBoundReadinessIntent(packet)) fail();
+  return validateServiceTaskOutput(packet,readinessApproachPlan(proveReadinessHostIntent(packet.data)));
+}
+
+export const isHostBoundInitialIntent = packet => isHostBoundReadinessIntent(packet) || packet?.version===7
+  && packet.role==='world_adjudicator' && packet.slot==='intent'
+  && ([7,8].includes(packet.data?.ordinaryDialogueSequenceVersion) || packet.data?.ordinaryLocalAmbientSpeechVersion===4 || [1,2].includes(packet.data?.localTravelAttemptVersion) || packet.data?.localConditionalWaitVersion===1);
+function initialHostPlan(packet) {
+  if ([7,8].includes(packet.data.ordinaryDialogueSequenceVersion)) {
+    const {rawInput,scene,ordinaryDialogueSequenceVersion:version}=packet.data, proof=ordinaryDialogueSequence(rawInput,scene,undefined,version);
+    const summary=version===8 ? '回应当前同室的对话者，望向本地楼梯，再说出原提议。' : '向当前同室问话者回应，看向对方，再说出原提议。';
+    return {type:'plan',route:'steps',summary,activitySelection:{kind:'ordinary'},steps:[
+      {text:rawInput,condition:'always',intent:{type:'conversation',summary,targetId:proof.targetId,playerText:proof.parts[0].text}}]};
+  }
+  if (packet.data.localConditionalWaitVersion===1)
+    return localConditionalWaitPlan(localConditionalWaitSource(packet.data.rawInput,packet.data.scene,packet.data.viewpointActorId));
+  if ([1,2].includes(packet.data.localTravelAttemptVersion))
+    return localTravelAttemptPlan(localTravelAttemptSource(packet.data.rawInput,packet.data.scene,packet.data.localTravelAttemptVersion,packet.data.viewpointActorId));
+  return isHostBoundReadinessIntent(packet) ? readinessApproachPlan(proveReadinessHostIntent(packet.data))
+    : openOrientationHostPlan(ordinaryLocalAmbientSpeechSource(packet.data.rawInput,packet.data.scene,4));
+}
+export function hostBoundInitialIntent(context) {
+  const packet=buildServiceTaskContext(context);
+  if (!isHostBoundInitialIntent(packet)) fail();
+  return validateServiceTaskOutput(packet,initialHostPlan(packet));
+}
+
 export function validateServiceTaskOutput(context, candidate, scope = context.scope) {
   const packet = buildServiceTaskContext(context);
   if (!isDeepStrictEqual(packet.scope, scope)) fail('INVALID_AGENT_OUTPUT', Object.freeze({ rule: 'intent-service-scope' }));
+  if (isHostBoundInitialIntent(packet) && !isDeepStrictEqual(candidate,initialHostPlan(packet))) fail('INVALID_AGENT_OUTPUT');
   try {
     if (packet.version === 5) return validateCooperativeRephraseCandidate(candidate, packet.data);
     if (packet.version === 4) {
@@ -136,7 +219,8 @@ export function validateServiceTaskOutput(context, candidate, scope = context.sc
       validateInitialBoundaryAssessments(adjudicationPolicy(packet.data), candidate.assessments);
       return structuredClone(candidate);
     }
-    const output = packet.version === 7 ? validateCommunicationPlan(validateIntentAdmission(candidate, packet.data), packet.data)
+    const output = packet.version === 7 ? ([1,2].includes(packet.data.localTravelAttemptVersion) || packet.data.localConditionalWaitVersion===1) ? validateIntentAdmission(candidate,packet.data)
+        : validateCommunicationPlan(validateIntentAdmission(projectObservedOrientationCandidate(projectLocalSpeechCandidate(projectOrdinaryRoomShiftCandidate(candidate, packet.data), packet.data), packet.data), packet.data), packet.data)
       : [3, 6].includes(packet.version) ? validateIntentPlan(candidate, packet.data)
       : validateNarrativeOutput(intentContext(packet), candidate);
     if (Buffer.byteLength(JSON.stringify(output), 'utf8') > ([3, 6, 7].includes(packet.version) ? 16384 : 6000)) fail('INVALID_AGENT_OUTPUT', Object.freeze({ rule: 'intent-service-output-cap' }));

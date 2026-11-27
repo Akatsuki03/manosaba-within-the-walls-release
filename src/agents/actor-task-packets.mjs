@@ -1,4 +1,4 @@
-import { communicationSelection, isCommunicationRuntime } from './communication-selection30.mjs';
+import { communicationSelection, isCommunicationRuntime, ordinaryAddressRequiresVerbatim } from './communication-selection30.mjs';
 import { INTENT_RUNTIME_REVISION, CASE_BOUNDARY_RUNTIME_REVISION, hasIntentRuntime } from '../content/relationship-context-policy.mjs';
 import { assembleRagContext, assembleDecisionContext } from '../cognition/rag-context.mjs';
 import { RELATIONSHIP_CONTEXT_BUDGETS, isRelationshipRuntime, relationshipContextPin } from '../content/relationship-context-policy.mjs';
@@ -20,6 +20,8 @@ import { decisionActorInput, projectSocialRequests } from './agent-autonomy.mjs'
 import { runtimeRevisionForState } from '../content/content-revisions.mjs';
 import { deriveSituationalGoalTemplates } from '../cognition/decision-state.mjs';
 import { authoredMagicContext } from './authored-magic-intent.mjs';
+import { novelNarrationFocusTaskPin } from '../scenes/scene-event-policy.mjs';
+import { dialogueSequencePerformance } from './player-address-resolution.mjs';
 
 // Pure persona-boundary projection for the NPC magic decision packet. Policy 1
 // and 2 retain their historical literal replacements; policy 3 is captured only
@@ -97,11 +99,19 @@ export function playerPerformanceTaskData(state, plan, rawInput, intent, scene, 
   const playerId = createdPlayerId(state), player = actorForState(state, playerId);
   const visual = ['look', 'inspect', 'examine'].includes(intent.type);
   const authoredMagic = authoredMagicContext(state, plan);
-  return { rawInput, intent, scene, ...(authoredMagic ? { authoredMagic } : {}),
+  const sequence = dialogueSequencePerformance(rawInput, scene, intent, plan.ordinaryDialogueSequenceVersion);
+  const deliveryInput = sequence?.rawInput ?? rawInput;
+  const addressPin = { ...([1, 2, 3].includes(plan.ordinaryAddressVersion) ? { ordinaryAddressVersion: plan.ordinaryAddressVersion } : {}),
+    ...(plan.roomGroupSpeechVersion === 1 && intent.speechScope === 'room' ? { roomGroupSpeechVersion: 1 } : {}),
+     ...([1,2,3].includes(plan.ordinaryLocalApproachVersion) ? { ordinaryLocalApproachVersion: plan.ordinaryLocalApproachVersion } : {}),
+     ...(plan.localApproachHostPerformanceVersion === 1 ? { localApproachHostPerformanceVersion: 1 } : {}),
+     ...([1,2,3,4].includes(plan.ordinaryLocalAmbientSpeechVersion) ? { ordinaryLocalAmbientSpeechVersion: plan.ordinaryLocalAmbientSpeechVersion } : {}),
+     ...(plan.ordinaryLocalSearchConversationVersion === 1 ? { ordinaryLocalSearchConversationVersion: 1 } : {}) };
+  return { rawInput: deliveryInput, intent, scene, ...addressPin, ...(sequence ?? {}), ...(authoredMagic ? { authoredMagic } : {}),
     ...(plan.openActionVersion === 1 && intent.type === 'act' ? { openActionVersion: 1 } : {}),
     ...([2, 3].includes(plan.visualPerformanceGuidanceVersion) && visual ? { visualPerformanceSystemVersion: 2 } : {}),
     ...(plan.visualPerformanceGuidanceVersion === 3 && intent.type === 'conversation' ? { conversationPerformanceSystemVersion: 1 } : {}),
-    ...(isCommunicationRuntime(plan) ? { communicationSelection: communicationSelection({ rawInput, intent, scene,
+    ...(isCommunicationRuntime(plan) ? { communicationSelection: communicationSelection({ rawInput: deliveryInput, intent, scene, ...addressPin, ...(sequence ?? {}),
       initialRunPolicy: plan.initialRunPolicy, scope: cognition.scope }) } : {}),
     persona: isKnowledgeGated(state) ? { ...player.persona, appearance: runtimePhysicalActor(state, playerId).appearance } : player.persona,
     guidance: playerPerformanceGuidance(playerId, { ...dialogueContextPin(plan), custom: isCreatedCustom(state),
@@ -238,7 +248,11 @@ export function finalizeActorTaskPacket(task, plan, { playerId, addressState } =
   if (plan.initialRunPolicy !== undefined && ['intent_parser', 'player_performance', 'narrator', 'scene_composer', 'world_adjudicator'].includes(task.role)) {
     task.context = { ...task.context, data: { ...task.context.data, initialRunPolicy: assertInitialRunPolicy(plan.initialRunPolicy) } };
   }
-  if (task.role === 'player_performance' && chosenPlayerSpeech(task.context.data)) {
+  const narrationFocus = novelNarrationFocusTaskPin(plan, task);
+  if (narrationFocus.novelNarrationFocusVersion === 1)
+    task.context = { ...task.context, data: { ...task.context.data, ...narrationFocus } };
+  if (task.role === 'player_performance' && chosenPlayerSpeech(task.context.data)
+    && !ordinaryAddressRequiresVerbatim(task.context.data, task.context.scope)) {
     task.context = { ...task.context, data: { ...task.context.data, playerSpeechVoiceVersion: 1 } };
   }
   if (task.role === 'roleplay' && task.context.allowedActions.some(action => ['gesture', 'speak', 'write'].includes(action))) {

@@ -1,5 +1,26 @@
 import { ATOMIC_PLAN_RUNTIME_REVISION } from '../content/relationship-context-policy.mjs';
 import { EVENT_DIRECTOR_RUNTIME_REVISION } from '../director/director-event-runtime.mjs';
+import { projectActionOutcome } from '../world/action-outcome.mjs';
+
+// This is a whole-utterance admission for an explicit first-person thought,
+// not a recovery default for an unknown action. Leave uncertain splits, quotes,
+// conditions, recollections and independent actions to ordinary interpretation.
+export function currentPrivateReflection(rawInput) {
+  if (typeof rawInput !== 'string' || rawInput.length > 1200 || /\p{Cc}/u.test(rawInput)) return undefined;
+  const match = /^我(?:\s*心想|\s*(?:在)?(?:心里|心裡|心中|内心|內心)\s*(?:想(?:着|著)?|琢磨(?:着|著)?|盘算(?:着)?|盤算(?:著)?|寻思(?:着)?|尋思(?:著)?))\s*[：:]?\s*([^\s，,；;。！？!?：:「」『』“”"<>\p{Cc}][^，,；;。！？!?：:「」『』“”"<>\p{Cc}]*?)[。！？!?]?$/u.exec(rawInput.trim());
+  if (!match || /^(?:起|过|過|象|像|了|好|清楚|明白|出[来來]|[着著]$)/u.test(match[1])
+    || /(?:然后|然後|随后|隨後|接着|接著|接下来|接下來|于是|於是|順手|顺手|并|並|同时|同時|一边|一邊|转身|轉身|而[且後后]|但|可是|却|卻|就(?:朝|向|伸|说|說|挥|揮|走)|我(?:对|對|向|朝|说|說|写|寫|走|抬|挥|揮|拿|推|伸|转|轉))/u.test(match[1])) return undefined;
+  return match[1].trim();
+}
+
+export function hostPrivateReflectionAction(row, plan) {
+  return { type: 'scene', privateReflectionVersion: 1, jobId: row.job_id, rawInput: row.text,
+    intent: { type: 'reflect' }, performanceVersion: 2, causalVersion: 1, sceneBeatVersion: 1,
+    ...(plan.guardRules ? { guardRules: structuredClone(plan.guardRules) } : {}),
+    actionOutcome: projectActionOutcome({ version: 1, phase: 'committed', steps: [{
+      index: 0, status: 'completed', code: 'completed', eventIds: ['event-1'],
+    }] }) };
+}
 
 export const supportsOpenPlayerAction = revision => [ATOMIC_PLAN_RUNTIME_REVISION, EVENT_DIRECTOR_RUNTIME_REVISION].includes(revision);
 
