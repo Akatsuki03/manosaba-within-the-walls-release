@@ -42,14 +42,16 @@ function guardState(view) {
   const pending = own(guard, 'pending'); const resolution = own(guard, 'resolution');
   return { pending: identifier(own(pending, 'id')) && identifier(own(pending, 'opportunityId'))
     && integer(own(pending, 'entryIndex')) && own(pending, 'entryIndex') >= 0
-    ? { id: own(pending, 'id'), opportunityId: own(pending, 'opportunityId'), label: text(own(pending, 'label'), 160), entryIndex: own(pending, 'entryIndex') } : undefined,
+    ? { id: own(pending, 'id'), opportunityId: own(pending, 'opportunityId'), label: text(own(pending, 'label'), 160), entryIndex: own(pending, 'entryIndex'),
+      canSurrender: own(pending, 'canSurrender') === true } : undefined,
   resolution: identifier(own(resolution, 'encounterId')) && integer(own(resolution, 'entryIndex')) && own(resolution, 'entryIndex') >= 0
     && resultRow(own(resolution, 'result')) ? { encounterId: own(resolution, 'encounterId'), entryIndex: own(resolution, 'entryIndex'), result: resultRow(own(resolution, 'result')) } : undefined };
 }
 
 /** Native, mandatory guard-reaction dialog; the historical export is retained.
- * Reads only GET /api/dice and GET /api/view. A roll is one explicit, whitelisted
- * opportunity command. Its committed view is held until the reader continues.
+ * Reads GET /api/dice and GET /api/view. A roll is one explicit, whitelisted
+ * opportunity command. Voluntarily yielding sends the player's original action
+ * rather than rolling. Any committed view is held until the reader continues.
  */
 export function mountDicePanel(rootOrDocument, {
   request, getView = () => undefined, canRoll = () => true, isStoryReady = () => true, isGameVisible = () => true,
@@ -60,6 +62,7 @@ export function mountDicePanel(rootOrDocument, {
   const inert = { sync() {}, setBusy() {}, setActive() {}, holdView() {}, isResolutionSeen: () => false, active: false, holding: false };
   if (!root || !document || typeof request !== 'function') return inert;
   let gameView; let snapshot; let attemptedHead; let selectedId; let pendingRequest; let heldView; let lastResult;
+  let pendingSurrender;
   let active = false; let externalBusy = false; let inFlight = false; let reportedBusy = false; let status = ''; let closing = false; let suspended = false;
   let animating = false; let animation; let sequence = 0; let syncing = false;
   const seen = new Set(); const optionButtons = [];
@@ -94,7 +97,15 @@ export function mountDicePanel(rootOrDocument, {
   const recovery = element('div', undefined, 'dice-recovery'); recovery.append(refresh, retry);
   const exits = element('div', undefined, 'dice-exits'); const titleExit = button('返回标题', 'dice-exit-title'); const loadExit = button('读取存档', 'dice-exit-load'); exits.append(titleExit, loadExit);
   const note = element('p', '退出不会撤销检定；回到同一世界仍须完成。连接中断时不会自动重投。', 'dice-help dice-save-help');
-  frame.append(kicker, title, help, options, details, roll, rollHint, result, feedback, next, recovery, exits, note);
+  const surrender = element('details', undefined, 'dice-surrender'); surrender.id = 'dice-surrender'; surrender.hidden = true;
+  const surrenderSummary = element('summary', '不躲闪，接受看守处置');
+  const surrenderHelp = element('p', '写下此刻的行动或原话。若明确接受抓捕，将直接进入禁闭，不掷骰。'); surrenderHelp.id = 'guard-surrender-help';
+  const surrenderLabel = element('label', '我的行动或原话'); surrenderLabel.setAttribute('for', 'guard-surrender-text');
+  const surrenderText = element('textarea'); surrenderText.id = 'guard-surrender-text'; surrenderText.rows = 3; surrenderText.maxLength = 2000;
+  surrenderText.setAttribute('aria-describedby', 'guard-surrender-help dice-status');
+  const surrenderSend = button('提交原话，不掷骰', 'guard-surrender-send');
+  surrender.append(surrenderSummary, surrenderHelp, surrenderLabel, surrenderText, surrenderSend);
+  frame.append(kicker, title, help, options, details, roll, rollHint, surrender, result, feedback, next, recovery, exits, note);
   root.classList.add('dice-dialog'); root.setAttribute('aria-labelledby', 'dice-title'); root.setAttribute('aria-describedby', 'dice-help'); root.setAttribute('closedby', 'none'); root.replaceChildren(frame);
   const currentView = () => gameView || getView();
   const seenKey = view => {
@@ -117,7 +128,11 @@ export function mountDicePanel(rootOrDocument, {
     if (value !== reportedBusy) { reportedBusy = value; onBusyChange(value); }
   }
   function paintLocks() {
-    const blocked = !visible() || !allowed() || inFlight || !!pendingRequest || !!lastResult;
+    const canYield = guard().pending?.canSurrender === true && !heldView && !lastResult;
+    surrender.hidden = !canYield;
+    surrenderText.disabled = !canYield || !visible() || !allowed() || inFlight || !!pendingRequest || !!pendingSurrender;
+    surrenderSend.disabled = surrenderText.disabled || !surrenderText.value?.trim();
+    const blocked = !visible() || !allowed() || inFlight || !!pendingRequest || !!pendingSurrender || !!lastResult;
     for (const node of optionButtons) node.disabled = blocked;
     roll.disabled = blocked || !matchingHead() || !snapshot?.available || !selection();
     roll.setAttribute('aria-label', lastResult ? `d20 点数 ${lastResult.die}` : inFlight ? '正在等待宿主结果' : selection() ? `掷 d20：${selection().label}` : '请先选择应对方案');
@@ -202,8 +217,13 @@ export function mountDicePanel(rootOrDocument, {
         if (key !== headKey(currentView())) return;
         if (!headKey(latest) || compare(latest, start) < 0 || compare(latest, data) < 0) throw new Error('Stale world');
         const resolved = guardState(latest).resolution;
-        if (resolved) { showResult(latest, resolved.result); return; }
+        if (resolved) { pendingSurrender = undefined; showResult(latest, resolved.result); return; }
+        if (pendingSurrender && !guardState(latest).pending && latest.generation === start.generation
+          && own(own(own(latest,'guardReaction'),'detention'),'status') === 'detained') {
+          completeSurrender(latest,'世界已进入禁闭，点击继续查看已保存的状态。'); return;
+        }
         if (latest.generation !== start.generation || !guardState(latest).pending) {
+          pendingSurrender = undefined; surrenderText.value = ''; surrender.open = false;
           pendingRequest = undefined; lastResult = undefined; holdView(latest);
           status = '当前机会已在其他窗口处理或世界已切换。核对完成，点击继续同步最新世界。';
           paintLocks(); return;
@@ -215,7 +235,8 @@ export function mountDicePanel(rootOrDocument, {
         }
       }
       snapshot = data;
-      status = pendingRequest ? '原请求结果仍未知；可手动续接同一请求编号，不会新建或自动重投。'
+      status = pendingSurrender ? '原话是否结算仍未确认；不会自动重发。可继续核对最新世界。'
+        : pendingRequest ? '原请求结果仍未知；可手动续接同一请求编号，不会新建或自动重投。'
         : data.available && opportunity() ? '选择应对方案，然后点击 d20。' : '当前机会不可用；请手动核对最新世界，或读取存档。';
       paint();
     } catch {
@@ -252,12 +273,44 @@ export function mountDicePanel(rootOrDocument, {
       if (active && heldView && !animating) next.focus?.({ preventScroll: true });
     }
   }
+  function completeSurrender(view, message) {
+    pendingSurrender = undefined; pendingRequest = undefined; selectedId = undefined;
+    surrenderText.value = ''; surrender.open = false; holdView(view);
+    status = message; paint();
+  }
+  async function submitSurrender() {
+    const start = currentView(), offer = guard().pending, key = headKey(start), raw = surrenderText.value;
+    if (surrenderSend.disabled || inFlight || !visible() || !allowed() || !offer?.canSurrender || !key || !raw?.trim() || raw.length > 2000) return;
+    const token = document.defaultView?.crypto || globalThis.crypto;
+    if (typeof token?.randomUUID !== 'function') { status = '尚未提交：生成请求编号失败。'; paintLocks(); return; }
+    const attempt = { key, payload: { text: raw, requestId: token.randomUUID(), expectedGeneration: start.generation, expectedRevision: start.revision } };
+    pendingSurrender = attempt; inFlight = true; status = '正在提交原话，不掷骰…'; paintLocks(); reportBusy();
+    try {
+      const response = await request('/api/act', { ...attempt.payload });
+      if (pendingSurrender !== attempt || headKey(currentView()) !== key) return;
+      const view = own(response,'view'), guard = own(view,'guardReaction');
+      if (own(response,'accepted') !== true) {
+        pendingSurrender = undefined;
+        status = '原话未结算。' + (text(own(response,'message'),300) || '请核对你的选择。');
+        return;
+      }
+      if (own(response,'requestId') !== attempt.payload.requestId || view?.generation !== start.generation
+        || view?.revision !== start.revision + 1 || own(guard,'pending') !== null || own(own(guard,'detention'),'status') !== 'detained') throw Error('Unconfirmed surrender');
+      completeSurrender(view,'已接受看守处置，未掷骰。点击继续查看后续。');
+    } catch {
+      if (pendingSurrender === attempt) status = '原话是否结算尚未确认。请核对最新世界；不会自动重发。';
+    } finally {
+      inFlight = false; paintLocks(); reportBusy(); sync();
+      if (active && heldView) next.focus?.({ preventScroll: true });
+    }
+  }
   function sync(view = getView()) {
     if (syncing) return; syncing = true;
     try {
       if (view && (!gameView || compare(view, gameView) >= 0)) {
         if (gameView && view.generation !== gameView.generation) {
-          pendingRequest = heldView = lastResult = snapshot = undefined; attemptedHead = undefined; selectedId = undefined;
+          pendingRequest = heldView = lastResult = snapshot = pendingSurrender = undefined; attemptedHead = undefined; selectedId = undefined;
+          surrenderText.value = ''; surrender.open = false;
           suspended = false; sequence++; animation?.cancel?.(); animating = false; if (active) closeDialog();
         }
         gameView = view;
@@ -276,12 +329,14 @@ export function mountDicePanel(rootOrDocument, {
       mode: 'opportunity', opportunityId: opportunity().id, optionId: selection().id }, checked: false, rejected: false };
     void sendPending();
   });
+  surrenderText.addEventListener('input', paintLocks);
+  surrenderSend.addEventListener('click', () => { void submitSurrender(); });
   refresh.addEventListener('click', () => { if (!refresh.disabled) void load({ reconcile: true }); });
   retry.addEventListener('click', () => { if (!retry.disabled && pendingRequest?.checked && !pendingRequest.rejected) void sendPending(); });
   next.addEventListener('click', () => {
     if (next.disabled || !heldView) return;
     const view = heldView; const key = seenKey(view); if (key) { seen.add(key); try { document.defaultView?.sessionStorage?.setItem(key, '1'); } catch { /* Memory remains authoritative for this page. */ } }
-    heldView = lastResult = pendingRequest = undefined; snapshot = undefined; status = ''; closeDialog();
+    heldView = lastResult = pendingRequest = pendingSurrender = undefined; snapshot = undefined; status = ''; closeDialog();
     onContinue(view); sync(view);
   });
   function exit(target) {
@@ -299,6 +354,6 @@ export function mountDicePanel(rootOrDocument, {
   return { sync, holdView, isResolutionSeen,
     setBusy(value) { const changed = externalBusy !== (value === true); externalBusy = value === true; paintLocks(); if (changed && !externalBusy) sync(); },
     setActive(value) { if (value === true) { suspended = false; sync(); } },
-    get active() { return active; }, get holding() { return !!heldView || !!lastResult || !!pendingRequest; },
+    get active() { return active; }, get holding() { return !!heldView || !!lastResult || !!pendingRequest || !!pendingSurrender; },
   };
 }

@@ -1538,6 +1538,12 @@ button:disabled {
 .dice-dialog button:disabled:not(.dice-orb) { opacity: .48; cursor: not-allowed; }
 .dice-dialog button:focus-visible, .guard-rules-open:focus-visible { outline: 3px solid #ffe2a1; outline-offset: 5px; }
 .dice-roll-hint { font-size: 12px; letter-spacing: .14em; color: #c8b787; }
+.dice-surrender { max-width: 460px; margin: 16px auto 4px; text-align: start; color: #f4eadd; border-top: 1px solid #796742; }
+.dice-surrender summary { min-height: 44px; padding: 10px 4px; cursor: pointer; }
+.dice-surrender p { font-size: 12px; line-height: 1.6; }
+.dice-surrender label { display: block; margin-bottom: 6px; font-size: 13px; }
+.dice-surrender textarea { display: block; width: 100%; max-width: 100%; text-align: start; padding: 8px 10px; resize: vertical; min-height: 66px; margin-bottom: 10px; border: 1px solid #8f7a51; background: #171d24; color: inherit; font: inherit; }
+.dice-surrender summary:focus-visible, .dice-surrender textarea:focus-visible { outline: 2px solid #ffe2a1; outline-offset: 2px; }
 .dice-result { margin: 17px 0; }
 .dice-result strong { display: block; font-size: clamp(24px, 5vw, 32px); font-weight: 500; letter-spacing: .08em; }
 .dice-breakdown { font-size: 13px; color: #d4c5a6; }

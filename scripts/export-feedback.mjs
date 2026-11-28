@@ -45,7 +45,7 @@ async function buildIdentity() {
   const result = { node: process.versions.node, platform: process.platform, arch: process.arch };
   try {
     const version = JSON.parse(await readLog(join(root, 'package.json'))).version;
-    if (typeof version === 'string' && /^\d{1,6}(?:\.\d{1,6}){2}(?:-hotfix)?$/u.test(version)) result.productVersion = version;
+    if (typeof version === 'string' && /^\d{1,6}(?:\.\d{1,6}){2}(?:-hotfix(?:[1-9]\d{0,5})?)?$/u.test(version)) result.productVersion = version;
   } catch { /* The operation records still identify the failure. */ }
   // Hash the installed manifest, not the profile, and never export its contents.
   try {

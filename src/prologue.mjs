@@ -53,7 +53,7 @@ import { DiceStore } from './world/dice-store.mjs';
 import { DICE_RULES, diceAbilities, diceCharacter, validateDiceRollInput, diceFailure } from './world/dice-core.mjs';
 import { REACTION_RULES } from './world/dice-reaction.mjs';
 import { GUARD_RULES, GUARD_FINGERPRINT } from './world/guard-rules.mjs';
-import { guardEnabled, guardView, guardOpportunity, guardDiceNarrationVersion, localDetentionAction } from './world/guard-reaction.mjs';
+import { guardEnabled, guardView, guardOpportunity, guardDiceNarrationVersion, localDetentionAction, guardSurrenderAction, guardSurrenderAvailable } from './world/guard-reaction.mjs';
 import { ABILITY_FINGERPRINT, abilityRuleReference, approvedSpatialCreation } from './world/magic/ability-definitions.mjs';
 import { approvedSpatialActivation, MagicRepository, settleOwnedSelfFloat } from './world/magic/ability-runtime.mjs';
 import { assertApprovedBodyFactorPolicy } from './world/magic/magic-binding-policy.mjs';
@@ -140,7 +140,8 @@ const guardHostCaption = action => action?.type === 'case_item_policy_activate' 
   : action?.type === 'guard_magic_rules_activate' ? ABILITY_ACTIVATION_TEXT
   : action?.type === 'guard_dice_resolution' ? GUARD_RESOLUTION_TEXT
     : action?.type === 'guard_detention_wait' ? GUARD_WAIT_TEXT : action?.type === 'guard_release' ? GUARD_RELEASE_TEXT
-      : action?.type === 'guard_detention_local' && [1, 2, 3].includes(action.version) ? action.rawInput : undefined;
+      : action?.type === 'guard_surrender' && action.version===1
+        || action?.type === 'guard_detention_local' && [1, 2, 3, 4].includes(action.version) ? action.rawInput : undefined;
 const guardRulePin = state => guardEnabled(state) ? { guardRules: { ref: GUARD_RULES.ref, fingerprint: GUARD_FINGERPRINT } } : {};
 const guardSuggestions = state => {
   const view = guardView(state);
@@ -992,7 +993,7 @@ export class PrologueEngine {
       // rules) are not model narrative turns and have no agent job to validate.
       // Their exact shape is still checked by applyAgentAction, the same
       // guardHostCaption classification and the custom history guard.
-      if (action?.type === 'guard_detention_local') {
+      if (['guard_detention_local','guard_surrender'].includes(action?.type)) {
         if (!guardHostCaption(action) || row?.text !== guardHostCaption(action)) fail('INVALID_TURN', '宿主行动输入不一致。');
       } else if(!guardActivation(action))this.#agentJobs.assertNarrativeAction(action);
       // A pending custom action has no committed endpoint yet, so it cannot use
@@ -1394,6 +1395,7 @@ export class PrologueEngine {
     const playView = state.exampleId === 'agent'
       ? agentPlayView(runtimeItemProjection(sceneMagic ? { ...state, magic: sceneMagic } : state)) : undefined;
     const reaction = state.exampleId === 'agent' ? guardView(state) : undefined;
+    if (reaction?.pending && guardSurrenderAvailable(state)) reaction.pending.canSurrender=true;
     if (reaction?.resolution) {
       const index = state.agentActions.findLastIndex(action => action.type === 'guard_dice_resolution'
         && action.encounterId === reaction.resolution.encounterId);
@@ -2111,6 +2113,18 @@ export class PrologueEngine {
       if (state.caseRuntime?.occupiedBody && !runtimeActive(state, createdPlayerId(state)))
         fail('INVALID_AGENT_STATE', '当前实际身体无法行动。');
       if (guardView(state)?.pending) {
+        const surrender = !existing && newAttemptOf===undefined && guardSurrenderAction(state,text);
+        if (surrender) {
+          if (this.#agentJobs.active(state.generation)?.base_revision===state.revision)
+            fail('INVALID_GUARD_PENDING','请先处理当前未决任务。');
+          const next=structuredClone(state);applyAgentAction(next,surrender);
+          const turnId=randomUUID();next.turnIds.push(turnId);
+          this.#insertTurn(turnId,text,state,next);
+          this.#write(next,'act',{action:{intentKey:`guard-surrender:${surrender.encounterId}`}});
+          const receipt=this.#agentReceipt(input,next,true,'');
+          this.#rememberAgentReceipt(input,next,receipt);
+          return {kind:'immediate',receipt};
+        }
         const receipt = this.#agentReceipt(input, state, false, '看守即将实施抓捕，请先处理当前掷骰判定。');
         this.#rememberAgentReceipt(input, state, receipt);
         return { kind: 'immediate', receipt };
@@ -5310,6 +5324,8 @@ export class PrologueEngine {
       if (state.revision !== request.expectedRevision) fail('STALE_REVISION', '剧情进度已经改变，未掷骰。');
       if (this.#agentJobs.getByRequest(request.requestId)
         || this.#db.prepare('SELECT 1 FROM prologue_requests WHERE request_id=?').get(request.requestId)) fail('IDEMPOTENCY_CONFLICT', '请求编号已用于剧情操作。');
+      if (request.mode === 'opportunity' && state.agentActions.some(action=>action.type==='guard_surrender'
+        && action.opportunityId===request.opportunityId)) diceFailure('INVALID_DICE_OPTION','该抓捕已由玩家主动接受拘捕结算，未掷骰。');
       if (request.mode === 'opportunity' && guardEnabled(state) && !guardView(state)?.pending) {
         const resolved = state.agentActions.findLast(action => action.type === 'guard_dice_resolution'
           && action.opportunityId === request.opportunityId);
